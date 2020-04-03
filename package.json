@@ -1,0 +1,16 @@
+{
+  "name": "@signal24/vue-foundation",
+  "version": "0.1.0",
+  "description": "Common components, directives, and helpers for Vue apps",
+  "main": "src/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "jquery": "^3.4.1",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "vue": "^2.6.11",
+    "vue-axios": "^2.1.5",
+    "vue-stash-nested": "fergusean/vue-stash-nested"
+  }
+}
