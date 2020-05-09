@@ -3,7 +3,8 @@ import $ from 'jquery';
 
 Vue.directive('disabled', {
     bind: fn,
-    update: fn
+    update: fn,
+    unbind: unbind
 });
 
 function fn(el, binding) {
@@ -16,4 +17,13 @@ function fn(el, binding) {
         $(el).attr('disabled', 'disabled')
     else
         $(el).removeAttr('disabled');
+}
+
+function unbind(el) {
+    if (el.tagName == 'LABEL') {
+        $(el).removeClass('disabled');
+        el = $(el).find('input')[0];
+    }
+    
+    $(el).removeAttr('disabled');
 }
