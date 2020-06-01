@@ -2,6 +2,10 @@ String.prototype.escapeHtml = function() {
     return this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+String.prototype.nl2br = function() {
+    return this.replace(/\n/g, '<br>');
+}
+
 // this isn't implemented in Vue filters because why would you ever turn something _into_ kebab case for user display?
 String.prototype.kebab = function() {
     return this.replace(/ /g, '-');

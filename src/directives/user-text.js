@@ -7,5 +7,5 @@ Vue.directive('user-text', {
 
 function fn(el, binding) {
     if (binding.value == binding.oldValue) return;
-    el.innerHTML = binding.value.escapeHtml().replace(/\n/g, '<br>');
+    el.innerHTML = binding.value.escapeHtml().nl2br();
 }

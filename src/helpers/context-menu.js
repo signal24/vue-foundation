@@ -24,7 +24,16 @@ Vue.prototype.$contextMenu = function(e, config) {
             $item.click(item.handler);
     });
 
-    $menu.css('left', e.clientX + 'px').css('top', e.clientY + 'px');
+    const dx = window.innerWidth - e.clientX;
+    const dy = window.innerHeight - e.clientY;
+    const menuHeight = $menu.outerHeight();
+    const menuWidth = $menu.outerWidth();
+
+    const left = dx < menuWidth ? e.clientX - menuWidth - 1 : e.clientX + 1;
+    const top = dy < menuHeight ? e.clientY - menuHeight - 1 : e.clientY + 1;
+
+    $menu.css('left', left + 'px')
+    $menu.css('top', top + 'px');
 
     config.onCreate && config.onCreate($menu[0]);
 

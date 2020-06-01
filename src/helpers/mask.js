@@ -4,14 +4,14 @@ import $ from 'jquery'
 /*///////////////////////////////////////////////
 Masking
 //////////////////////////////////////////////*/
-Vue.prototype.$mask = function() {
+Vue.prototype.$mask = function(message) {
     let $el = $(this.$el);
-    this.$maskEl($el.hasClass('modal') ? $el.find('.modal-inner') : this.$el);
+    this.$maskEl($el.hasClass('vf-overlay') ? $el.find('.vf-modal')[0] : this.$el, message);
 }
 
-Vue.prototype.$maskEl = function(el) {
+Vue.prototype.$maskEl = function(el, message) {
     if (this._currentMask) return;
-    this._currentMask = $('<div class="mask">').text('Please wait...').appendTo(el);
+    this._currentMask = $('<div class="mask">').text(message || 'Please wait...').appendTo(el);
 }
 
 Vue.prototype.$unmask = function() {
