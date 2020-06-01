@@ -7,7 +7,7 @@
         
         <template v-if="!this.isBare" slot="footer">
             <template v-if="shouldConfirm">
-                <button class="primary" @click="ok" v-autofocus>Confirm</button>
+                <button class="primary" :class="{ destructive: classes.includes('destructive') }" @click="ok" v-autofocus>Confirm</button>
                 <button class="default" @click="$dismiss()">Cancel</button>
             </template>
             <button v-else class="default" @click="ok" v-autofocus>OK</button>
@@ -59,9 +59,14 @@ Vue.prototype.$alert = async function(title, message) {
     return await this.$modal(classDef, { title, message });
 }
 
-Vue.prototype.$confirm = async function(title, message) {
-    const result = await this.$modal(classDef, { title, message, shouldConfirm: true });
+Vue.prototype.$confirm = async function(title, message, options) {
+    options = options || {};
+    const result = await this.$modal(classDef, { title, message, shouldConfirm: true, ...options });
     return !!result;
+}
+
+Vue.prototype.$confirmDestroy = async function(title, message) {
+    return await this.$confirm(title, message, { classes: ['destructive'] });
 }
 
 Vue.prototype.$wait = function(title, message) {
