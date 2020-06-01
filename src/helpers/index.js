@@ -5,3 +5,4 @@ import './http';
 import './mask';
 import './number';
 import './string';
+import './vue';
