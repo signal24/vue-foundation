@@ -48,14 +48,19 @@ export default {
         'url',
         'urlParams',
         'remoteSearch',
+        'searchFields',
         'placeholder',
+        'valueKey',
+        'idKey',
         'titleKey',
         'titleFormatter',
         'subtitleKey',
         'subtitleFormatter',
         'nullTitle',
         'noResultsText',
-        'disabled'
+        'disabled',
+        'optionsListId',
+        'debug'
     ],
 
     data() {
@@ -88,13 +93,7 @@ export default {
 
             if (this.isSearching) {
                 const strippedSearchText = this.searchText.trim().toLowerCase();
-
-                options = options.filter(option => {
-                    return (
-                        option.strippedTitle.includes(strippedSearchText) ||
-                        (option.subtitle && this.strippedSubtitle.includes(strippedSearchText))
-                    );
-                });
+                options = options.filter(option => option.searchContent.includes(strippedSearchText));
 
                 if (this.searchText.length) {
                     const escapedSearchText = this.searchText.escapeHtml().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -122,6 +121,10 @@ export default {
             return options;
         },
 
+        effectiveIdKey() {
+            return this.idKey || 'id';
+        },
+
         effectiveTitleKey() {
             return this.titleKey || 'name';
         },
@@ -135,15 +138,7 @@ export default {
         // props
 
         value() {
-            if (this.value) {
-                this.selectedOption = this.value;
-                this.selectedOptionTitle = this.getOptionTitle(this.selectedOption);
-                this.searchText = this.selectedOptionTitle;
-            } else {
-                this.selectedOption = null;
-                this.selectedOptionTitle = null;
-                this.searchText = null;
-            }
+            this.handleValueChanged();
         },
 
         options() {
@@ -164,15 +159,29 @@ export default {
             this.decoratedOptions = this.resolvedOptions.map((option, index) => {
                 const title = this.getOptionTitle(option);
                 const subtitle = this.getOptionSubtitle(option);
+                const strippedTitle = title ? title.text.trim().toLowerCase() : '';
+                const strippedSubtitle = subtitle ? subtitle.text.trim().toLowerCase() : '';
+
+                let searchContent = [];
+                if (this.searchFields) {
+                    this.searchFields.forEach(field => {
+                        option[field] && searchContent.push(String(option[field]).toLowerCase());
+                    });
+                } else {
+                    searchContent.push(strippedTitle);
+                    strippedSubtitle && searchContent.push(strippedSubtitle);
+                }
 
                 return {
-                    key: typeof option == 'object' ? option.id || index : option,
-                    title,
-                    subtitle,
-                    titleHtml: title?.escapeHtml(),
-                    subtitleHtml: subtitle?.escapeHtml(),
-                    strippedTitle: title ? title.trim().toLowerCase() : '',
-                    strippedSubtitle: subtitle ? subtitle.trim().toLowerCase() : ''
+                    key: typeof option == 'object' ? option[this.effectiveIdKey] || index : option,
+                    title: title.text,
+                    subtitle: subtitle?.text,
+                    titleHtml: title.html,
+                    subtitleHtml: subtitle?.html,
+                    strippedTitle: strippedTitle,
+                    strippedSubtitle: strippedSubtitle,
+                    searchContent: searchContent.join(''),
+                    ref: option
                 };
             });
 
@@ -184,7 +193,7 @@ export default {
         },
 
         selectedOption() {
-            this.$emit('input', this.selectedOption);
+            this.$emit('input', this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption);
         },
 
         shouldDisplayOptions() {
@@ -214,20 +223,15 @@ export default {
             this.performInitialLoad();
         }
 
-        if (this.value) {
-            this.selectedOption = this.value;
-            this.selectedOptionTitle = this.getOptionTitle(this.selectedOption);
-            this.searchText = this.selectedOptionTitle;
-        }
+        this.handleValueChanged();
     },
 
     methods: {
         async performInitialLoad() {
             await this.reloadOptions();
-            this.isLoaded = true;
 
             if (this.$isPropTruthy(this.remoteSearch)) {
-                this.$watch('searchText', debounce(this.loadOptions, 250));
+                this.$watch('searchText', debounce(this.reloadOptionsIfSearching, 250));
             }
         },
 
@@ -245,6 +249,11 @@ export default {
 
             const result = await this.$http.get(this.url, { params: params });
             this.resolvedOptions = result.data;
+            this.isLoaded = true;
+        },
+
+        reloadOptionsIfSearching() {
+            this.isSearching && this.reloadOptions();
         },
 
         handleKeyDown(e) {
@@ -253,7 +262,8 @@ export default {
             if (e.key == 'ArrowLeft' || e.key == 'ArrowRight') return;
 
             if (!this.isLoaded) {
-                return e.preventDefault();
+                this.isSearching || e.preventDefault();
+                return;
             }
 
             if (e.key == 'ArrowUp' || e.key == 'ArrowDown') {
@@ -283,13 +293,17 @@ export default {
         handleInputFocused() {
             if (this.selectedOption)
                 this.highlightedOptionKey =
-                    typeof this.selectedOption == 'object' ? this.selectedOption?.id : this.selectedOption;
+                    typeof this.selectedOption == 'object' && this.selectedOption !== null
+                        ? this.selectedOption[this.effectiveIdKey]
+                        : this.selectedOption;
             else if (this.nullTitle) this.highlightedOptionKey = nullSymbol;
 
             this.shouldDisplayOptions = true;
         },
 
         handleInputBlurred() {
+            if (this.$isPropTruthy(this.debug)) return;
+
             if (!this.searchText.length && this.nullTitle) {
                 this.selectedOption = null;
                 this.selectedOptionTitle = null;
@@ -301,6 +315,7 @@ export default {
         handleOptionsDisplayed() {
             this.isLoaded || this.$isPropTruthy(this.preload) || this.performInitialLoad();
             this.teleportOptionsContainer();
+            this.optionsListId && this.$refs.optionsContainer.setAttribute('id', this.optionsListId);
         },
 
         teleportOptionsContainer() {
@@ -384,22 +399,76 @@ export default {
                 );
                 const realOption = this.resolvedOptions[optionIndex];
                 this.selectedOption = realOption;
-                this.selectedOptionTitle = this.getOptionTitle(this.selectedOption);
-                this.searchText = this.selectedOptionTitle;
+                this.selectedOptionTitle = this.getOptionTitle(this.selectedOption).text;
+                this.searchText = this.selectedOptionTitle || '';
             }
 
             this.$refs.searchField.blur();
         },
 
+        handleValueChanged() {
+            if (this.value) {
+                if (this.valueKey) {
+                    this.selectedOption = this.resolvedOptions.find(option => option[this.valueKey] === this.value);
+                } else {
+                    this.selectedOption = this.value;
+                }
+
+                this.selectedOptionTitle = this.getOptionTitle(this.selectedOption).text;
+                this.searchText = this.selectedOptionTitle || '';
+            } else {
+                this.selectedOption = null;
+                this.selectedOptionTitle = null;
+                this.searchText = '';
+            }
+        },
+
         getOptionTitle(option) {
-            if (this.titleFormatter) return String(this.titleFormatter(option));
-            if (typeof option != 'object') return String(option);
-            return String(option[this.effectiveTitleKey]);
+            if (option === null) return null;
+
+            if (this.titleFormatter) {
+                const result = this.titleFormatter(option);
+                if (typeof result == 'object') {
+                    return {
+                        text: result.text || result.html.replace(/<[^>]+>/g, ''),
+                        html: result.html
+                    };
+                } else {
+                    return {
+                        text: result,
+                        html: result.escapeHtml()
+                    };
+                }
+            }
+
+            const text = String(typeof option != 'object' ? option : option[this.effectiveTitleKey]);
+            return { text, html: text.escapeHtml() };
         },
 
         getOptionSubtitle(option) {
-            if (this.subtitleFormatter) return String(this.subtitleFormatter(option));
-            return null;
+            if (option === null) return null;
+
+            if (this.subtitleFormatter) {
+                const result = this.subtitleFormatter(option);
+                if (!result) return null;
+                if (typeof result == 'object') {
+                    return {
+                        text: result.text || result.html.replace(/<[^>]+>/g, ''),
+                        html: result.html
+                    };
+                } else {
+                    return {
+                        text: result,
+                        html: result.escapeHtml()
+                    };
+                }
+            }
+
+            let text = typeof option != 'object' ? option : option[this.subtitleKey];
+            if (!text) return null;
+
+            text = String(text);
+            return { text, html: text.escapeHtml() };
         }
     }
 };
@@ -455,6 +524,7 @@ export default {
     border: 1px solid #e8e8e8;
     background: white;
     overflow: auto;
+    z-index: 101;
 
     .option,
     .no-results {
