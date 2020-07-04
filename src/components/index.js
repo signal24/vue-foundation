@@ -12,3 +12,6 @@ Alert;
 
 import Modal from './modal'
 Vue.component('Modal', Modal);
+
+import SmartSelect from './smart-select'
+Vue.component('SmartSelect', SmartSelect);
