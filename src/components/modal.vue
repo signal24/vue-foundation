@@ -54,8 +54,8 @@ import cloneDeep from 'lodash/cloneDeep';
 let modalConfigs = {};
 
 function bootModal(modalId) {
-    if (!this.constructor.options.name && this.constructor.extendOptions && this.constructor.extendOptions.__file) {
-        this.constructor.options.name = this.constructor.extendOptions.__file.replace(/^.*\//g, '').replace(/\.vue$/, '');
+    if (!this.constructor.options.__file && this.constructor.extendOptions && this.constructor.extendOptions.__file) {
+        this.constructor.options.__file = this.constructor.extendOptions.__file;
     }
 
     const config = modalConfigs[modalId];
