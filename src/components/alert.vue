@@ -18,7 +18,7 @@
 <script>
 import Vue from 'vue';
 
-let classDef = {
+const classDef = {
     data() {
         return {
             isBare: false,
@@ -55,18 +55,23 @@ let classDef = {
 
 export default classDef;
 
+async function launchModal(context, classDef, ...args) {
+    classDef = { ...classDef, __modalId: Math.random().toString(36).substring(2, 10) };
+    return await context.$modal.apply(context, [classDef, ...args]);
+};
+
 Vue.prototype.$alert = async function(title, message) {
-    return await this.$modal(classDef, { title, message });
+    return await launchModal(this, classDef, { title, message });
 }
 
 Vue.prototype.$confirm = async function(title, message, options) {
     options = options || {};
-    const result = await this.$modal(classDef, { title, message, shouldConfirm: true, ...options });
+    const result = await launchModal(this, classDef, { title, message, shouldConfirm: true, ...options });
     return !!result;
 }
 
 Vue.prototype.$confirmDestroy = async function(title, message) {
-    return await this.$confirm(title, message, { classes: ['destructive'] });
+    return await launchModal(this, title, message, { classes: ['destructive'] });
 }
 
 Vue.prototype.$wait = function(title, message) {
@@ -80,16 +85,16 @@ Vue.prototype.$wait = function(title, message) {
     
     let resolved = null;
     let promise = new Promise((resolve, reject) => {
-        this.$modal(classDef, { title, message, isBare: true, classes: ['wait'] }, resolve);
+        launchModal(this, classDef, { title, message, isBare: true, classes: ['wait'] }, resolve);
     })
     .then(inResolved => resolved = inResolved);
     
-    this.$endWait = () => {
+    this.$endWait = async () => {
         delete this.$endWait;
         if (resolved)
-            resolved.$dismiss();
+            await resolved.$dismiss();
         else
-            promise.then(() => resolved.$dismiss());
+            await promise.then(() => resolved.$dismiss());
     }
 
     return this.$endWait;

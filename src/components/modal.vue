@@ -82,22 +82,25 @@ function bootModal(modalId) {
     };
 
     this.$dismiss = (...args) => {
-        // setTimeout allows the form submission handler to run before the form is destroyed,
-        // in the event the submit button has a click handler. otherwise, the console will
-        // report "Form submission canceled because the form is not connected."
-        setTimeout(() => {
-            delete modalConfigs[modalId];
+        return new Promise(resolve => {
+            // setTimeout allows the form submission handler to run before the form is destroyed,
+            // in the event the submit button has a click handler. otherwise, the console will
+            // report "Form submission canceled because the form is not connected."
+            setTimeout(() => {
+                delete modalConfigs[modalId];
 
-            let rootInjections = Config.rootInstance.store.rootInjections;
-            
-            const rootInjection = rootInjections.find(injection => injection.__modalId === modalId);
-            if (!rootInjection) return;
+                let rootInjections = Config.rootInstance.store.rootInjections;
+                
+                const rootInjection = rootInjections.find(injection => injection.__modalId === modalId);
+                if (!rootInjection) return;
 
-            rootInjections.remove(rootInjection);
-            this.$nextTick(() => {
-                config.resolve.apply(this, args);
-            });
-        }, 0);
+                rootInjections.remove(rootInjection);
+                this.$nextTick(() => {
+                    config.resolve.apply(this, args);
+                    resolve();
+                });
+            }, 0);
+        });
     };
 
     config.instanceCreationCallback && config.instanceCreationCallback(this);
