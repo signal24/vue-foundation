@@ -103,17 +103,17 @@ Vue.prototype.$wait = function(title, message) {
 </script>
 
 <style lang="scss">
-.modal.alert {
-    .modal-inner {
+.vf-modal-wrap.alert {
+    .vf-modal {
         max-width: 800px;
         
-        > .content {
+        > .vf-modal-content {
             padding: 12px;
         }
     }
 
     &.wait {
-        > .modal-inner > .content {
+        .vf-modal-content {
             text-align: center;
         }
     }
