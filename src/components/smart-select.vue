@@ -192,10 +192,6 @@ export default {
             this.isSearching = this.isSearching || this.searchText !== this.selectedOptionTitle;
         },
 
-        selectedOption() {
-            this.$emit('input', this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption);
-        },
-
         shouldDisplayOptions() {
             if (this.shouldDisplayOptions) {
                 setTimeout(this.handleOptionsDisplayed, 0);
@@ -224,6 +220,10 @@ export default {
         }
 
         this.handleValueChanged();
+
+        this.$watch('selectedOption', () => {
+            this.$emit('input', this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption)
+        });
     },
 
     methods: {
