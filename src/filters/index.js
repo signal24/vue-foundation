@@ -27,6 +27,7 @@ Vue.filter('number', function(value) {
 });
 
 Vue.filter('phone', value => {
+    if (!value) return value;
     let cleanValue = value.replace(/[^0-9]/g, '').replace(/^1/, '');
     if (cleanValue.length != 10) return value;
     return '(' + cleanValue.substr(0, 3) + ') ' + cleanValue.substr(3, 3) + '-' + cleanValue.substr(6);

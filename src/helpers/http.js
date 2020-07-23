@@ -18,8 +18,8 @@ axios.interceptors.response.use(response => {
 err => {
     if (err.response && err.response.status == 401) {
         if (Config.unauthorizedHttpResponseHandler) {
-            Config.unauthorizedHttpResponseHandler(err.response);
-            return new Promise(() => {});
+            const result = Config.unauthorizedHttpResponseHandler(err.response);
+            if (!result) throw err;
         }
     }
     
