@@ -49,6 +49,6 @@ Vue.filter('unsnake', function(value) {
     return value ? value.unsnake() : null;
 });
 
-Vue.filter('us-currency', value => {
+Vue.filter('usCurrency', value => {
     return Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 });
