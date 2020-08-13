@@ -112,9 +112,7 @@ export default {
             if (this.nullTitle && !this.isSearching) {
                 options.unshift({
                     key: nullSymbol,
-                    title: this.nullTitle,
-                    strippedTitle: '',
-                    strippedSubtitle: ''
+                    titleHtml: this.nullTitle
                 });
             }
 
@@ -174,12 +172,8 @@ export default {
 
                 return {
                     key: typeof option == 'object' ? option[this.effectiveIdKey] || index : option,
-                    title: title.text,
-                    subtitle: subtitle?.text,
                     titleHtml: title.html,
                     subtitleHtml: subtitle?.html,
-                    strippedTitle: strippedTitle,
-                    strippedSubtitle: strippedSubtitle,
                     searchContent: searchContent.join(''),
                     ref: option
                 };
@@ -222,7 +216,7 @@ export default {
         this.handleValueChanged();
 
         this.$watch('selectedOption', () => {
-            this.$emit('input', this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption)
+            this.$emit('input', this.selectedOption && this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption);
         });
     },
 
@@ -260,6 +254,7 @@ export default {
             if (e.key == 'Escape') return e.target.blur();
 
             if (e.key == 'ArrowLeft' || e.key == 'ArrowRight') return;
+            if (e.key == 'Tab') return;
 
             if (!this.isLoaded) {
                 this.isSearching || e.preventDefault();

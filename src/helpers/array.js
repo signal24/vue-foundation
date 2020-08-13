@@ -27,3 +27,12 @@ Object.defineProperty(Array.prototype, 'last', {
         return this.length ? this[this.length - 1] : undefined;
     }
 });
+
+Object.defineProperty(Array.prototype, 'sortBy', {
+    enumerable: false,
+    value: function(key) {
+        this.sort((a, b) => {
+            return String(a[key]).toLowerCase().localeCompare(String(b[key]).toLowerCase());
+        });
+    }
+});

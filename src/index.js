@@ -13,7 +13,8 @@ import './plugins'
 export default {
     configure,
     getStore,
-    setRoot
+    setRoot,
+    getRoot
 };
 
 function configure(options) {
@@ -35,4 +36,8 @@ function getStore(data) {
 
 function setRoot(root) {
     Config.rootInstance = root;
+}
+
+function getRoot() {
+    return Config.rootInstance;
 }

@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import $ from 'jquery';
 
 Vue.directive('autofocus', {
     inserted: fn,

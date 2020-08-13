@@ -41,7 +41,10 @@ export default {
     methods: {
         handleEscapeKey(e) {
             if (e.key === 'Esc' || e.key === 'Escape') {
-                this.$parent.$dismiss();
+                const modalWraps = document.querySelectorAll('.vf-modal-wrap');
+                if (modalWraps[modalWraps.length - 1] === this.$el) {
+                    this.$parent.$dismiss();
+                }
             }
         }
     }
@@ -60,7 +63,10 @@ function bootModal(modalId) {
 
     const config = modalConfigs[modalId];
     
-    this.$opener = config.opener;
+    this.$modalOpener = config.opener;
+    this.$modalResult = undefined;
+    
+    this.$storeParent = this.$modalOpener;
 
     let originalDataFn = this.$options.data;
     this.$options.data = function() {
@@ -96,7 +102,7 @@ function bootModal(modalId) {
 
                 rootInjections.remove(rootInjection);
                 this.$nextTick(() => {
-                    config.resolve.apply(this, args);
+                    config.resolve.apply(this, args[0] !== undefined ? args : this.$modalResult);
                     resolve();
                 });
             }, 0);
