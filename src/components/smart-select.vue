@@ -25,7 +25,7 @@
                     @mousedown="selectOption(option)"
                 >
                     <div class="title" v-html="option.titleHtml" />
-                    <div v-if="option.subtitle" class="subtitle" v-html="option.subtitleHtml" />
+                    <div v-if="option.subtitleHtml" class="subtitle" v-html="option.subtitleHtml" />
                 </div>
                 <div v-if="!effectiveOptions.length && searchText" class="no-results">
                     {{ effectiveNoResultsText }}
