@@ -39,6 +39,7 @@
 import debounce from 'lodash/debounce';
 
 const nullSymbol = Symbol(null);
+const createSymbol = Symbol('create');
 
 export default {
     props: [
@@ -73,7 +74,8 @@ export default {
             selectedOption: null,
             selectedOptionTitle: null,
             shouldDisplayOptions: false,
-            highlightedOptionKey: null
+            highlightedOptionKey: null,
+            shouldShowCreateOption: false
         };
     },
 
@@ -93,9 +95,10 @@ export default {
 
             if (this.isSearching) {
                 const strippedSearchText = this.searchText.trim().toLowerCase();
-                options = options.filter(option => option.searchContent.includes(strippedSearchText));
 
-                if (this.searchText.length) {
+                if (strippedSearchText.length) {
+                    options = options.filter(option => option.searchContent.includes(strippedSearchText));
+
                     const escapedSearchText = this.searchText.escapeHtml().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
                     const searchRe = new RegExp(`(${escapedSearchText})`, 'ig');
 
@@ -106,10 +109,20 @@ export default {
                             option.subtitleHtml = option.subtitleHtml.replace(searchRe, '<mark>$1</mark>');
                         return option;
                     });
+
+                    if (this.shouldShowCreateOption) {
+                        const hasExactMatch = options.find(option => option.searchContent === strippedSearchText) !== undefined;
+                        if (!hasExactMatch) {
+                            options.push({
+                                key: createSymbol,
+                                titleHtml: 'Create <strong>' + this.searchText.trim() + '</strong>...'
+                            });
+                        }
+                    }
                 }
             }
 
-            if (this.nullTitle && !this.isSearching) {
+            else if (this.nullTitle) {
                 options.unshift({
                     key: nullSymbol,
                     titleHtml: this.nullTitle
@@ -183,7 +196,7 @@ export default {
         },
 
         searchText() {
-            this.isSearching = this.isSearching || this.searchText !== this.selectedOptionTitle;
+            if (this.isSearching && !this.searchText.trim().length) this.isSearching = false;
         },
 
         shouldDisplayOptions() {
@@ -206,6 +219,8 @@ export default {
     },
 
     async mounted() {
+        this.shouldShowCreateOption = this.$listeners['create-item'] !== undefined;
+
         if (this.options) {
             this.resolvedOptions = this.options;
             this.isLoaded = true;
@@ -251,7 +266,11 @@ export default {
         },
 
         handleKeyDown(e) {
-            if (e.key == 'Escape') return e.target.blur();
+            if (e.key == 'Escape') {
+                e.stopPropagation();
+                e.target.blur();
+                return;
+            }
 
             if (e.key == 'ArrowLeft' || e.key == 'ArrowRight') return;
             if (e.key == 'Tab') return;
@@ -282,6 +301,10 @@ export default {
                 e.preventDefault();
                 const highlightedOption = this.effectiveOptions.find(option => option.key == this.highlightedOptionKey);
                 if (highlightedOption) return this.selectOption(highlightedOption);
+            }
+
+            if (!e.metaKey && e.keyCode >= 32 && e.keyCode <= 126) {
+                this.isSearching = true;
             }
         },
 
@@ -388,6 +411,12 @@ export default {
                 this.searchText = '';
                 this.selectedOption = null;
                 this.selectedOptionTitle = null;
+            } else if (option.key === createSymbol) {
+                const createText = this.searchText.trim();
+                this.searchText = '';
+                this.selectOption = null;
+                this.selectedOptionTitle = null;
+                this.$emit('create-item', createText);
             } else {
                 const optionIndex = this.decoratedOptions.findIndex(
                     decoratedOption => decoratedOption.key == option.key
