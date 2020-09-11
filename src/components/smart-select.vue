@@ -414,7 +414,7 @@ export default {
             } else if (option.key === createSymbol) {
                 const createText = this.searchText.trim();
                 this.searchText = '';
-                this.selectOption = null;
+                this.selectedOption = null;
                 this.selectedOptionTitle = null;
                 this.$emit('create-item', createText);
             } else {
