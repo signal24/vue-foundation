@@ -41,6 +41,8 @@ import debounce from 'lodash/debounce';
 const nullSymbol = Symbol(null);
 const createSymbol = Symbol('create');
 
+const VALID_KEYS = `\`1234567890-=[]\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM`;
+
 export default {
     props: [
         'value',
@@ -303,7 +305,12 @@ export default {
                 if (highlightedOption) return this.selectOption(highlightedOption);
             }
 
-            if (!e.metaKey && e.keyCode >= 32 && e.keyCode <= 126) {
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (this.searchText.length > 1) this.isSearching = true;
+                return;
+            }
+
+            if (!e.metaKey && VALID_KEYS.includes(e.key)) {
                 this.isSearching = true;
             }
         },
@@ -493,6 +500,10 @@ export default {
 
             text = String(text);
             return { text, html: text.escapeHtml() };
+        },
+
+        addRemoteOption(option) {
+            this.resolvedOptions.push(option);
         }
     }
 };
