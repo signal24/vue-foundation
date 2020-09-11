@@ -22,15 +22,22 @@ Vue.prototype.$unmask = function() {
 
 Vue.prototype.$maskForm = function(waitButton, waitText) {
     let el = this.$el;
-    if (waitButton.tagName == 'FORM') {
+
+    if (waitButton !== undefined && waitButton.tagName == 'FORM') {
         el = waitButton;
-        waitButton = null;
+        waitButton = undefined;
     }
+
     let $form = el.tagName == 'FORM' ? $(el) : $(el).find('form');
     let $inputs = $form.find('input, select, textarea, button').not('[disabled]');
     $form.addClass('masked');
     $form.data('vf-masked-inputs', $inputs);
     $inputs.attr('disabled', 'disabled');
+
+    if (waitButton === undefined) {
+        waitButton = $form.find('button:first');
+    }
+
     if (waitButton) {
         let $waitButton = $form.find(waitButton);
         $waitButton.disable(waitText || 'Please wait...');
