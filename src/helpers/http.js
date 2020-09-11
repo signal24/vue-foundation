@@ -1,8 +1,14 @@
 import Vue from 'vue';
 
 import axios from 'axios';
-import VueAxios from 'vue-axios' ;
-Vue.use(VueAxios, axios)
+import VueAxios from 'vue-axios';
+Vue.use(VueAxios, axios);
+
+Vue.prototype.$http.postOrPut = (baseUrl, id, ...args) => {
+    const method = id ? 'put' : 'post';
+    const url = id ? `${baseUrl}/${id}` : baseUrl;
+    return Vue.prototype.$http[method](url, ...args);
+};
 
 import Config from '../config';
 
