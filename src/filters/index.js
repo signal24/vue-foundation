@@ -50,5 +50,5 @@ Vue.filter('unsnake', function(value) {
 });
 
 Vue.filter('usCurrency', value => {
-    return Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return Number(value).toFixed(3).replace(/0$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 });
