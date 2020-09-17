@@ -35,6 +35,13 @@ Object.defineProperty(Array.prototype, 'intersect', {
     }
 });
 
+Object.defineProperty(Array.prototype, 'unique', {
+    enumerable: false,
+    value: function() {
+        return [...new Set(this)]
+    }
+});
+
 Object.defineProperty(Array.prototype, 'keyBy', {
     enumerable: false,
     value: function(keyProp) {
