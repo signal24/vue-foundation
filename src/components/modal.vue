@@ -76,7 +76,7 @@ function bootModal(modalId) {
 
         for (let key in injectedData) {
             if (!keepOriginalKeys.includes(key)) {
-                if (typeof(injectedData[key]) == 'object' && injectedData[key].constructor === Object) {
+                if (injectedData[key] !== null && typeof(injectedData[key]) == 'object' && injectedData[key].constructor === Object) {
                     data[key] = cloneDeep(injectedData[key]);
                 } else {
                     data[key] = injectedData[key];
