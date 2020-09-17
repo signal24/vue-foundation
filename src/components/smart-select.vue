@@ -233,13 +233,15 @@ export default {
         this.handleValueChanged();
 
         this.$watch('selectedOption', () => {
-            this.$emit('input', this.selectedOption && this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption);
+            const newValue = this.selectedOption && this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption;
+            newValue === this.value || this.$emit('input', newValue);
         });
     },
 
     methods: {
         async performInitialLoad() {
             await this.reloadOptions();
+            this.$emit('options-loaded', this.resolvedOptions);
 
             if (this.$isPropTruthy(this.remoteSearch)) {
                 this.$watch('searchText', debounce(this.reloadOptionsIfSearching, 250));
