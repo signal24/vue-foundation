@@ -497,7 +497,7 @@ export default {
                 }
             }
 
-            let text = typeof option != 'object' ? option : option[this.subtitleKey];
+            let text = typeof option != 'object' ? null : option[this.subtitleKey];
             if (!text) return null;
 
             text = String(text);
