@@ -1,61 +1,38 @@
 // TODO: switch to intersection observer
 
+import InfiniteScrollHook from './infinite-scroll/hook';
+
 class InfiniteScroll {
     static install(Vue, options) {
         const installScrollHook = function() {
             if (this.$options.windowScrolledToBottom) {
-                let isTripped = false;
-                this._windowScrollHandler = e => {
-                    if (
-                        Math.ceil(window.pageYOffset + window.innerHeight) >= document.body.scrollHeight &&
-                        window.document.body.contains(this.$el)
-                    ) {
-                        if (!isTripped) {
-                            this.$options.windowScrolledToBottom.call(this);
-                            isTripped = true;
-                        }
-                    } else if (isTripped) {
-                        isTripped = false;
-                    }
-                };
-
-                window.addEventListener('scroll', this._windowScrollHandler);
+                this._windowScrollHook = new InfiniteScrollHook(window, this.$options.windowScrolledToBottom.bind(this));
+                this._windowScrollHook.install();
             }
 
             if (this.$options.elScrolledToBottom) {
-                let isTripped = false;
-                this._elScrollHandler = e => {
-                    if (Math.ceil(this.$el.scrollTop + this.$el.clientHeight) >= this.$el.scrollHeight) {
-                        if (!isTripped) {
-                            this.$options.elScrolledToBottom.call(this);
-                            isTripped = true;
-                        }
-                    } else if (isTripped) {
-                        isTripped = false;
-                    }
-                };
-
-                this.$el.addEventListener('scroll', this._elScrollHandler);
+                this._elScrollHook = new InfiniteScrollHook(this.$el, this.$options.elScrolledToBottom.bind(this));
+                this._elScrollHook.install();
             }
         };
 
         const reinstallScrollHook = function() {
             if (this._windowScrollHandler) {
-                window.addEventListener('scroll', this._windowScrollHandler);
+                this._windowScrollHandler.install();
             }
 
             if (this._elScrollHandler) {
-                this.$el.addEventListener('scroll', this._elScrollHandler);
+                this._elScrollHandler.install();
             }
         };
 
         const removeScrollHook = function() {
             if (this._windowScrollHandler) {
-                window.removeEventListener('scroll', this._windowScrollHandler);
+                this._windowScrollHandler.uninstall();
             }
 
             if (this._elScrollHandler) {
-                this.$el.removeEventListener('scroll', this._elScrollHandler);
+                this._elScrollHandler.uninstall();
             }
         }
 

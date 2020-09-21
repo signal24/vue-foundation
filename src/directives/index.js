@@ -4,6 +4,7 @@ import './datetime';
 import './date-input';
 import './disabled';
 import './duration';
+import './infinite-scroll';
 import './readonly';
 import './tooltip';
 import './user-text';
