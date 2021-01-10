@@ -1,13 +1,13 @@
 <template>
-    <modal class="alert" :class="classes">
+    <modal class="vf-alert" :class="classes">
         <h1 v-if="!this.isBare" slot="header">{{ title }}</h1>
 
         <div v-if="isHtml" v-html="message" class="user-message"></div>
         <div v-else v-user-text="message"></div>
-        
+
         <template v-if="!this.isBare" slot="footer">
             <template v-if="shouldConfirm">
-                <button class="primary" :class="{ destructive: classes.includes('destructive') }" @click="ok" v-autofocus>Confirm</button>
+                <button class="primary" @click="ok" v-autofocus>Confirm</button>
                 <button class="default" @click="$dismiss()">Cancel</button>
             </template>
             <button v-else class="default" @click="ok" v-autofocus>OK</button>
@@ -36,7 +36,7 @@ const classDef = {
                 this.isHtml = true;
                 this.message = this.message.html;
             }
-            
+
             else if (this.message instanceof Error) {
                 let err = this.message;
                 err.handle();
@@ -70,8 +70,11 @@ Vue.prototype.$confirm = async function(title, message, options) {
     return !!result;
 }
 
-Vue.prototype.$confirmDestroy = async function(title, message) {
-    return await launchModal(this, title, message, { classes: ['destructive'] });
+Vue.prototype.$confirmDestroy = function(title, message, options) {
+    options = options || {};
+    options.classes = options.classes || [];
+    options.classes.push('destructive');
+    return this.$confirm(title, message, options);
 }
 
 Vue.prototype.$wait = function(title, message) {
@@ -82,13 +85,13 @@ Vue.prototype.$wait = function(title, message) {
     else if (!title && !message) {
         message = 'Please wait...';
     }
-    
+
     let resolved = null;
     let promise = new Promise((resolve, reject) => {
         launchModal(this, classDef, { title, message, isBare: true, classes: ['wait'] }, resolve);
     })
     .then(inResolved => resolved = inResolved);
-    
+
     this.$endWait = async () => {
         delete this.$endWait;
         if (resolved)
@@ -103,10 +106,10 @@ Vue.prototype.$wait = function(title, message) {
 </script>
 
 <style lang="scss">
-.vf-modal-wrap.alert {
+.vf-modal-wrap.vf-alert {
     .vf-modal {
         max-width: 800px;
-        
+
         > .vf-modal-content {
             padding: 12px;
         }
@@ -115,6 +118,12 @@ Vue.prototype.$wait = function(title, message) {
     &.wait {
         .vf-modal-content {
             text-align: center;
+        }
+    }
+
+    &.destructive {
+        button.primary {
+            color: red;
         }
     }
 }
