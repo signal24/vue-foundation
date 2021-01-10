@@ -1,6 +1,6 @@
 {
   "name": "@signal24/vue-foundation",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Common components, directives, and helpers for Vue apps",
   "main": "src/index.js",
   "license": "MIT",
