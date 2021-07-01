@@ -1,9 +1,9 @@
-import Vue from 'vue';
+import app from '../app';
 import $ from 'jquery';
 
-Vue.directive('autofocus', {
-    inserted: fn,
-    update: fn
+app.directive('autofocus', {
+    mounted: fn,
+    updated: fn
 });
 
 function fn(el, binding) {

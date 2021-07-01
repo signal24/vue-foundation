@@ -1,8 +1,8 @@
-import Vue from 'vue';
+import app from '../app';
 import moment from 'moment';
 
-Vue.directive('date-input', {
-    bind: fn
+app.directive('date-input', {
+    beforeMount: fn
 });
 
 function fn(el, binding) {

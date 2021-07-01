@@ -1,7 +1,7 @@
-import Vue from 'vue'
+import app from '../app';
 
 import AjaxSelect from './ajax-select'
-Vue.component('AjaxSelect', AjaxSelect);
+app.component('AjaxSelect', AjaxSelect);
 
 // do not register Alert with Vue or our customizations to
 // on-the-fly alerts won't take effect, as Vue will use
@@ -11,7 +11,7 @@ import Alert from './alert'
 Alert;
 
 import Modal from './modal'
-Vue.component('Modal', Modal);
+app.component('Modal', Modal);
 
 import SmartSelect from './smart-select'
-Vue.component('SmartSelect', SmartSelect);
+app.component('SmartSelect', SmartSelect);

@@ -1,16 +1,15 @@
-import Vue from 'vue';
+import app from '../app';
 
 import axios from 'axios';
-import VueAxios from 'vue-axios';
-Vue.use(VueAxios, axios);
+app.config.globalProperties.$http = axios;
 
-Vue.prototype.$http.postOrPut = (baseUrl, id, ...args) => {
+axios.postOrPut = (baseUrl, id, ...args) => {
     const method = id ? 'put' : 'post';
     const url = id ? `${baseUrl}/${id}` : baseUrl;
-    return Vue.prototype.$http[method](url, ...args);
+    return axios[method](url, ...args);
 };
 
-import Config from '../config';
+import vfConfig from '../config';
 
 axios.interceptors.response.use(response => {
     // TODO: will Axios auto-reject non-JSON?
@@ -23,17 +22,21 @@ axios.interceptors.response.use(response => {
 
 err => {
     if (err.response && err.response.status == 401) {
-        if (Config.unauthorizedHttpResponseHandler) {
-            const result = Config.unauthorizedHttpResponseHandler(err.response);
-            if (!result) throw err;
+        if (vfConfig.unauthorizedHttpResponseHandler) {
+            const result = vfConfig.unauthorizedHttpResponseHandler(err.response);
+
+            // if the handler said "ok, handled", then we're going to
+            // return a promise that never resolves to prevent the userland code
+            // from ever proceeding
+            if (result) return new Promise(() => {});
         }
     }
-    
+
     if (err.response && err.response.data && err.response.data.error) {
         err.code = err.response.status == 422 ? 'USERERR' : 'APIERR';
         err.message = err.response.data.error;
         err.field = err.response.data.errorField;
     }
-    
+
     throw err;
 });

@@ -1,9 +1,9 @@
-import Vue from 'vue';
+import app from '../app';
 import moment from 'moment';
 
-Vue.directive('datetime', {
-    bind: applyDateTime,
-    update: applyDateTime
+app.directive('datetime', {
+    beforeMount: applyDateTime,
+    updated: applyDateTime
 });
 
 function applyDateTime(el, binding) {
@@ -15,13 +15,13 @@ function getDateTimeValue(el, binding) {
     if (!binding.value) {
         return el.attributes.placeholder ? el.attributes.placeholder.value : '';
     }
-    
+
     let prefix = '';
     let thatMoment = el.attributes.local ? moment(binding.value) : moment.utc(binding.value);
-    
+
     if (!el.attributes['display-utc'])
         thatMoment.local();
-    
+
     let format = el.attributes.format ? el.attributes.format.value : null;
 
     if (!format && el.attributes['relative-date']) {

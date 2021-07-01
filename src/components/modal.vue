@@ -1,6 +1,6 @@
 <template>
     <div class="vf-overlay vf-modal-wrap">
-        <form action="." class="vf-modal" :class="{ scrolls: $isPropTruthy(this.scrolls) }" @submit.prevent="$emit('form-submit')">
+        <form action="." class="vf-modal" :class="{ scrolls: $isPropTruthy(this.scrolls) }" @submit.prevent="$emit('formSubmit')">
             <div v-if="$slots.header" class="vf-modal-header">
                 <slot name="header" />
                 <i v-if="$isPropTruthy(this.closeX)" class="close" @click="$parent.$dismiss()"></i>
@@ -18,11 +18,12 @@
 <script>
 export default {
     props: ['closeOnMaskClick', 'scrolls', 'closeX'],
+    emits: ['formSubmit'],
 
     mounted() {
         window.addEventListener('keydown', this.handleEscapeKey);
         document.body.classList.add('vf-modal-open');
-        
+
         if (this.$isPropTruthy(this.closeOnMaskClick)) {
             this.$el.addEventListener('click', e => {
                 if (e.target == this.$el)
@@ -31,7 +32,7 @@ export default {
         }
     },
 
-    destroyed() {
+    unmounted() {
         window.removeEventListener('keydown', this.handleEscapeKey);
 
         let areOtherModalsOpen = document.body.querySelectorAll('.vf-modal').length > 0;
@@ -50,23 +51,19 @@ export default {
     }
 }
 
-import Vue from 'vue';
-import Config from '../config';
+import app from '../app';
+import { markRaw } from 'vue';
 import cloneDeep from 'lodash/cloneDeep';
 
 let modalConfigs = {};
 
 function bootModal(modalId) {
-    if (!this.constructor.options.__file && this.constructor.extendOptions && this.constructor.extendOptions.__file) {
-        this.constructor.options.__file = this.constructor.extendOptions.__file;
-    }
-
     const config = modalConfigs[modalId];
-    
+
     this.$modalOpener = config.opener;
     this.$modalResult = undefined;
-    
-    this.$storeParent = this.$modalOpener;
+
+    this.$options.storeParent = this.$modalOpener;
 
     let originalDataFn = this.$options.data;
     this.$options.data = function() {
@@ -89,14 +86,14 @@ function bootModal(modalId) {
 
     this.$dismiss = (...args) => {
         return new Promise(resolve => {
-            // setTimeout allows the form submission handler to run before the form is destroyed,
+            // setTimeout allows the form submission handler to run before the form is unmounted,
             // in the event the submit button has a click handler. otherwise, the console will
             // report "Form submission canceled because the form is not connected."
             setTimeout(() => {
                 delete modalConfigs[modalId];
 
-                let rootInjections = Config.rootInstance.store.rootInjections;
-                
+                let rootInjections = app.vm.store.rootInjections;
+
                 const rootInjection = rootInjections.find(injection => injection.__modalId === modalId);
                 if (!rootInjection) return;
 
@@ -112,14 +109,14 @@ function bootModal(modalId) {
     config.instanceCreationCallback && config.instanceCreationCallback(this);
 }
 
-Vue.mixin({
+app.mixin({
     beforeCreate() {
-        const modalId = this.constructor.options.__modalId || (this.constructor.extendOptions && this.constructor.extendOptions.__file);
+        const modalId = this.$options.__modalId || this.$options.__file;
         if (modalId && modalConfigs[modalId]) bootModal.call(this, modalId);
     }
 });
 
-Vue.prototype.$modal = function(classDef, injectedData, instanceCreationCallback) {
+app.config.globalProperties.$modal = function(classDef, injectedData, instanceCreationCallback) {
     return new Promise((resolve, reject) => {
         const modalId = classDef.__modalId || classDef.__file || Math.random().toString(36).substring(2, 10);
         classDef.__modalId = modalId;
@@ -132,7 +129,7 @@ Vue.prototype.$modal = function(classDef, injectedData, instanceCreationCallback
         };
 
         this.$nextTick(() => {
-            Config.rootInstance.store.rootInjections.push(classDef);
+            app.vm.store.rootInjections.push(markRaw(classDef));
         });
     });
 }

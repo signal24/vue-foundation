@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import app from '../app';
 
 const classDef = {
     data() {
@@ -60,24 +60,24 @@ async function launchModal(context, classDef, ...args) {
     return await context.$modal.apply(context, [classDef, ...args]);
 };
 
-Vue.prototype.$alert = async function(title, message) {
+app.config.globalProperties.$alert = async function(title, message) {
     return await launchModal(this, classDef, { title, message });
 }
 
-Vue.prototype.$confirm = async function(title, message, options) {
+app.config.globalProperties.$confirm = async function(title, message, options) {
     options = options || {};
     const result = await launchModal(this, classDef, { title, message, shouldConfirm: true, ...options });
     return !!result;
 }
 
-Vue.prototype.$confirmDestroy = function(title, message, options) {
+app.config.globalProperties.$confirmDestroy = function(title, message, options) {
     options = options || {};
     options.classes = options.classes || [];
     options.classes.push('destructive');
     return this.$confirm(title, message, options);
 }
 
-Vue.prototype.$wait = function(title, message) {
+app.config.globalProperties.$wait = function(title, message) {
     if (title && !message) {
         message = title;
         title = undefined;

@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import app from '../app';
 import moment from 'moment';
 
 let durationEls = [];
@@ -9,10 +9,10 @@ function updateDurations() {
 
 setInterval(updateDurations, 1000);
 
-Vue.directive('duration', {
-    bind: applyDuration,
-    update: applyDuration,
-    unbind: removeDuration
+app.directive('duration', {
+    beforeMount: applyDuration,
+    updated: applyDuration,
+    unmounted: removeDuration
 });
 
 function applyDuration(el, binding) {
@@ -48,7 +48,7 @@ function removeDuration(el) {
         durationEls.remove(el);
         el.$isConfigured = false;
     }
-    
+
     el.innerText = '-';
 }
 

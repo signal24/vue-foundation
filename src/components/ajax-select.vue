@@ -8,7 +8,7 @@
 
 <script>
 export default {
-    props: ['value', 'url', 'params', 'itemsKey', 'preprocessor', 'textKey', 'nullText', 'loadingText'],
+    props: ['modelValue', 'url', 'params', 'itemsKey', 'preprocessor', 'textKey', 'nullText', 'loadingText'],
 
     data() {
         return {
@@ -23,11 +23,11 @@ export default {
         },
 
         selectedItem() {
-            this.$emit('input', this.selectedItem);
+            this.$emit('update:modelValue', this.selectedItem);
         },
 
-        value() {
-            this.selectedItem = this.value;
+        modelValue() {
+            this.selectedItem = this.modelValue;
         }
     },
 
@@ -43,7 +43,7 @@ export default {
             let options = this.itemsKey ? result.data[this.itemsKey] : result.data;
             this.preprocessor && this.preprocessor(options);
             this.options = options;
-            this.selectedItem = this.value;
+            this.selectedItem = this.modelValue;
         }
     }
 }

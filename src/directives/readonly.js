@@ -1,9 +1,9 @@
-import Vue from 'vue';
+import app from '../app';
 import $ from 'jquery';
 
-Vue.directive('readonly', {
-    bind: fn,
-    update: fn
+app.directive('readonly', {
+    beforeMount: fn,
+    updated: fn
 });
 
 function fn(el, binding) {

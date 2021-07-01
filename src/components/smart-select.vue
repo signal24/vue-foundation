@@ -44,8 +44,10 @@ const createSymbol = Symbol('create');
 const VALID_KEYS = `\`1234567890-=[]\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM`;
 
 export default {
+    emits: ['optionsLoaded', 'createItem'],
+
     props: [
-        'value',
+        'modelValue',
         'options',
         'preload',
         'url',
@@ -150,7 +152,7 @@ export default {
     watch: {
         // props
 
-        value() {
+        modelValue() {
             this.handleValueChanged();
         },
 
@@ -221,7 +223,7 @@ export default {
     },
 
     async mounted() {
-        this.shouldShowCreateOption = this.$listeners['create-item'] !== undefined;
+        this.shouldShowCreateOption = this.$attrs['onCreateItem'] !== undefined;
 
         if (this.options) {
             this.resolvedOptions = this.options;
@@ -234,14 +236,14 @@ export default {
 
         this.$watch('selectedOption', () => {
             const newValue = this.selectedOption && this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption;
-            newValue === this.value || this.$emit('input', newValue);
+            newValue === this.modelValue || this.$emit('update:modelValue', newValue);
         });
     },
 
     methods: {
         async performInitialLoad() {
             await this.reloadOptions();
-            this.$emit('options-loaded', this.resolvedOptions);
+            this.$emit('optionsLoaded', this.resolvedOptions);
 
             if (this.$isPropTruthy(this.remoteSearch)) {
                 this.$watch('searchText', debounce(this.reloadOptionsIfSearching, 250));
@@ -425,7 +427,7 @@ export default {
                 this.searchText = '';
                 this.selectedOption = null;
                 this.selectedOptionTitle = null;
-                this.$emit('create-item', createText);
+                this.$emit('createItem', createText);
             } else {
                 const optionIndex = this.decoratedOptions.findIndex(
                     decoratedOption => decoratedOption.key == option.key
@@ -440,11 +442,11 @@ export default {
         },
 
         handleValueChanged() {
-            if (this.value) {
+            if (this.modelValue) {
                 if (this.valueKey) {
-                    this.selectedOption = this.resolvedOptions.find(option => option[this.valueKey] === this.value);
+                    this.selectedOption = this.resolvedOptions.find(option => option[this.valueKey] === this.modelValue);
                 } else {
-                    this.selectedOption = this.value;
+                    this.selectedOption = this.modelValue;
                 }
 
                 this.selectedOptionTitle = this.getOptionTitle(this.selectedOption).text;

@@ -3,7 +3,7 @@
 import InfiniteScrollHook from './infinite-scroll/hook';
 
 class InfiniteScroll {
-    static install(Vue, options) {
+    static install(app, options) {
         const installScrollHook = function() {
             if (this.$options.windowScrolledToBottom) {
                 this._windowScrollHook = new InfiniteScrollHook(window, this.$options.windowScrolledToBottom.bind(this));
@@ -36,7 +36,7 @@ class InfiniteScroll {
             }
         }
 
-        Vue.mixin({
+        app.mixin({
             mounted() {
                 installScrollHook.call(this);
             },
@@ -49,7 +49,7 @@ class InfiniteScroll {
                 removeScrollHook.call(this);
             },
 
-            beforeDestroy() {
+            beforeUnmount() {
                 removeScrollHook.call(this);
             }
         });

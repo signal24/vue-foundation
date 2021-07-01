@@ -1,10 +1,10 @@
-import Vue from 'vue';
+import app from '../app';
 import $ from 'jquery';
 
-Vue.directive('tip', {
-    inserted: createTip,
-    update: createTip,
-    unbind: destroyTip
+app.directive('tip', {
+    mounted: createTip,
+    updated: createTip,
+    unmounted: destroyTip
 });
 
 function createTip(el, binding, vnode, oldVnode) {
@@ -54,7 +54,7 @@ function VfTooltip(el, configIn) {
 
     // apply config
     this.configure(configIn);
-    
+
     var $target = $(el);
     $target.on('mouseenter', _handleTargetMouseEnter);
     $target.on('mouseleave', _handleTargetMouseLeave);
@@ -71,17 +71,17 @@ function VfTooltip(el, configIn) {
         if (shouldShow) return;
 
         shouldShow = true;
-        
+
         setTimeout(function() {
             if (!shouldShow) return;
 
             _renderTooltip();
-            
+
             if (config.static)
                 _placeStaticTooltip();
             else
                 _handleMouseMove(e);
-            
+
             $tip.show();
         }, config.delay);
     }
@@ -100,14 +100,14 @@ function VfTooltip(el, configIn) {
         $tip = $('<div class="vf-tooltip">').css('position', 'absolute').css('z-index', '1000000').addClass(config.class).appendTo(document.body);
         config.title && $('<div class="title">').text(config.title).appendTo($tip);
         var $content = $('<div class="content">').appendTo($tip);
-        
+
         if (config.callback)
             config.callback($content[0]);
         else if (config.text)
             $content.text(config.text).html($content.html().replace(/\n/g, '<br>'));
         else if (config.html)
             $content.html(config.html);
-        
+
         if (config.static) {
             $tip.mouseover(function() {
                 shouldShow = true;
@@ -137,7 +137,7 @@ function VfTooltip(el, configIn) {
         $tip = null;
 
         clearInterval(checkInterval);
-        
+
         config.static || $(window).off('mousemove', _handleMouseMove);
     }
 
@@ -171,7 +171,7 @@ function VfTooltip(el, configIn) {
 
     function _destroy() {
         shouldShow = false;
-        
+
         _removeTooltip();
 
         $target.off('mouseenter', _handleTargetMouseEnter);

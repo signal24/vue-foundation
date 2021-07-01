@@ -1,5 +1,5 @@
-import Vue from 'vue';
+import app from '../app';
 
-Vue.prototype.$isPropTruthy = function(value) {
+app.config.globalProperties.$isPropTruthy = function(value) {
     return value !== undefined && (value === '' || value);
 };

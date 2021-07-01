@@ -1,7 +1,7 @@
-import Vue from 'vue'
+import app from '../app';
 import $ from 'jquery'
 
-Vue.prototype.$contextMenu = function(e, config) {
+app.config.globalProperties.$contextMenu = function(e, config) {
     var $wrapper = $('<div class="vf-overlay">').click(_closeMenu).appendTo(document.body);
     var $menu = $('<div class="vf-context-menu">').css('position', 'absolute').appendTo($wrapper);
 

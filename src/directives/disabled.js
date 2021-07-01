@@ -1,10 +1,10 @@
-import Vue from 'vue';
+import app from '../app';
 import $ from 'jquery';
 
-Vue.directive('disabled', {
-    bind: fn,
-    update: fn,
-    unbind: unbind
+app.directive('disabled', {
+    beforeMount: fn,
+    updated: fn,
+    unmounted
 });
 
 function fn(el, binding) {
@@ -19,11 +19,11 @@ function fn(el, binding) {
         $(el).removeAttr('disabled');
 }
 
-function unbind(el) {
+function unmounted(el) {
     if (el.tagName == 'LABEL') {
         $(el).removeClass('disabled');
         el = $(el).find('input')[0];
     }
-    
+
     $(el).removeAttr('disabled');
 }

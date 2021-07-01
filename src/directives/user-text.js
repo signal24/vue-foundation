@@ -1,8 +1,8 @@
-import Vue from 'vue';
+import app from '../app';
 
-Vue.directive('user-text', {
-    bind: fn,
-    update: fn
+app.directive('user-text', {
+    beforeMount: fn,
+    updated: fn
 });
 
 function fn(el, binding) {

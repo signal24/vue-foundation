@@ -1,10 +1,10 @@
-import Vue from 'vue'
+import app from '../app';
 
 import VueStash from 'vue-stash-nested'
-Vue.use(VueStash)
+app.use(VueStash)
 
 import InfiniteScroll from './infinite-scroll'
-Vue.use(InfiniteScroll);
+app.use(InfiniteScroll);
 
 import ResizeWatcher from './resize-watcher'
-Vue.use(ResizeWatcher)
+app.use(ResizeWatcher)

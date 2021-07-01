@@ -1,7 +1,7 @@
-import Vue from 'vue';
+import app from '../app'
 
-Vue.directive('confirm-button', {
-    inserted(el) {
+app.directive('confirm-button', {
+    mounted(el) {
         el.addEventListener('click', e => {
             let now = Date.now();
 

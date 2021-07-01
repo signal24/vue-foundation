@@ -1,26 +1,26 @@
-import Vue from 'vue'
+import app from '../app';
 import $ from 'jquery'
 
 /*///////////////////////////////////////////////
 Masking
 //////////////////////////////////////////////*/
-Vue.prototype.$mask = function(message) {
+app.config.globalProperties.$mask = function(message) {
     let $el = $(this.$el);
     this.$maskEl($el.hasClass('vf-overlay') ? $el.find('.vf-modal')[0] : this.$el, message);
 }
 
-Vue.prototype.$maskEl = function(el, message) {
+app.config.globalProperties.$maskEl = function(el, message) {
     if (this._currentMask) return;
     this._currentMask = $('<div class="mask">').text(message || 'Please wait...').appendTo(el);
 }
 
-Vue.prototype.$unmask = function() {
+app.config.globalProperties.$unmask = function() {
     if (!this._currentMask) return;
     $(this._currentMask).remove();
     delete this._currentMask;
 }
 
-Vue.prototype.$maskForm = function(waitButton, waitText) {
+app.config.globalProperties.$maskForm = function(waitButton, waitText) {
     let el = this.$el;
 
     if (waitButton !== undefined && waitButton.tagName == 'FORM') {
@@ -45,7 +45,7 @@ Vue.prototype.$maskForm = function(waitButton, waitText) {
     }
 }
 
-Vue.prototype.$unmaskForm = function() {
+app.config.globalProperties.$unmaskForm = function() {
     let $form = this.$el.tagName == 'FORM' ? $(this.$el) : $(this.$el).find('form.masked');
     if (!$form.length) return;
     let $inputs = $form.data('vf-masked-inputs');

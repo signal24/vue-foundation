@@ -3,8 +3,8 @@ import Vue from 'vue'
 // TODO: find out if we can use the Vue options array for the functions instead of making them part of "methods"
 
 class ResizeWatcher {
-    static install(Vue, options) {
-        Vue.mixin({
+    static install(app, options) {
+        app.mixin({
             mounted() {
                 if (this.$options.windowResized) {
                     this._resizeWatcherHandler = this.$options.windowResized.bind(this);
@@ -20,7 +20,7 @@ class ResizeWatcher {
                 this._resizeWatcherHandler && window.removeEventListener('resize', this._resizeWatcherHandler);
             },
 
-            beforeDestroy() {
+            beforeUnmount() {
                 this._resizeWatcherHandler && window.removeEventListener('resize', this._resizeWatcherHandler);
             }
         });
