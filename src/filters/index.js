@@ -55,10 +55,25 @@ const filterFns = {
     }
 };
 
+function registerFilters(filters) {
+    for (let filterName of Object.keys(filters)) {
+        registerFilter(filterName, filters[filterName]);
+    }
+}
+
+function registerFilter(name, fn) {
+    filterFns[name] = fn;
+}
+
 app.config.globalProperties.$filter = (value, ...filters) => {
     for (let filter of filters) {
         value = filterFns[filter](value);
     }
 
     return value;
+};
+
+export {
+    registerFilter,
+    registerFilters
 };

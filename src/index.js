@@ -7,14 +7,16 @@ import vfConfig from './config';
 import app, { setRootComponent } from './app';
 import './components';
 import './directives';
-import './filters';
+import { registerFilter, registerFilters } from './filters';
 import './helpers';
 import './plugins';
 
 export default {
+    getApp,
     configure,
     mount,
-    getApp
+    registerFilter,
+    registerFilters
 };
 
 function configure(options) {
