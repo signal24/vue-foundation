@@ -15,6 +15,12 @@ app.config.globalProperties.$reportError = err => {
     }
 }
 
+app.config.globalProperties.$throwUserError = msg => {
+    let err = new Error(msg);
+    err.code = 'USERERR';
+    throw err;
+};
+
 Object.defineProperty(Error.prototype, 'userMessage', {
     get() {
         if (this.code == 'USERERR')
