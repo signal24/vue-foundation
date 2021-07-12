@@ -7,7 +7,7 @@ Object.defineProperty(Array.prototype, 'diff', {
                     return false;
                 }
             }
-            
+
             return true;
         });
     }
@@ -29,16 +29,9 @@ Object.defineProperty(Array.prototype, 'intersect', {
                     return true;
                 }
             }
-            
+
             return false;
         });
-    }
-});
-
-Object.defineProperty(Array.prototype, 'unique', {
-    enumerable: false,
-    value: function() {
-        return [...new Set(this)]
     }
 });
 
@@ -77,7 +70,7 @@ Object.defineProperty(Array.prototype, 'pluck', {
 Object.defineProperty(Array.prototype, 'remove', {
     enumerable: false,
     value: function(element) {
-        let index = this.indexOf(element);
+        const index = this.indexOf(element);
         index > -1 && this.splice(index, 1);
     }
 });
@@ -85,7 +78,7 @@ Object.defineProperty(Array.prototype, 'remove', {
 Object.defineProperty(Array.prototype, 'replace', {
     enumerable: false,
     value: function(element, replacement) {
-        let index = this.indexOf(element);
+        const index = this.indexOf(element);
         index > -1 && this.splice(index, 1, replacement);
     }
 });
@@ -96,5 +89,12 @@ Object.defineProperty(Array.prototype, 'sortBy', {
         this.sort((a, b) => {
             return String(a[key]).toLowerCase().localeCompare(String(b[key]).toLowerCase());
         });
+    }
+});
+
+Object.defineProperty(Array.prototype, 'unique', {
+    enumerable: false,
+    value: function() {
+        return [...new Set(this)]
     }
 });
