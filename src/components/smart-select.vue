@@ -538,6 +538,7 @@ export default {
         border-style: solid;
         border-width: 5px 5px 0 5px;
         border-color: #333333 transparent transparent transparent;
+        pointer-events: none;
     }
 
     &.open:after {
