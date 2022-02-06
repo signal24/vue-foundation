@@ -1,11 +1,11 @@
 <template>
     <modal class="vf-alert" :class="classes">
-        <h1 v-if="!this.isBare" slot="header">{{ title }}</h1>
+        <h1 v-if="!this.isBare" v-slot:header>{{ title }}</h1>
 
         <div v-if="isHtml" v-html="message" class="user-message"></div>
         <div v-else v-user-text="message"></div>
 
-        <template v-if="!this.isBare" slot="footer">
+        <template v-if="!this.isBare" v-slot:footer>
             <template v-if="shouldConfirm">
                 <button class="primary" @click="ok" v-autofocus>Confirm</button>
                 <button class="default" @click="$dismiss()">Cancel</button>
