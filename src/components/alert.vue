@@ -1,6 +1,8 @@
 <template>
     <modal class="vf-alert" :class="classes">
-        <h1 v-if="!this.isBare" v-slot:header>{{ title }}</h1>
+        <template v-if="!this.isBare" v-slot:header>
+            <h1>{{ title }}</h1>
+        </template>
 
         <div v-if="isHtml" v-html="message" class="user-message"></div>
         <div v-else v-user-text="message"></div>
