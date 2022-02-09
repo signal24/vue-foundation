@@ -1,6 +1,11 @@
 <template>
     <div class="vf-overlay vf-modal-wrap">
-        <form action="." class="vf-modal" :class="{ scrolls: $isPropTruthy(this.scrolls) }" @submit.prevent="$emit('formSubmit')">
+        <form
+            action="."
+            class="vf-modal"
+            :class="{ scrolls: $isPropTruthy(this.scrolls) }"
+            @submit.prevent="$emit('formSubmit')"
+        >
             <div v-if="$slots.header" class="vf-modal-header">
                 <slot name="header" />
                 <i v-if="$isPropTruthy(this.closeX)" class="close" @click="$parent.$dismiss()"></i>
@@ -26,8 +31,7 @@ export default {
 
         if (this.$isPropTruthy(this.closeOnMaskClick)) {
             this.$el.addEventListener('click', e => {
-                if (e.target == this.$el)
-                    this.$parent.$dismiss();
+                if (e.target == this.$el) this.$parent.$dismiss();
             });
         }
     },
@@ -49,7 +53,7 @@ export default {
             }
         }
     }
-}
+};
 
 import app from '../app';
 import { markRaw } from 'vue';
@@ -66,14 +70,18 @@ function bootModal(modalId) {
     this.$options.storeParent = this.$modalOpener;
 
     let originalDataFn = this.$options.data;
-    this.$options.data = function() {
+    this.$options.data = function () {
         const injectedData = config.injectedData || {};
         const keepOriginalKeys = this.$options.keepOriginal || [];
         let data = originalDataFn ? originalDataFn.apply(this) : {};
 
         for (let key in injectedData) {
             if (!keepOriginalKeys.includes(key)) {
-                if (injectedData[key] !== null && typeof(injectedData[key]) == 'object' && injectedData[key].constructor === Object) {
+                if (
+                    injectedData[key] !== null &&
+                    typeof injectedData[key] == 'object' &&
+                    injectedData[key].constructor === Object
+                ) {
                     data[key] = cloneDeep(injectedData[key]);
                 } else {
                     data[key] = injectedData[key];
@@ -116,7 +124,7 @@ app.mixin({
     }
 });
 
-app.config.globalProperties.$modal = function(classDef, injectedData, instanceCreationCallback) {
+app.config.globalProperties.$modal = function (classDef, injectedData, instanceCreationCallback) {
     return new Promise((resolve, reject) => {
         const modalId = classDef.__modalId || classDef.__file || Math.random().toString(36).substring(2, 10);
         classDef.__modalId = modalId;
@@ -132,7 +140,7 @@ app.config.globalProperties.$modal = function(classDef, injectedData, instanceCr
             app.vm.store.rootInjections.push(markRaw(classDef));
         });
     });
-}
+};
 
 // TODO: see about a injecting a root modal container & HMR inside it
 // modals, on render, can hot move themselves to body end
@@ -163,7 +171,7 @@ app.config.globalProperties.$modal = function(classDef, injectedData, instanceCr
 
 .vf-modal {
     background: white;
-    box-shadow: 0px 3px 6px 0px rgba(0,0,0,.15);
+    box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.15);
     min-width: 200px;
     max-width: 95%;
     max-height: 95%;

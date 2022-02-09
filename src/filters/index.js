@@ -2,7 +2,7 @@ import app from '../app';
 
 const filterFns = {
     bytes(value) {
-        var i = Math.floor( Math.log(value) / Math.log(1024) );
+        var i = Math.floor(Math.log(value) / Math.log(1024));
         return (value / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
     },
 
@@ -51,7 +51,13 @@ const filterFns = {
     },
 
     usCurrency(value) {
-        return '$' + Number(value).toFixed(3).replace(/0$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return (
+            '$' +
+            Number(value)
+                .toFixed(3)
+                .replace(/0$/, '')
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+        );
     }
 };
 
@@ -73,7 +79,4 @@ app.config.globalProperties.$filter = (value, ...filters) => {
     return value;
 };
 
-export {
-    registerFilter,
-    registerFilters
-};
+export { registerFilter, registerFilters };

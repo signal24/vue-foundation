@@ -1,4 +1,4 @@
-import { createApp, h } from 'vue'
+import { createApp, h } from 'vue';
 
 let rootComponent;
 function setRootComponent(inComponent) {
@@ -17,7 +17,7 @@ const app = createApp({
     },
 
     render() {
-        return h(rootComponent)
+        return h(rootComponent);
     }
 });
 

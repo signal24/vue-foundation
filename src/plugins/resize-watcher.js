@@ -1,9 +1,7 @@
-import Vue from 'vue'
-
 // TODO: find out if we can use the Vue options array for the functions instead of making them part of "methods"
 
 class ResizeWatcher {
-    static install(app, options) {
+    static install(app) {
         app.mixin({
             mounted() {
                 if (this.$options.windowResized) {

@@ -1,5 +1,6 @@
-import app from '../app';
 import moment from 'moment';
+
+import app from '../app';
 
 let durationEls = [];
 
@@ -19,13 +20,12 @@ function applyDuration(el, binding) {
     if (binding.value == binding.oldValue) return;
     if (!binding.value) return removeDuration(el);
 
-    el.$includeSeconds = typeof(el.attributes['no-seconds']) === 'undefined';
+    el.$includeSeconds = typeof el.attributes['no-seconds'] === 'undefined';
 
     let baseTimeAttr = el.attributes['base-time'];
     if (baseTimeAttr) {
-        el.$startTs = moment(baseTimeAttr.value).valueOf() - (binding.value * 1000);
-    }
-    else {
+        el.$startTs = moment(baseTimeAttr.value).valueOf() - binding.value * 1000;
+    } else {
         el.$startTs = moment(binding.value).valueOf();
     }
 
@@ -65,8 +65,7 @@ function secondsToString(seconds, shouldSkipSeconds) {
     if (!shouldSkipSeconds) {
         seconds -= minutes * 60;
         result.push(seconds + 's');
-    }
-    else if (!result.length) {
+    } else if (!result.length) {
         result.push('0m');
     }
     return result.join(' ');

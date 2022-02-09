@@ -1,8 +1,12 @@
 <template>
-    <select v-if="!options" disabled><option>{{ loadingText || 'Loading...' }}</option></select>
+    <select v-if="!options" disabled>
+        <option>{{ loadingText || 'Loading...' }}</option>
+    </select>
     <select v-else v-model="selectedItem">
         <option v-if="nullText" :value="null">{{ nullText }}</option>
-        <option v-for="option in options" :key="option.id" :value="option">{{ textKey ? option[textKey] : option }}</option>
+        <option v-for="option in options" :key="option.id" :value="option">
+            {{ textKey ? option[textKey] : option }}
+        </option>
     </select>
 </template>
 
@@ -14,7 +18,7 @@ export default {
         return {
             options: null,
             selectedItem: null
-        }
+        };
     },
 
     watch: {
@@ -38,7 +42,7 @@ export default {
     methods: {
         async load() {
             this.options = null;
-            let params = this.params ? { params: this.params } : undefined
+            let params = this.params ? { params: this.params } : undefined;
             let result = await this.$http.get(this.url, params);
             let options = this.itemsKey ? result.data[this.itemsKey] : result.data;
             this.preprocessor && this.preprocessor(options);
@@ -46,5 +50,5 @@ export default {
             this.selectedItem = this.modelValue;
         }
     }
-}
+};
 </script>

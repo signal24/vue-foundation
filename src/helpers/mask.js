@@ -1,26 +1,29 @@
+import $ from 'jquery';
+
 import app from '../app';
-import $ from 'jquery'
 
 /*///////////////////////////////////////////////
 Masking
 //////////////////////////////////////////////*/
-app.config.globalProperties.$mask = function(message) {
+app.config.globalProperties.$mask = function (message) {
     let $el = $(this.$el);
     this.$maskEl($el.hasClass('vf-overlay') ? $el.find('.vf-modal')[0] : this.$el, message);
-}
+};
 
-app.config.globalProperties.$maskEl = function(el, message) {
+app.config.globalProperties.$maskEl = function (el, message) {
     if (this._currentMask) return;
-    this._currentMask = $('<div class="mask">').text(message || 'Please wait...').appendTo(el);
-}
+    this._currentMask = $('<div class="mask">')
+        .text(message || 'Please wait...')
+        .appendTo(el);
+};
 
-app.config.globalProperties.$unmask = function() {
+app.config.globalProperties.$unmask = function () {
     if (!this._currentMask) return;
     $(this._currentMask).remove();
     delete this._currentMask;
-}
+};
 
-app.config.globalProperties.$maskForm = function(waitButton, waitText) {
+app.config.globalProperties.$maskForm = function (waitButton, waitText) {
     let el = this.$el;
 
     if (waitButton !== undefined && waitButton.tagName == 'FORM') {
@@ -43,9 +46,9 @@ app.config.globalProperties.$maskForm = function(waitButton, waitText) {
         $waitButton.disable(waitText || 'Please wait...');
         $form.data('vf-masked-wait-btn', $waitButton);
     }
-}
+};
 
-app.config.globalProperties.$unmaskForm = function() {
+app.config.globalProperties.$unmaskForm = function () {
     let $form = this.$el.tagName == 'FORM' ? $(this.$el) : $(this.$el).find('form.masked');
     if (!$form.length) return;
     let $inputs = $form.data('vf-masked-inputs');
@@ -57,27 +60,31 @@ app.config.globalProperties.$unmaskForm = function() {
         $waitButton.enable();
     }
     $form.removeClass('masked');
-}
+};
 
 /*///////////////////////////////////////////////
 Button Enable/Disable
 //////////////////////////////////////////////*/
-$.fn.disable = function(newText) {
-    this.each(function(index, item) {
+$.fn.disable = function (newText) {
+    this.each(function (index, item) {
         var $item = $(item);
         var isInput = item.tagName == 'INPUT';
-        newText && $item.data('originalValue', isInput ? $item.val() : $item.html()) && $item[isInput ? 'val' : 'text'](newText);
+        newText &&
+            $item.data('originalValue', isInput ? $item.val() : $item.html()) &&
+            $item[isInput ? 'val' : 'text'](newText);
         $item.attr('disabled', 'disabled');
     });
     return this;
-}
+};
 
-$.fn.enable = function() {
-    this.each(function(index, item) {
+$.fn.enable = function () {
+    this.each(function (index, item) {
         var $item = $(item);
         $item.removeAttr('disabled');
         var originalValue = $item.data('originalValue');
-        originalValue != undefined && $item[item.tagName == 'INPUT' ? 'val' : 'html'](originalValue) && $item.removeData('originalValue');
+        originalValue != undefined &&
+            $item[item.tagName == 'INPUT' ? 'val' : 'html'](originalValue) &&
+            $item.removeData('originalValue');
     });
     return this;
-}
+};

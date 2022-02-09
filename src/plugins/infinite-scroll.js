@@ -3,23 +3,30 @@
 import InfiniteScrollHook from './infinite-scroll/hook';
 
 class InfiniteScroll {
-    static install(app, options) {
+    static install(app) {
         const scrollableValues = ['auto', 'scroll'];
-        const discoverScrollableAncestorEl = function(el) {
+        const discoverScrollableAncestorEl = function (el) {
             el = el.parentElement;
             if (!el) return null;
 
             const computedStyle = window.getComputedStyle(el);
-            if (scrollableValues.includes(computedStyle.overflow) || scrollableValues.includes(computedStyle.overflowX) || scrollableValues.includes(computedStyle.overflowY)) {
+            if (
+                scrollableValues.includes(computedStyle.overflow) ||
+                scrollableValues.includes(computedStyle.overflowX) ||
+                scrollableValues.includes(computedStyle.overflowY)
+            ) {
                 return el;
             }
 
             return discoverScrollableAncestorEl(el);
         };
 
-        const installScrollHook = function() {
+        const installScrollHook = function () {
             if (this.$options.windowScrolledToBottom) {
-                this._windowScrollHook = new InfiniteScrollHook(window, this.$options.windowScrolledToBottom.bind(this));
+                this._windowScrollHook = new InfiniteScrollHook(
+                    window,
+                    this.$options.windowScrolledToBottom.bind(this)
+                );
                 this._windowScrollHook.install();
             }
 
@@ -31,7 +38,10 @@ class InfiniteScroll {
             if (this.$options.ancestorScrolledToBottom) {
                 const scrollableAncestorEl = discoverScrollableAncestorEl(this.$el);
                 if (scrollableAncestorEl) {
-                    this._ancestorScrollHook = new InfiniteScrollHook(scrollableAncestorEl, this.$options.ancestorScrolledToBottom.bind(this));
+                    this._ancestorScrollHook = new InfiniteScrollHook(
+                        scrollableAncestorEl,
+                        this.$options.ancestorScrolledToBottom.bind(this)
+                    );
                     this._ancestorScrollHook.install();
                 } else {
                     console.warn('no scollable ancestor found for component:', this);
@@ -39,7 +49,7 @@ class InfiniteScroll {
             }
         };
 
-        const reinstallScrollHook = function() {
+        const reinstallScrollHook = function () {
             if (this._windowScrollHandler) {
                 this._windowScrollHandler.install();
             }
@@ -53,7 +63,7 @@ class InfiniteScroll {
             }
         };
 
-        const removeScrollHook = function() {
+        const removeScrollHook = function () {
             if (this._windowScrollHandler) {
                 this._windowScrollHandler.uninstall();
             }
@@ -65,7 +75,7 @@ class InfiniteScroll {
             if (this._ancestorScrollHook) {
                 this._ancestorScrollHook.uninstall();
             }
-        }
+        };
 
         app.mixin({
             mounted() {

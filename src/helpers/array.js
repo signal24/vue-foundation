@@ -1,6 +1,6 @@
 Object.defineProperty(Array.prototype, 'diff', {
     enumerable: false,
-    value: function(...args) {
+    value: function (...args) {
         return this.filter(val => {
             for (let i = 0; i < args.length; i++) {
                 if (args[i].includes(val)) {
@@ -15,14 +15,14 @@ Object.defineProperty(Array.prototype, 'diff', {
 
 Object.defineProperty(Array.prototype, 'first', {
     enumerable: false,
-    value: function() {
+    value: function () {
         return this[0] || undefined;
     }
 });
 
 Object.defineProperty(Array.prototype, 'intersect', {
     enumerable: false,
-    value: function(...args) {
+    value: function (...args) {
         return this.filter(val => {
             for (let i = 0; i < args.length; i++) {
                 if (args[i].includes(val)) {
@@ -37,7 +37,7 @@ Object.defineProperty(Array.prototype, 'intersect', {
 
 Object.defineProperty(Array.prototype, 'keyBy', {
     enumerable: false,
-    value: function(keyProp) {
+    value: function (keyProp) {
         let result = {};
         this.forEach(elem => {
             result[elem[keyProp]] = elem;
@@ -48,16 +48,15 @@ Object.defineProperty(Array.prototype, 'keyBy', {
 
 Object.defineProperty(Array.prototype, 'last', {
     enumerable: false,
-    value: function() {
+    value: function () {
         return this.length ? this[this.length - 1] : undefined;
     }
 });
 
 Object.defineProperty(Array.prototype, 'pluck', {
     enumerable: false,
-    value: function(prop, keyProp) {
-        if (typeof keyProp === 'undefined')
-            return this.map(elem => elem[prop]);
+    value: function (prop, keyProp) {
+        if (typeof keyProp === 'undefined') return this.map(elem => elem[prop]);
 
         let result = {};
         this.forEach(elem => {
@@ -69,7 +68,7 @@ Object.defineProperty(Array.prototype, 'pluck', {
 
 Object.defineProperty(Array.prototype, 'remove', {
     enumerable: false,
-    value: function(element) {
+    value: function (element) {
         const index = this.indexOf(element);
         index > -1 && this.splice(index, 1);
     }
@@ -77,7 +76,7 @@ Object.defineProperty(Array.prototype, 'remove', {
 
 Object.defineProperty(Array.prototype, 'replace', {
     enumerable: false,
-    value: function(element, replacement) {
+    value: function (element, replacement) {
         const index = this.indexOf(element);
         index > -1 && this.splice(index, 1, replacement);
     }
@@ -85,7 +84,7 @@ Object.defineProperty(Array.prototype, 'replace', {
 
 Object.defineProperty(Array.prototype, 'sortBy', {
     enumerable: false,
-    value: function(key) {
+    value: function (key) {
         this.sort((a, b) => {
             return String(a[key]).toLowerCase().localeCompare(String(b[key]).toLowerCase());
         });
@@ -94,7 +93,7 @@ Object.defineProperty(Array.prototype, 'sortBy', {
 
 Object.defineProperty(Array.prototype, 'unique', {
     enumerable: false,
-    value: function() {
-        return [...new Set(this)]
+    value: function () {
+        return [...new Set(this)];
     }
 });

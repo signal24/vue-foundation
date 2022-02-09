@@ -115,7 +115,8 @@ export default {
                     });
 
                     if (this.shouldShowCreateOption) {
-                        const hasExactMatch = options.find(option => option.searchContent === strippedSearchText) !== undefined;
+                        const hasExactMatch =
+                            options.find(option => option.searchContent === strippedSearchText) !== undefined;
                         if (!hasExactMatch) {
                             options.push({
                                 key: createSymbol,
@@ -124,9 +125,7 @@ export default {
                         }
                     }
                 }
-            }
-
-            else if (this.nullTitle) {
+            } else if (this.nullTitle) {
                 options.unshift({
                     key: nullSymbol,
                     titleHtml: this.nullTitle
@@ -235,7 +234,8 @@ export default {
         this.handleValueChanged();
 
         this.$watch('selectedOption', () => {
-            const newValue = this.selectedOption && this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption;
+            const newValue =
+                this.selectedOption && this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption;
             newValue === this.modelValue || this.$emit('update:modelValue', newValue);
         });
     },
@@ -444,7 +444,9 @@ export default {
         handleValueChanged() {
             if (this.modelValue) {
                 if (this.valueKey) {
-                    this.selectedOption = this.resolvedOptions.find(option => option[this.valueKey] === this.modelValue);
+                    this.selectedOption = this.resolvedOptions.find(
+                        option => option[this.valueKey] === this.modelValue
+                    );
                 } else {
                     this.selectedOption = this.modelValue;
                 }

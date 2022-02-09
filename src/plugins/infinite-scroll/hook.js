@@ -10,7 +10,7 @@ export default class InfiniteScrollHook {
     }
 
     install() {
-        this.el.addEventListener('scroll', this.onScroll);   
+        this.el.addEventListener('scroll', this.onScroll);
     }
 
     uninstall() {

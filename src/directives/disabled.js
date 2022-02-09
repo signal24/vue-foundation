@@ -1,5 +1,6 @@
-import app from '../app';
 import $ from 'jquery';
+
+import app from '../app';
 
 app.directive('disabled', {
     beforeMount: fn,
@@ -13,10 +14,8 @@ function fn(el, binding) {
         el = $(el).find('input')[0];
     }
 
-    if (binding.value)
-        $(el).attr('disabled', 'disabled')
-    else
-        $(el).removeAttr('disabled');
+    if (binding.value) $(el).attr('disabled', 'disabled');
+    else $(el).removeAttr('disabled');
 }
 
 function unmounted(el) {

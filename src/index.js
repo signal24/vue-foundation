@@ -2,14 +2,14 @@
 // the 'Vue' imports here will _not_ be the same as the 'Vue' imports from the app due to absolute path differences
 // thus, nothing that's attached to Vue here will be attached to Vue there, and everything will be broken
 
-import vfConfig from './config';
-
-import app, { setRootComponent } from './app';
 import './components';
 import './directives';
-import { registerFilter, registerFilters } from './filters';
 import './helpers';
 import './plugins';
+
+import app, { setRootComponent } from './app';
+import vfConfig from './config';
+import { registerFilter, registerFilters } from './filters';
 
 export default {
     getApp,

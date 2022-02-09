@@ -1,5 +1,6 @@
-import app from '../app';
 import $ from 'jquery';
+
+import app from '../app';
 
 app.directive('readonly', {
     beforeMount: fn,
@@ -11,8 +12,6 @@ function fn(el, binding) {
         el = $(el).find('input')[0];
     }
 
-    if (binding.value)
-        $(el).attr('readonly', 'readonly')
-    else
-        $(el).removeAttr('readonly');
+    if (binding.value) $(el).attr('readonly', 'readonly');
+    else $(el).removeAttr('readonly');
 }
