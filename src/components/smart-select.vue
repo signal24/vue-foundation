@@ -41,10 +41,10 @@ import debounce from 'lodash/debounce';
 const nullSymbol = Symbol(null);
 const createSymbol = Symbol('create');
 
-const VALID_KEYS = `\`1234567890-=[]\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM`;
+const VALID_KEYS = `\`1234567890-=[]\\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM`;
 
 export default {
-    emits: ['optionsLoaded', 'createItem'],
+    emits: ['optionsLoaded', 'createItem', 'update:modelValue'],
 
     props: [
         'modelValue',
@@ -72,7 +72,6 @@ export default {
         return {
             isLoaded: false,
             resolvedOptions: [],
-            decoratedOptions: [],
             isSearching: false,
             searchText: '',
             selectedOption: null,
@@ -84,6 +83,10 @@ export default {
     },
 
     computed: {
+        hasManualOptionsObject() {
+            return this.options && typeof this.options === 'object' && !Array.isArray(this.options);
+        },
+
         effectiveDisabled() {
             return this.disabled || !this.resolvedOptions;
         },
@@ -143,8 +146,50 @@ export default {
             return this.titleKey || 'name';
         },
 
+        effectiveValueKey() {
+            if (this.valueKey) return this.valueKey;
+            if (this.hasManualOptionsObject) return this.effectiveIdKey;
+            return undefined;
+        },
+
         effectiveNoResultsText() {
             return this.noResultsText || 'No options match your search.';
+        },
+
+        resolvedOptionsArray() {
+            return this.hasManualOptionsObject
+                ? Object.entries(this.resolvedOptions).map(entry => ({
+                      [this.effectiveIdKey]: entry[0],
+                      [this.effectiveTitleKey]: entry[1]
+                  }))
+                : this.resolvedOptions;
+        },
+
+        decoratedOptions() {
+            return this.resolvedOptionsArray.map((option, index) => {
+                const title = this.getOptionTitle(option);
+                const subtitle = this.getOptionSubtitle(option);
+                const strippedTitle = title ? title.text.trim().toLowerCase() : '';
+                const strippedSubtitle = subtitle ? subtitle.text.trim().toLowerCase() : '';
+
+                let searchContent = [];
+                if (this.searchFields) {
+                    this.searchFields.forEach(field => {
+                        option[field] && searchContent.push(String(option[field]).toLowerCase());
+                    });
+                } else {
+                    searchContent.push(strippedTitle);
+                    strippedSubtitle && searchContent.push(strippedSubtitle);
+                }
+
+                return {
+                    key: typeof option == 'object' ? option[this.effectiveIdKey] || index : option,
+                    titleHtml: title.html,
+                    subtitleHtml: subtitle?.html,
+                    searchContent: searchContent.join(''),
+                    ref: option
+                };
+            });
         }
     },
 
@@ -169,32 +214,7 @@ export default {
 
         // data
 
-        resolvedOptions() {
-            this.decoratedOptions = this.resolvedOptions.map((option, index) => {
-                const title = this.getOptionTitle(option);
-                const subtitle = this.getOptionSubtitle(option);
-                const strippedTitle = title ? title.text.trim().toLowerCase() : '';
-                const strippedSubtitle = subtitle ? subtitle.text.trim().toLowerCase() : '';
-
-                let searchContent = [];
-                if (this.searchFields) {
-                    this.searchFields.forEach(field => {
-                        option[field] && searchContent.push(String(option[field]).toLowerCase());
-                    });
-                } else {
-                    searchContent.push(strippedTitle);
-                    strippedSubtitle && searchContent.push(strippedSubtitle);
-                }
-
-                return {
-                    key: typeof option == 'object' ? option[this.effectiveIdKey] || index : option,
-                    titleHtml: title.html,
-                    subtitleHtml: subtitle?.html,
-                    searchContent: searchContent.join(''),
-                    ref: option
-                };
-            });
-
+        decoratedOptions() {
             this.shouldDisplayOptions && setTimeout(this.highlightInitialOption, 0);
         },
 
@@ -226,6 +246,7 @@ export default {
 
         if (this.options) {
             this.resolvedOptions = this.options;
+            // this.buildDecoratedOptions();
             this.isLoaded = true;
         } else if (this.$isPropTruthy(this.preload)) {
             this.performInitialLoad();
@@ -235,7 +256,7 @@ export default {
 
         this.$watch('selectedOption', () => {
             const newValue =
-                this.selectedOption && this.valueKey ? this.selectedOption[this.valueKey] : this.selectedOption;
+                this.selectedOption && this.effectiveValueKey ? this.selectedOption[this.effectiveValueKey] : this.selectedOption;
             newValue === this.modelValue || this.$emit('update:modelValue', newValue);
         });
     },
@@ -429,10 +450,10 @@ export default {
                 this.selectedOptionTitle = null;
                 this.$emit('createItem', createText);
             } else {
-                const optionIndex = this.decoratedOptions.findIndex(
+                const selectedDecoratedOption = this.decoratedOptions.find(
                     decoratedOption => decoratedOption.key == option.key
                 );
-                const realOption = this.resolvedOptions[optionIndex];
+                const realOption = selectedDecoratedOption.ref;
                 this.selectedOption = realOption;
                 this.selectedOptionTitle = this.getOptionTitle(this.selectedOption).text;
                 this.searchText = this.selectedOptionTitle || '';
@@ -443,9 +464,9 @@ export default {
 
         handleValueChanged() {
             if (this.modelValue) {
-                if (this.valueKey) {
-                    this.selectedOption = this.resolvedOptions.find(
-                        option => option[this.valueKey] === this.modelValue
+                if (this.effectiveValueKey) {
+                    this.selectedOption = this.resolvedOptionsArray.find(
+                        option => option[this.effectiveValueKey] === this.modelValue
                     );
                 } else {
                     this.selectedOption = this.modelValue;
