@@ -49,6 +49,8 @@ export default {
     props: [
         'modelValue',
         'options',
+        'prependOptions',
+        'appendOptions',
         'preload',
         'url',
         'urlParams',
@@ -71,7 +73,7 @@ export default {
     data() {
         return {
             isLoaded: false,
-            resolvedOptions: [],
+            loadedOptions: [],
             isSearching: false,
             searchText: '',
             selectedOption: null,
@@ -83,12 +85,11 @@ export default {
     },
 
     computed: {
-        hasManualOptionsObject() {
-            return this.options && typeof this.options === 'object' && !Array.isArray(this.options);
-        },
-
+        /**
+         * EFFECTIVE PROPS
+         */
         effectiveDisabled() {
-            return this.disabled || !this.resolvedOptions;
+            return this.disabled || !this.loadedOptions;
         },
 
         effectivePlaceholder() {
@@ -97,8 +98,73 @@ export default {
             return this.placeholder || '';
         },
 
+        effectiveIdKey() {
+            return this.idKey || 'id';
+        },
+
+        effectiveTitleKey() {
+            return this.titleKey || 'name';
+        },
+
+        effectiveValueKey() {
+            if (this.valueKey) return this.valueKey;
+            if (this.options && !Array.isArray(this.options)) return this.effectiveIdKey;
+            return undefined;
+        },
+
+        effectiveNoResultsText() {
+            return this.noResultsText || 'No options match your search.';
+        },
+
+        /**
+         * OPTIONS GENERATION
+         */
+
+        loadedOptionsArray() {
+            return this.arrayifyOptions(this.loadedOptions);
+        },
+
+        prependOptionsArray() {
+            return this.prependOptions ? this.arrayifyOptions(this.prependOptions) : [];
+        },
+
+        appendOptionsArray() {
+            return this.appendOptions ? this.arrayifyOptions(this.appendOptions) : [];
+        },
+
+        fullOptionsArray() {
+            return [...this.prependOptionsArray, ...this.loadedOptionsArray, ...this.appendOptionsArray];
+        },
+
+        optionsDescriptors() {
+            return this.fullOptionsArray.map((option, index) => {
+                const title = this.getOptionTitle(option);
+                const subtitle = this.getOptionSubtitle(option);
+                const strippedTitle = title ? title.text.trim().toLowerCase() : '';
+                const strippedSubtitle = subtitle ? subtitle.text.trim().toLowerCase() : '';
+
+                let searchContent = [];
+                if (this.searchFields) {
+                    this.searchFields.forEach(field => {
+                        option[field] && searchContent.push(String(option[field]).toLowerCase());
+                    });
+                } else {
+                    searchContent.push(strippedTitle);
+                    strippedSubtitle && searchContent.push(strippedSubtitle);
+                }
+
+                return {
+                    key: typeof option == 'object' ? option[this.effectiveIdKey] || index : option,
+                    titleHtml: title.html,
+                    subtitleHtml: subtitle?.html,
+                    searchContent: searchContent.join(''),
+                    ref: option
+                };
+            });
+        },
+
         effectiveOptions() {
-            let options = [...this.decoratedOptions];
+            let options = [...this.optionsDescriptors];
 
             if (this.isSearching) {
                 const strippedSearchText = this.searchText.trim().toLowerCase();
@@ -136,60 +202,6 @@ export default {
             }
 
             return options;
-        },
-
-        effectiveIdKey() {
-            return this.idKey || 'id';
-        },
-
-        effectiveTitleKey() {
-            return this.titleKey || 'name';
-        },
-
-        effectiveValueKey() {
-            if (this.valueKey) return this.valueKey;
-            if (this.hasManualOptionsObject) return this.effectiveIdKey;
-            return undefined;
-        },
-
-        effectiveNoResultsText() {
-            return this.noResultsText || 'No options match your search.';
-        },
-
-        resolvedOptionsArray() {
-            return this.hasManualOptionsObject
-                ? Object.entries(this.resolvedOptions).map(entry => ({
-                      [this.effectiveIdKey]: entry[0],
-                      [this.effectiveTitleKey]: entry[1]
-                  }))
-                : this.resolvedOptions;
-        },
-
-        decoratedOptions() {
-            return this.resolvedOptionsArray.map((option, index) => {
-                const title = this.getOptionTitle(option);
-                const subtitle = this.getOptionSubtitle(option);
-                const strippedTitle = title ? title.text.trim().toLowerCase() : '';
-                const strippedSubtitle = subtitle ? subtitle.text.trim().toLowerCase() : '';
-
-                let searchContent = [];
-                if (this.searchFields) {
-                    this.searchFields.forEach(field => {
-                        option[field] && searchContent.push(String(option[field]).toLowerCase());
-                    });
-                } else {
-                    searchContent.push(strippedTitle);
-                    strippedSubtitle && searchContent.push(strippedSubtitle);
-                }
-
-                return {
-                    key: typeof option == 'object' ? option[this.effectiveIdKey] || index : option,
-                    titleHtml: title.html,
-                    subtitleHtml: subtitle?.html,
-                    searchContent: searchContent.join(''),
-                    ref: option
-                };
-            });
         }
     },
 
@@ -201,7 +213,7 @@ export default {
         },
 
         options() {
-            this.resolvedOptions = this.options;
+            this.loadedOptions = this.options;
         },
 
         url() {
@@ -214,7 +226,7 @@ export default {
 
         // data
 
-        decoratedOptions() {
+        optionsDescriptors() {
             this.shouldDisplayOptions && setTimeout(this.highlightInitialOption, 0);
         },
 
@@ -245,8 +257,7 @@ export default {
         this.shouldShowCreateOption = this.$attrs['onCreateItem'] !== undefined;
 
         if (this.options) {
-            this.resolvedOptions = this.options;
-            // this.buildDecoratedOptions();
+            this.loadedOptions = this.options;
             this.isLoaded = true;
         } else if (this.$isPropTruthy(this.preload)) {
             this.performInitialLoad();
@@ -256,7 +267,9 @@ export default {
 
         this.$watch('selectedOption', () => {
             const newValue =
-                this.selectedOption && this.effectiveValueKey ? this.selectedOption[this.effectiveValueKey] : this.selectedOption;
+                this.selectedOption && this.effectiveValueKey
+                    ? this.selectedOption[this.effectiveValueKey]
+                    : this.selectedOption;
             newValue === this.modelValue || this.$emit('update:modelValue', newValue);
         });
     },
@@ -264,7 +277,7 @@ export default {
     methods: {
         async performInitialLoad() {
             await this.reloadOptions();
-            this.$emit('optionsLoaded', this.resolvedOptions);
+            this.$emit('optionsLoaded', this.loadedOptions);
 
             if (this.$isPropTruthy(this.remoteSearch)) {
                 this.$watch('searchText', debounce(this.reloadOptionsIfSearching, 250));
@@ -275,7 +288,7 @@ export default {
             if (this.preload) return this.reloadOptions();
             if (!this.isLoaded) return;
             this.isLoaded = false;
-            this.resolvedOptions = [];
+            this.loadedOptions = [];
         },
 
         async reloadOptions() {
@@ -284,7 +297,7 @@ export default {
             this.$isPropTruthy(this.remoteSearch) && this.searchText && (params.q = this.searchText);
 
             const result = await this.$http.get(this.url, { params: params });
-            this.resolvedOptions = result.data;
+            this.loadedOptions = result.data;
             this.isLoaded = true;
         },
 
@@ -450,7 +463,7 @@ export default {
                 this.selectedOptionTitle = null;
                 this.$emit('createItem', createText);
             } else {
-                const selectedDecoratedOption = this.decoratedOptions.find(
+                const selectedDecoratedOption = this.optionsDescriptors.find(
                     decoratedOption => decoratedOption.key == option.key
                 );
                 const realOption = selectedDecoratedOption.ref;
@@ -465,7 +478,7 @@ export default {
         handleValueChanged() {
             if (this.modelValue) {
                 if (this.effectiveValueKey) {
-                    this.selectedOption = this.resolvedOptionsArray.find(
+                    this.selectedOption = this.fullOptionsArray.find(
                         option => option[this.effectiveValueKey] === this.modelValue
                     );
                 } else {
@@ -530,7 +543,16 @@ export default {
         },
 
         addRemoteOption(option) {
-            this.resolvedOptions.push(option);
+            this.loadedOptions.push(option);
+        },
+
+        arrayifyOptions(options) {
+            return Array.isArray(options)
+                ? options
+                : Object.entries(options).map(entry => ({
+                      [this.effectiveIdKey]: entry[0],
+                      [this.effectiveTitleKey]: entry[1]
+                  }));
         }
     }
 };
