@@ -260,7 +260,7 @@ export default {
             this.loadedOptions = this.options;
             this.isLoaded = true;
         } else if (this.$isPropTruthy(this.preload)) {
-            this.performInitialLoad();
+            await this.performInitialLoad();
         }
 
         this.handleValueChanged();
