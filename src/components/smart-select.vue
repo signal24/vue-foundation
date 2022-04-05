@@ -37,6 +37,7 @@
 
 <script>
 import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 
 const nullSymbol = Symbol(null);
 const createSymbol = Symbol('create');
@@ -114,6 +115,10 @@ export default {
 
         effectiveNoResultsText() {
             return this.noResultsText || 'No options match your search.';
+        },
+
+        effectiveRemoteSearch() {
+            return this.$isPropTruthy(this.remoteSearch);
         },
 
         /**
@@ -217,21 +222,33 @@ export default {
         },
 
         url() {
+            console.log('url changed');
             this.handleSourceUpdate();
         },
 
-        urlParams() {
-            this.handleSourceUpdate();
+        // we should probably solve this more consistently across the board,
+        // but for now: urlParams may be a hardcoded object in the parent, so
+        // on re-render, a new object literal may be created, which is *technically*
+        // a change that will fire this
+        urlParams(newValue, oldValue) {
+            if (!isEqual(oldValue, newValue)) {
+                this.handleSourceUpdate();
+            }
         },
 
         // data
 
         optionsDescriptors() {
-            this.shouldDisplayOptions && setTimeout(this.highlightInitialOption, 0);
+            if (this.shouldDisplayOptions) {
+                setTimeout(this.highlightInitialOption, 0);
+            }
         },
 
         searchText() {
-            if (this.isSearching && !this.searchText.trim().length) this.isSearching = false;
+            // don't disable searching here if it's remote search, as that will need to be done after the fetch
+            if (this.isSearching && !this.effectiveRemoteSearch && !this.searchText.trim().length) {
+                this.isSearching = false;
+            }
         },
 
         shouldDisplayOptions() {
@@ -260,7 +277,7 @@ export default {
             this.loadedOptions = this.options;
             this.isLoaded = true;
         } else if (this.$isPropTruthy(this.preload)) {
-            await this.performInitialLoad();
+            await this.loadRemoteOptions();
         }
 
         this.handleValueChanged();
@@ -270,21 +287,24 @@ export default {
                 this.selectedOption && this.effectiveValueKey
                     ? this.selectedOption[this.effectiveValueKey]
                     : this.selectedOption;
-            newValue === this.modelValue || this.$emit('update:modelValue', newValue);
+            if (newValue !== this.modelValue) {
+                this.$emit('update:modelValue', newValue);
+            }
         });
+
+        if (this.effectiveRemoteSearch) {
+            this.$watch('searchText', debounce(this.reloadOptionsIfSearching, 250));
+        }
     },
 
     methods: {
-        async performInitialLoad() {
+        async loadRemoteOptions() {
             await this.reloadOptions();
             this.$emit('optionsLoaded', this.loadedOptions);
-
-            if (this.$isPropTruthy(this.remoteSearch)) {
-                this.$watch('searchText', debounce(this.reloadOptionsIfSearching, 250));
-            }
         },
 
         handleSourceUpdate() {
+            console.log('source updated');
             if (this.preload) return this.reloadOptions();
             if (!this.isLoaded) return;
             this.isLoaded = false;
@@ -294,7 +314,10 @@ export default {
         async reloadOptions() {
             let params = {};
             this.urlParams && Object.assign(params, this.urlParams);
-            this.$isPropTruthy(this.remoteSearch) && this.searchText && (params.q = this.searchText);
+
+            if (this.effectiveRemoteSearch && this.isSearching && this.searchText) {
+                params.q = this.searchText;
+            }
 
             const result = await this.$http.get(this.url, { params: params });
             this.loadedOptions = result.data;
@@ -302,7 +325,10 @@ export default {
         },
 
         reloadOptionsIfSearching() {
-            this.isSearching && this.reloadOptions();
+            if (this.isSearching) {
+                this.reloadOptions();
+                this.isSearching = this.searchText.trim().length > 0;
+            }
         },
 
         handleKeyDown(e) {
@@ -344,7 +370,9 @@ export default {
             }
 
             if (e.key === 'Delete' || e.key === 'Backspace') {
-                if (this.searchText.length > 1) this.isSearching = true;
+                if (this.searchText.length > 1) {
+                    this.isSearching = true;
+                }
                 return;
             }
 
@@ -376,7 +404,7 @@ export default {
         },
 
         handleOptionsDisplayed() {
-            this.isLoaded || this.$isPropTruthy(this.preload) || this.performInitialLoad();
+            this.isLoaded || this.loadRemoteOptions();
             this.teleportOptionsContainer();
             this.optionsListId && this.$refs.optionsContainer.setAttribute('id', this.optionsListId);
         },
@@ -452,6 +480,8 @@ export default {
         },
 
         selectOption(option) {
+            this.isSearching = false;
+
             if (option.key == nullSymbol) {
                 this.searchText = '';
                 this.selectedOption = null;
