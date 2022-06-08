@@ -1,29 +1,37 @@
 <template>
-    <div class="vf-overlay vf-modal-wrap">
-        <form
-            action="."
-            class="vf-modal"
-            :class="{ scrolls: $isPropTruthy(this.scrolls) }"
-            @submit.prevent="$emit('formSubmit')"
-        >
-            <div v-if="$slots.header" class="vf-modal-header">
-                <slot name="header" />
-                <i v-if="$isPropTruthy(this.closeX)" class="close" @click="$parent.$dismiss()"></i>
-            </div>
-            <div class="vf-modal-content">
-                <slot />
-            </div>
-            <div v-if="$slots.footer" class="vf-modal-footer">
-                <slot name="footer" />
-            </div>
-        </form>
-    </div>
+    <Teleport to="#vf-modal-target">
+        <div class="vf-overlay vf-modal-wrap" :class="class">
+            <form
+                action="."
+                class="vf-modal"
+                :class="{ scrolls: $isPropTruthy(this.scrolls) }"
+                @submit.prevent="$emit('formSubmit')"
+            >
+                <div v-if="$slots.header" class="vf-modal-header">
+                    <slot name="header" />
+                    <i v-if="$isPropTruthy(this.closeX)" class="close" @click="$parent.$dismiss()"></i>
+                </div>
+                <div class="vf-modal-content">
+                    <slot />
+                </div>
+                <div v-if="$slots.footer" class="vf-modal-footer">
+                    <slot name="footer" />
+                </div>
+            </form>
+        </div>
+    </Teleport>
 </template>
 
 <script>
 export default {
-    props: ['closeOnMaskClick', 'scrolls', 'closeX'],
+    props: ['closeOnMaskClick', 'scrolls', 'closeX', 'class'],
     emits: ['formSubmit'],
+
+    beforeCreate() {
+        const targetEl = document.getElementById('vf-modal-target') ?? document.createElement('div');
+        targetEl.id = 'vf-modal-target';
+        document.body.appendChild(targetEl);
+    },
 
     mounted() {
         window.addEventListener('keydown', this.handleEscapeKey);
