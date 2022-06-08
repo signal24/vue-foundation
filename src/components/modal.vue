@@ -30,6 +30,7 @@ export default {
     beforeCreate() {
         const targetEl = document.getElementById('vf-modal-target') ?? document.createElement('div');
         targetEl.id = 'vf-modal-target';
+        targetEl.removeAttribute('inert');
         document.body.appendChild(targetEl);
     },
 
