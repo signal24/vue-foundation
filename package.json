@@ -1,7 +1,7 @@
 {
     "name": "@signal24/vue-foundation",
     "type": "module",
-    "version": "3.8.0",
+    "version": "3.8.1",
     "description": "Common components, directives, and helpers for Vue 3 apps",
     "main": "dist/vue-foundation.umd.js",
     "module": "./dist/vue-foundation.es.js",
