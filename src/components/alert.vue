@@ -19,7 +19,7 @@
 
 <script>
 import app from '../app';
-import Modal from './modal';
+import Modal from './modal.vue';
 
 const classDef = {
     components: {

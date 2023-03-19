@@ -1,28 +1,39 @@
 {
     "name": "@signal24/vue-foundation",
-    "version": "3.7.5",
+    "type": "module",
+    "version": "3.8.0",
     "description": "Common components, directives, and helpers for Vue 3 apps",
-    "main": "src/index.js",
+    "main": "dist/vue-foundation.umd.js",
+    "module": "./dist/vue-foundation.es.js",
+    "exports": {
+        ".": {
+          "import": "./dist/vue-foundation.es.js",
+          "require": "./dist/vue-foundation.umd.js"
+        },
+        "./dist/vue-foundation.css": {
+          "import": "./dist/vue-foundation.css",
+          "require": "./dist/vue-foundation.css"
+        }
+    },
     "scripts": {
-        "format": "prettier --write . && eslint src --fix"
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
     },
     "license": "MIT",
     "dependencies": {
-        "axios": "^0.26.0",
-        "jquery": "^3.6.0",
+        "axios": "^0.27.2",
+        "jquery": "^3.6.4",
         "lodash": "^4.17.21",
-        "moment": "^2.29.1",
-        "vue-stash-nested": "fergusean/vue-stash-nested#vue-foundation-3"
+        "moment": "^2.29.4",
+        "vue-stash-nested": "fergusean/vue-stash-nested#vue-foundation-3",
+        "vue": "^3.2.47"
     },
     "devDependencies": {
-        "@vue/eslint-config-prettier": "^7.0.0",
-        "eslint": "^8.10.0",
-        "eslint-plugin-prettier": "^4.0.0",
-        "eslint-plugin-simple-import-sort": "^7.0.0",
-        "eslint-plugin-vue": "^8.5.0",
-        "prettier": "^2.5.1",
-        "sass": "^1.49.9",
-        "sass-loader": "^12",
-        "vue": "^3.2.31"
+        "@vitejs/plugin-vue": "^4.1.0",
+        "autoprefixer": "^10.4.14",
+        "sass": "^1.59.3",
+        "vite": "^4.2.0",
+        "vue": "^3.2.47"
     }
 }
