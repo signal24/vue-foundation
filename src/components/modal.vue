@@ -1,6 +1,6 @@
 <template>
     <Teleport to="#vf-modal-target">
-        <div class="vf-overlay vf-modal-wrap" :class="class">
+        <div :id="id" class="vf-overlay vf-modal-wrap" :class="class">
             <form
                 action="."
                 class="vf-modal"
@@ -24,7 +24,7 @@
 
 <script>
 export default {
-    props: ['closeOnMaskClick', 'scrolls', 'closeX', 'class'],
+    props: ['id', 'closeOnMaskClick', 'scrolls', 'closeX', 'class'],
     emits: ['formSubmit'],
 
     beforeCreate() {
