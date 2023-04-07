@@ -1,0 +1,10 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.node.json",
+    "include": ["src/vite-plugins/*"],
+    "compilerOptions": {
+        "composite": true,
+        "types": ["node"],
+        "noImplicitAny": true,
+        "outDir": "dist"
+    }
+}

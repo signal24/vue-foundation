@@ -4,7 +4,7 @@
             v-model="searchText"
             ref="searchField"
             type="text"
-            :class="{ nullable: !!nullTitle }"
+            :class="{ nullable: !!props.nullTitle }"
             @keydown="handleKeyDown"
             :placeholder="effectivePlaceholder"
             v-disabled="effectiveDisabled"
@@ -16,7 +16,7 @@
             <template v-else>
                 <div
                     v-for="option in effectiveOptions"
-                    :key="option.key"
+                    :key="String(option.key)"
                     class="option"
                     :class="{
                         highlighted: highlightedOptionKey === option.key
@@ -24,8 +24,8 @@
                     @mousemove="handleOptionHover(option)"
                     @mousedown="selectOption(option)"
                 >
-                    <div class="title" v-html="option.titleHtml" />
-                    <div v-if="option.subtitleHtml" class="subtitle" v-html="option.subtitleHtml" />
+                    <div class="title" v-html="option.title" />
+                    <div v-if="option.subtitle" class="subtitle" v-html="option.subtitle" />
                 </div>
                 <div v-if="!effectiveOptions.length && searchText" class="no-results">
                     {{ effectiveNoResultsText }}
@@ -35,41 +35,59 @@
     </div>
 </template>
 
-<script>
-import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+<script lang="ts">
+// eslint-disable-next-line vue/prefer-import-from-vue
+import { escapeHtml } from '@vue/shared';
+import { debounce } from 'lodash';
+import { defineComponent, defineEmits, defineProps } from 'vue';
 
-const nullSymbol = Symbol(null);
-const createSymbol = Symbol('create');
+const NullSymbol = Symbol('null');
+const CreateSymbol = Symbol('create');
 
 const VALID_KEYS = `\`1234567890-=[]\\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM`;
 
-export default {
-    emits: ['optionsLoaded', 'createItem', 'update:modelValue'],
+// todo: make type safe when Vue alpha is released
 
-    props: [
-        'modelValue',
-        'options',
-        'prependOptions',
-        'appendOptions',
-        'preload',
-        'url',
-        'urlParams',
-        'remoteSearch',
-        'searchFields',
-        'placeholder',
-        'valueKey',
-        'idKey',
-        'titleKey',
-        'titleFormatter',
-        'subtitleKey',
-        'subtitleFormatter',
-        'nullTitle',
-        'noResultsText',
-        'disabled',
-        'optionsListId',
-        'debug'
-    ],
+type GenericObject = { [key: string]: any };
+interface OptionDescriptor {
+    key: string | Symbol;
+    title: string;
+    subtitle?: string | null;
+    searchContent?: string;
+    ref?: GenericObject;
+}
+
+export default defineComponent({
+    setup() {
+        const props = defineProps<{
+            modelValue?: GenericObject;
+            loadOptions?: (searchText: string | null) => Promise<GenericObject[]>;
+            options?: GenericObject[];
+            prependOptions?: GenericObject[];
+            appendOptions?: GenericObject[];
+            onCreateItem?: (searchText: string) => void;
+            preload?: boolean;
+            keyProp?: string; // K
+            remoteSearch?: boolean;
+            searchFields?: string[];
+            placeholder?: string;
+            formatter: (option: GenericObject) => string;
+            subtitleFormatter?: (option: GenericObject) => string;
+            nullTitle?: string;
+            noResultsText?: string;
+            disabled?: boolean;
+            optionsListId?: string;
+            debug?: boolean;
+        }>();
+
+        defineEmits<{
+            optionsLoaded: (options: any[]) => void;
+            createItem: (searchText: string) => void;
+            'update:modelValue': (value: any) => void;
+        }>();
+
+        return { props };
+    },
 
     data() {
         return {
@@ -82,6 +100,16 @@ export default {
             shouldDisplayOptions: false,
             highlightedOptionKey: null,
             shouldShowCreateOption: false
+        } as {
+            isLoaded: boolean;
+            loadedOptions: GenericObject[];
+            isSearching: boolean;
+            searchText: string;
+            selectedOption: GenericObject | null;
+            selectedOptionTitle: string | null;
+            shouldDisplayOptions: boolean;
+            highlightedOptionKey: string | Symbol | null;
+            shouldShowCreateOption: boolean;
         };
     },
 
@@ -90,67 +118,37 @@ export default {
          * EFFECTIVE PROPS
          */
         effectiveDisabled() {
-            return this.disabled || !this.loadedOptions;
+            return this.props.disabled || !this.loadedOptions;
         },
 
         effectivePlaceholder() {
-            if (!this.isLoaded && this.$isPropTruthy(this.preload)) return 'Loading...';
-            if (this.nullTitle) return this.nullTitle;
-            return this.placeholder || '';
-        },
-
-        effectiveIdKey() {
-            return this.idKey || 'id';
-        },
-
-        effectiveTitleKey() {
-            return this.titleKey || 'name';
-        },
-
-        effectiveValueKey() {
-            if (this.valueKey) return this.valueKey;
-            if (this.options && !Array.isArray(this.options)) return this.effectiveIdKey;
-            return undefined;
+            if (!this.isLoaded && this.props.preload) return 'Loading...';
+            if (this.props.nullTitle) return this.props.nullTitle;
+            return this.props.placeholder || '';
         },
 
         effectiveNoResultsText() {
-            return this.noResultsText || 'No options match your search.';
-        },
-
-        effectiveRemoteSearch() {
-            return this.$isPropTruthy(this.remoteSearch);
+            return this.props.noResultsText || 'No options match your search.';
         },
 
         /**
          * OPTIONS GENERATION
          */
 
-        loadedOptionsArray() {
-            return this.arrayifyOptions(this.loadedOptions);
-        },
-
-        prependOptionsArray() {
-            return this.prependOptions ? this.arrayifyOptions(this.prependOptions) : [];
-        },
-
-        appendOptionsArray() {
-            return this.appendOptions ? this.arrayifyOptions(this.appendOptions) : [];
-        },
-
         fullOptionsArray() {
-            return [...this.prependOptionsArray, ...this.loadedOptionsArray, ...this.appendOptionsArray];
+            return [...(this.props.prependOptions ?? []), ...this.loadedOptions, ...(this.props.appendOptions ?? [])];
         },
 
         optionsDescriptors() {
             return this.fullOptionsArray.map((option, index) => {
-                const title = this.getOptionTitle(option);
-                const subtitle = this.getOptionSubtitle(option);
-                const strippedTitle = title ? title.text.trim().toLowerCase() : '';
-                const strippedSubtitle = subtitle ? subtitle.text.trim().toLowerCase() : '';
+                const title = this.props.formatter(option);
+                const subtitle = this.props.subtitleFormatter?.(option);
+                const strippedTitle = title ? title.trim().toLowerCase() : '';
+                const strippedSubtitle = subtitle ? subtitle.trim().toLowerCase() : '';
 
-                let searchContent = [];
-                if (this.searchFields) {
-                    this.searchFields.forEach(field => {
+                const searchContent = [];
+                if (this.props.searchFields) {
+                    this.props.searchFields.forEach(field => {
                         option[field] && searchContent.push(String(option[field]).toLowerCase());
                     });
                 } else {
@@ -159,12 +157,12 @@ export default {
                 }
 
                 return {
-                    key: typeof option == 'object' ? option[this.effectiveIdKey] || index : option,
-                    titleHtml: title.html,
-                    subtitleHtml: subtitle?.html,
+                    key: String(this.props.keyProp ? option[this.props.keyProp] : index),
+                    title,
+                    subtitle,
                     searchContent: searchContent.join(''),
                     ref: option
-                };
+                } as OptionDescriptor;
             });
         },
 
@@ -175,34 +173,31 @@ export default {
                 const strippedSearchText = this.searchText.trim().toLowerCase();
 
                 if (strippedSearchText.length) {
-                    options = options.filter(option => option.searchContent.includes(strippedSearchText));
+                    options = options.filter(option => option.searchContent!.includes(strippedSearchText));
 
-                    const escapedSearchText = this.searchText.escapeHtml().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+                    const escapedSearchText = escapeHtml(this.searchText).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
                     const searchRe = new RegExp(`(${escapedSearchText})`, 'ig');
 
-                    options = options.map(option => {
-                        option = { ...option };
-                        option.titleHtml = option.titleHtml.replace(searchRe, '<mark>$1</mark>');
-                        if (option.subtitleHtml)
-                            option.subtitleHtml = option.subtitleHtml.replace(searchRe, '<mark>$1</mark>');
-                        return option;
-                    });
+                    options = options.map(option => ({
+                        ...option,
+                        title: option.title.replace(searchRe, '<mark>$1</mark>'),
+                        subtitle: option.subtitle?.replace(searchRe, '<mark>$1</mark>')
+                    }));
 
                     if (this.shouldShowCreateOption) {
-                        const hasExactMatch =
-                            options.find(option => option.searchContent === strippedSearchText) !== undefined;
+                        const hasExactMatch = options.find(option => option.searchContent === strippedSearchText) !== undefined;
                         if (!hasExactMatch) {
                             options.push({
-                                key: createSymbol,
-                                titleHtml: 'Create <strong>' + this.searchText.trim() + '</strong>...'
+                                key: CreateSymbol,
+                                title: 'Create <strong>' + this.searchText.trim() + '</strong>...'
                             });
                         }
                     }
                 }
-            } else if (this.nullTitle) {
+            } else if (this.props.nullTitle) {
                 options.unshift({
-                    key: nullSymbol,
-                    titleHtml: this.nullTitle
+                    key: NullSymbol,
+                    title: this.props.nullTitle
                 });
             }
 
@@ -218,22 +213,7 @@ export default {
         },
 
         options() {
-            this.loadedOptions = this.options;
-        },
-
-        url() {
-            console.log('url changed');
-            this.handleSourceUpdate();
-        },
-
-        // we should probably solve this more consistently across the board,
-        // but for now: urlParams may be a hardcoded object in the parent, so
-        // on re-render, a new object literal may be created, which is *technically*
-        // a change that will fire this
-        urlParams(newValue, oldValue) {
-            if (!isEqual(oldValue, newValue)) {
-                this.handleSourceUpdate();
-            }
+            this.loadedOptions = this.props.options ?? [];
         },
 
         // data
@@ -246,7 +226,7 @@ export default {
 
         searchText() {
             // don't disable searching here if it's remote search, as that will need to be done after the fetch
-            if (this.isSearching && !this.effectiveRemoteSearch && !this.searchText.trim().length) {
+            if (this.isSearching && !this.props.remoteSearch && !this.searchText.trim().length) {
                 this.isSearching = false;
             }
         },
@@ -261,10 +241,7 @@ export default {
         },
 
         effectiveOptions() {
-            if (
-                !this.highlightedOptionKey ||
-                !this.effectiveOptions.find(option => option.key == this.highlightedOptionKey)
-            ) {
+            if (!this.highlightedOptionKey || !this.effectiveOptions.find(option => option.key == this.highlightedOptionKey)) {
                 this.highlightedOptionKey = this.effectiveOptions.length ? this.effectiveOptions[0].key : null;
             }
         }
@@ -273,26 +250,22 @@ export default {
     async mounted() {
         this.shouldShowCreateOption = this.$attrs['onCreateItem'] !== undefined;
 
-        if (this.options) {
-            this.loadedOptions = this.options;
+        if (this.props.options) {
+            this.loadedOptions = this.props.options;
             this.isLoaded = true;
-        } else if (this.$isPropTruthy(this.preload)) {
+        } else if (this.props.preload) {
             await this.loadRemoteOptions();
         }
 
         this.handleValueChanged();
 
         this.$watch('selectedOption', () => {
-            const newValue =
-                this.selectedOption && this.effectiveValueKey
-                    ? this.selectedOption[this.effectiveValueKey]
-                    : this.selectedOption;
-            if (newValue !== this.modelValue) {
-                this.$emit('update:modelValue', newValue);
+            if (this.selectedOption !== this.props.modelValue) {
+                this.$emit('update:modelValue', this.selectedOption);
             }
         });
 
-        if (this.effectiveRemoteSearch) {
+        if (this.props.remoteSearch) {
             this.$watch('searchText', debounce(this.reloadOptionsIfSearching, 250));
         }
     },
@@ -305,22 +278,15 @@ export default {
 
         handleSourceUpdate() {
             console.log('source updated');
-            if (this.preload) return this.reloadOptions();
+            if (this.props.preload) return this.reloadOptions();
             if (!this.isLoaded) return;
             this.isLoaded = false;
             this.loadedOptions = [];
         },
 
         async reloadOptions() {
-            let params = {};
-            this.urlParams && Object.assign(params, this.urlParams);
-
-            if (this.effectiveRemoteSearch && this.isSearching && this.searchText) {
-                params.q = this.searchText;
-            }
-
-            const result = await this.$http.get(this.url, { params: params });
-            this.loadedOptions = result.data;
+            const searchText = this.props.remoteSearch && this.isSearching && this.searchText ? this.searchText : null;
+            this.loadedOptions = (await this.props.loadOptions?.(searchText)) ?? [];
             this.isLoaded = true;
         },
 
@@ -331,10 +297,10 @@ export default {
             }
         },
 
-        handleKeyDown(e) {
+        handleKeyDown(e: KeyboardEvent) {
             if (e.key == 'Escape') {
                 e.stopPropagation();
-                e.target.blur();
+                (e.target as any).blur();
                 return;
             }
 
@@ -358,9 +324,7 @@ export default {
 
             if (e.key == 'Home' || e.key == 'End') {
                 e.preventDefault();
-                return this.incrementHighlightedOption(
-                    e.key == 'Home' ? -Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER
-                );
+                return this.incrementHighlightedOption(e.key == 'Home' ? -Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER);
             }
 
             if (e.key == 'Enter') {
@@ -383,19 +347,18 @@ export default {
 
         handleInputFocused() {
             if (this.selectedOption)
-                this.highlightedOptionKey =
-                    typeof this.selectedOption == 'object' && this.selectedOption !== null
-                        ? this.selectedOption[this.effectiveIdKey]
-                        : this.selectedOption;
-            else if (this.nullTitle) this.highlightedOptionKey = nullSymbol;
+                this.highlightedOptionKey = String(
+                    this.props.keyProp ? this.selectedOption[this.props.keyProp] : this.loadedOptions.indexOf(this.selectedOption)
+                );
+            else if (this.props.nullTitle) this.highlightedOptionKey = NullSymbol;
 
             this.shouldDisplayOptions = true;
         },
 
         handleInputBlurred() {
-            if (this.$isPropTruthy(this.debug)) return;
+            if (this.props.debug) return;
 
-            if (!this.searchText.length && this.nullTitle) {
+            if (!this.searchText.length && this.props.nullTitle) {
                 this.selectedOption = null;
                 this.selectedOptionTitle = null;
             }
@@ -406,7 +369,7 @@ export default {
         handleOptionsDisplayed() {
             this.isLoaded || this.loadRemoteOptions();
             this.teleportOptionsContainer();
-            this.optionsListId && this.$refs.optionsContainer.setAttribute('id', this.optionsListId);
+            this.props.optionsListId && (this.$refs.optionsContainer as HTMLElement).setAttribute('id', this.props.optionsListId);
         },
 
         teleportOptionsContainer() {
@@ -414,7 +377,7 @@ export default {
             const targetTop = elRect.y + elRect.height + 2;
             const targetLeft = elRect.x;
 
-            const optionsEl = this.$refs.optionsContainer;
+            const optionsEl = this.$refs.optionsContainer as HTMLElement;
             const styles = window.getComputedStyle(this.$el);
 
             for (let key in styles) {
@@ -439,83 +402,65 @@ export default {
         highlightInitialOption() {
             if (!this.isLoaded) return;
             if (!this.highlightedOptionKey) return;
-            const highlightedOptionIdx = this.effectiveOptions.findIndex(
-                option => option.key == this.highlightedOptionKey
-            );
-            const containerEl = this.$refs.optionsContainer;
-            const highlightedOptionEl = containerEl.querySelectorAll('.option')[highlightedOptionIdx];
+            const highlightedOptionIdx = this.effectiveOptions.findIndex(option => option.key == this.highlightedOptionKey);
+            const containerEl = this.$refs.optionsContainer as HTMLElement;
+            const highlightedOptionEl = containerEl.querySelectorAll('.option')[highlightedOptionIdx] as HTMLElement;
             containerEl.scrollTop = highlightedOptionEl.offsetTop;
         },
 
-        handleOptionHover(option) {
+        handleOptionHover(option: OptionDescriptor) {
             this.highlightedOptionKey = option ? option.key : null;
         },
 
-        incrementHighlightedOption(increment) {
-            const highlightedOptionIdx = this.effectiveOptions.findIndex(
-                option => option.key == this.highlightedOptionKey
-            );
+        incrementHighlightedOption(increment: number) {
+            const highlightedOptionIdx = this.effectiveOptions.findIndex(option => option.key == this.highlightedOptionKey);
             let targetOptionIdx = highlightedOptionIdx + increment;
 
             if (targetOptionIdx < 0) targetOptionIdx = 0;
-            else if (targetOptionIdx >= this.effectiveOptions.length)
-                targetOptionIdx = this.effectiveOptions.length - 1;
+            else if (targetOptionIdx >= this.effectiveOptions.length) targetOptionIdx = this.effectiveOptions.length - 1;
 
             if (highlightedOptionIdx == targetOptionIdx) return;
 
             this.highlightedOptionKey = this.effectiveOptions[targetOptionIdx].key;
 
-            const containerEl = this.$refs.optionsContainer;
-            const targetOptionEl = containerEl.querySelectorAll('.option')[targetOptionIdx];
+            const containerEl = this.$refs.optionsContainer as HTMLElement;
+            const targetOptionEl = containerEl.querySelectorAll('.option')[targetOptionIdx] as HTMLElement;
 
             if (targetOptionEl.offsetTop < containerEl.scrollTop) {
                 containerEl.scrollTop = targetOptionEl.offsetTop;
-            } else if (
-                targetOptionEl.offsetTop + targetOptionEl.offsetHeight >
-                containerEl.scrollTop + containerEl.clientHeight
-            ) {
-                containerEl.scrollTop =
-                    targetOptionEl.offsetTop + targetOptionEl.offsetHeight - containerEl.clientHeight;
+            } else if (targetOptionEl.offsetTop + targetOptionEl.offsetHeight > containerEl.scrollTop + containerEl.clientHeight) {
+                containerEl.scrollTop = targetOptionEl.offsetTop + targetOptionEl.offsetHeight - containerEl.clientHeight;
             }
         },
 
-        selectOption(option) {
+        selectOption(option: OptionDescriptor) {
             this.isSearching = false;
 
-            if (option.key == nullSymbol) {
+            if (option.key == NullSymbol) {
                 this.searchText = '';
                 this.selectedOption = null;
                 this.selectedOptionTitle = null;
-            } else if (option.key === createSymbol) {
+            } else if (option.key === CreateSymbol) {
                 const createText = this.searchText.trim();
                 this.searchText = '';
                 this.selectedOption = null;
                 this.selectedOptionTitle = null;
                 this.$emit('createItem', createText);
             } else {
-                const selectedDecoratedOption = this.optionsDescriptors.find(
-                    decoratedOption => decoratedOption.key == option.key
-                );
-                const realOption = selectedDecoratedOption.ref;
-                this.selectedOption = realOption;
-                this.selectedOptionTitle = this.getOptionTitle(this.selectedOption).text;
+                const selectedDecoratedOption = this.optionsDescriptors.find(decoratedOption => decoratedOption.key == option.key);
+                const realOption = selectedDecoratedOption!.ref;
+                this.selectedOption = realOption!;
+                this.selectedOptionTitle = this.props.formatter(realOption!);
                 this.searchText = this.selectedOptionTitle || '';
             }
 
-            this.$refs.searchField.blur();
+            (this.$refs.searchField as HTMLElement).blur();
         },
 
         handleValueChanged() {
-            if (this.modelValue) {
-                if (this.effectiveValueKey) {
-                    this.selectedOption = this.fullOptionsArray.find(
-                        option => option[this.effectiveValueKey] === this.modelValue
-                    );
-                } else {
-                    this.selectedOption = this.modelValue;
-                }
-
-                this.selectedOptionTitle = this.getOptionTitle(this.selectedOption).text;
+            if (this.props.modelValue) {
+                this.selectedOption = this.props.modelValue;
+                this.selectedOptionTitle = this.props.formatter(this.selectedOption);
                 this.searchText = this.selectedOptionTitle || '';
             } else {
                 this.selectedOption = null;
@@ -524,68 +469,11 @@ export default {
             }
         },
 
-        getOptionTitle(option) {
-            if (option === null) return null;
-
-            if (this.titleFormatter) {
-                const result = this.titleFormatter(option);
-                if (typeof result == 'object') {
-                    return {
-                        text: result.text || result.html.replace(/<[^>]+>/g, ''),
-                        html: result.html
-                    };
-                } else {
-                    return {
-                        text: result,
-                        html: result.escapeHtml()
-                    };
-                }
-            }
-
-            const text = String(typeof option != 'object' ? option : option[this.effectiveTitleKey]);
-            return { text, html: text.escapeHtml() };
-        },
-
-        getOptionSubtitle(option) {
-            if (option === null) return null;
-
-            if (this.subtitleFormatter) {
-                const result = this.subtitleFormatter(option);
-                if (!result) return null;
-                if (typeof result == 'object') {
-                    return {
-                        text: result.text || result.html.replace(/<[^>]+>/g, ''),
-                        html: result.html
-                    };
-                } else {
-                    return {
-                        text: result,
-                        html: result.escapeHtml()
-                    };
-                }
-            }
-
-            let text = typeof option != 'object' ? null : option[this.subtitleKey];
-            if (!text) return null;
-
-            text = String(text);
-            return { text, html: text.escapeHtml() };
-        },
-
-        addRemoteOption(option) {
+        addRemoteOption(option: GenericObject) {
             this.loadedOptions.push(option);
-        },
-
-        arrayifyOptions(options) {
-            return Array.isArray(options)
-                ? options
-                : Object.entries(options).map(entry => ({
-                      [this.effectiveIdKey]: entry[0],
-                      [this.effectiveTitleKey]: entry[1]
-                  }));
         }
     }
-};
+});
 </script>
 
 <style lang="scss">

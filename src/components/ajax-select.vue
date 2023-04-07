@@ -1,28 +1,55 @@
 <template>
-    <select v-if="!options" disabled>
-        <option>{{ loadingText || 'Loading...' }}</option>
+    <select v-if="!renderOptions" disabled>
+        <option>{{ props.loadingText || 'Loading...' }}</option>
     </select>
     <select v-else v-model="selectedItem">
-        <option v-if="nullText" :value="null">{{ nullText }}</option>
-        <option v-for="option in options" :key="option.id" :value="option">
-            {{ textKey ? option[textKey] : option }}
+        <option v-if="props.nullText" :value="null">{{ props.nullText }}</option>
+        <option v-for="(renderOption, index) in renderOptions" :key="index" :value="options?.[index]">
+            {{ renderOption }}
         </option>
     </select>
 </template>
 
-<script>
-export default {
-    props: ['modelValue', 'url', 'params', 'itemsKey', 'preprocessor', 'textKey', 'nullText', 'loadingText'],
+<script lang="ts">
+import { computed, defineComponent, defineEmits, defineProps, ref } from 'vue';
 
-    data() {
-        return {
-            options: null,
-            selectedItem: null
-        };
+// todo: make type safe when Vue alpha is released
+
+type GenericObject = { [key: string]: any };
+
+export default defineComponent({
+    setup() {
+        const props = defineProps<{
+            modelValue: any;
+            loadFn: () => Promise<GenericObject[]>;
+            nullText?: string;
+            loadingText?: string;
+            displayKey?: string;
+            preprocesor?: (option: GenericObject) => string;
+        }>();
+
+        defineEmits(['update:modelValue']);
+
+        const options = ref<GenericObject[] | null>(null);
+        const renderOptions = computed(() => {
+            if (!options.value) {
+                return null;
+            }
+
+            const result = options.value.map(option => {
+                return props.preprocesor ? props.preprocesor(option) : option[props.displayKey ?? ''];
+            });
+
+            return result;
+        });
+
+        const selectedItem = ref<GenericObject | null>(props.modelValue ?? null);
+
+        return { props, options, renderOptions, selectedItem };
     },
 
     watch: {
-        params() {
+        loadFn() {
             this.load();
         },
 
@@ -31,7 +58,7 @@ export default {
         },
 
         modelValue() {
-            this.selectedItem = this.modelValue;
+            this.selectedItem = this.props.modelValue;
         }
     },
 
@@ -41,14 +68,8 @@ export default {
 
     methods: {
         async load() {
-            this.options = null;
-            let params = this.params ? { params: this.params } : undefined;
-            let result = await this.$http.get(this.url, params);
-            let options = this.itemsKey ? result.data[this.itemsKey] : result.data;
-            this.preprocessor && this.preprocessor(options);
-            this.options = options;
-            this.selectedItem = this.modelValue;
+            this.options = await this.props.loadFn();
         }
     }
-};
+});
 </script>
