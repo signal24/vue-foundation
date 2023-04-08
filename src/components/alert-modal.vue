@@ -20,18 +20,17 @@
 <script lang="ts" setup>
 import { computed, defineProps } from 'vue';
 
-import { formatError } from '@/helpers';
+import { formatError } from '@/helpers/error';
 
 import Modal from './modal.vue';
-import type { ModalInput } from './modal-container';
 
 const props = defineProps<{
-    isBare?: ModalInput<boolean>;
-    isHtml?: ModalInput<boolean>;
-    classes?: ModalInput<string[]>;
-    title?: ModalInput<string>;
-    message: ModalInput<string | Error>;
-    shouldConfirm?: ModalInput<boolean>;
+    isBare?: boolean;
+    isHtml?: boolean;
+    classes?: string[];
+    title?: string;
+    message: string | Error;
+    shouldConfirm?: boolean;
     callback: (ok: boolean) => void;
 }>();
 

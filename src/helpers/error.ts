@@ -22,12 +22,12 @@ export function toError(err: any) {
     return err instanceof Error ? err : new Error(String(err));
 }
 
-export async function handleErrorAndAlert(errIn: any) {
+export async function handleErrorAndAlert(errIn: any, alertTitle?: string) {
     const err = toError(errIn);
 
     if (!(err instanceof UserError)) {
         VfOptions.errorHandler(err);
     }
 
-    return showAlert(err);
+    return alertTitle ? showAlert(alertTitle, err) : showAlert(err);
 }

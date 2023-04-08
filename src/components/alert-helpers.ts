@@ -16,20 +16,22 @@ export async function showAlert(titleOrMessage: string | Error, message?: string
 export async function showConfirm(title: string, message: string): Promise<boolean>;
 export async function showConfirm(message: string): Promise<boolean>;
 export async function showConfirm(titleOrMessage: string, message?: string): Promise<boolean> {
-    return presentModal(AlertModal, {
+    const result = await presentModal(AlertModal, {
         ...resolveAlertParams(titleOrMessage, message),
         shouldConfirm: true
     });
+    return result === true;
 }
 
 export async function showConfirmDestroy(title: string, message: string): Promise<boolean>;
 export async function showConfirmDestroy(message: string): Promise<boolean>;
 export async function showConfirmDestroy(titleOrMessage: string, message?: string): Promise<boolean> {
-    return presentModal(AlertModal, {
+    const result = await presentModal(AlertModal, {
         ...resolveAlertParams(titleOrMessage, message),
         shouldConfirm: true,
         classes: ['destructive']
     });
+    return result === true;
 }
 
 export function showWait(title: string, message: string): () => void;
@@ -41,3 +43,27 @@ export function showWait(titleOrMessage: string, message?: string): () => void {
     });
     return () => removeModalInjection(injection);
 }
+
+// async function test1() {
+//     presentModal(TestModal, {});
+// }
+
+// type TMC = typeof TestModal;
+// type TMCProps = ComponentProps<TMC>;
+// // type TMCProps = TMC extends AnyComponent<infer P> ? UnwrapPropsVueInternal<P> : never;
+// // type TMCProps2 = TMC extends AnyComponent<infer P, infer R> ? R : never;
+
+// type TMCProps3 = TMCProps; // & TMCProps2;
+// const TMCObj: TMCProps3 = {};
+
+// type AMC = typeof AlertModal;
+// type AMCC = ComponentConfig<AMC>;
+// type Z = AMCC['$props'];
+
+// type AMCProps = ComponentProps<AMC>;
+// const ZZZ: AMCProps = {};
+// // type AMCProps = AMC extends AnyComponent<infer P> ? UnwrapPropsVueInternal<P> : never;
+// // type AMCProps2 = AMC extends AnyComponent<infer P, infer R> ? R : never;
+
+// type AMCProps3 = AMCProps; // & AMCProps2;
+// const AMCObj: AMCProps3 = {};

@@ -1,24 +1,21 @@
+import type { Writable } from 'type-fest';
 import {
+    type AllowedComponentProps,
     type ComponentInternalInstance,
-    type ComponentOptionsMixin,
-    type ComponentPropsOptions,
     type ComponentPublicInstance,
     type ComputedOptions,
-    type DefineComponent,
     defineComponent,
-    type ExtractPropTypes,
     h,
     markRaw,
     type MethodOptions,
     type Raw,
     reactive,
     renderList,
-    type VNode
+    type VNode,
+    type VNodeProps
 } from 'vue';
 
-import type { Branded, UnwrapBrand } from '../types';
-
-interface ModalInjection<C extends AnyComponent> {
+interface ModalInjection<C extends Vue__ComponentPublicInstanceConstructor> {
     id: string;
     component: Raw<C>;
     props: ComponentProps<C>;
@@ -33,7 +30,6 @@ export const ModalContainer = defineComponent({
         return () =>
             h('div', { id: 'modal-container' }, [
                 renderList(ModalInjections, injection => {
-                    console.log('sending vnote', injection.vnode);
                     return injection.vnode;
                 })
             ]);
@@ -46,42 +42,34 @@ export const ModalContainer = defineComponent({
     }
 });
 
-const _InputBrand = typeof Symbol('ModalInput');
-type InputBrand = typeof _InputBrand;
-export type ModalInput<T> = Branded<InputBrand, T>;
+// copied in from Vue since it's not exported
+export type Vue__ComponentPublicInstanceConstructor<
+    T extends ComponentPublicInstance<Props, RawBindings, D, C, M> = ComponentPublicInstance<any>,
+    Props = any,
+    RawBindings = any,
+    D = any,
+    C extends ComputedOptions = ComputedOptions,
+    M extends MethodOptions = MethodOptions
+> = {
+    __isFragment?: never;
+    __isTeleport?: never;
+    __isSuspense?: never;
+    new (...args: any[]): T;
+};
 
-export type AnyComponent<
-    A = any,
-    B = any,
-    C = any,
-    D extends ComputedOptions = any,
-    E extends MethodOptions = any,
-    F extends ComponentOptionsMixin = any,
-    G extends ComponentOptionsMixin = any
-> = DefineComponent<A, B, C, D, E, F, G>;
-
-export type UnwrapPropsVueInternal<PropsOrPropOptions> = PropsOrPropOptions extends ComponentPropsOptions
-    ? ExtractPropTypes<PropsOrPropOptions>
-    : PropsOrPropOptions;
-
-// this wasn't necessary at first but suddenly "props" is showing as the type, so adding it for now
-type UnwrapIntermittentPropsObject<T> = T extends { props: Readonly<infer P> } ? P : T;
-type ExtractModalInputProps_<T> = UnwrapBrand<T, InputBrand>;
-type ExtractModalInputProps<T> = ExtractModalInputProps_<UnwrapIntermittentPropsObject<T>>;
-
-type CallbackObject<T> = { callback: T };
-type CallbackProps<T> = T extends CallbackObject<infer R> ? { callback: R } : {};
-
-type ExtractProps<T> = CallbackProps<T> & ExtractModalInputProps<T>;
-type ComponentProps_<P, R> = ExtractProps<UnwrapPropsVueInternal<P>> & ExtractProps<R>;
-type ComponentProps<C> = C extends AnyComponent<infer P, infer R> ? ComponentProps_<P, R> : never;
+export type ComponentConfig<T extends Vue__ComponentPublicInstanceConstructor> = T extends Vue__ComponentPublicInstanceConstructor<infer P>
+    ? P
+    : never;
+export type ComponentProps<T extends Vue__ComponentPublicInstanceConstructor> = Writable<
+    Omit<ComponentConfig<T>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
+>;
 
 interface PropsWithCallback<T> {
     callback?: (result: T) => void;
 }
-type ComponentReturn<C> = ComponentProps<C> extends PropsWithCallback<infer R> ? R : never;
+type ComponentReturn<C extends Vue__ComponentPublicInstanceConstructor> = ComponentProps<C> extends PropsWithCallback<infer R> ? R : never;
 
-export function createModalInjection<C extends AnyComponent>(component: C, props: ComponentProps<C>): ModalInjection<C> {
+export function createModalInjection<C extends Vue__ComponentPublicInstanceConstructor>(component: C, props: ComponentProps<C>): ModalInjection<C> {
     // create or reconfigure the existing modal target
     // re-injecting every time keeps the modal container at the very end of the DOM
     const targetEl = document.getElementById('vf-modal-target') ?? document.createElement('div');
@@ -89,7 +77,7 @@ export function createModalInjection<C extends AnyComponent>(component: C, props
     targetEl.removeAttribute('inert');
     document.body.appendChild(targetEl);
 
-    const rawComponent = markRaw(component as DefineComponent);
+    const rawComponent = markRaw(component);
 
     // todo: dunno what's going on with types here
     const injection: ModalInjection<C> = {
@@ -110,27 +98,31 @@ export function removeModalInjection(injection: ModalInjection<any>) {
     }
 }
 
-export function removeModalInjectionByInstance(instance: ComponentPublicInstance) {
-    console.log('closing public', instance);
+export function removeModalInjectionByInstance(instance: ComponentPublicInstance<any, any, any, any, any, any, any, any>) {
     removeModalInjectionByInternalInstance(instance.$);
 }
 
 export function removeModalInjectionByInternalInstance(instance: ComponentInternalInstance) {
-    console.log('closing internal', instance);
-    removeModalInjectionByVnode(instance.vnode);
+    let targetInstance: ComponentInternalInstance | null = instance;
+    while (targetInstance && !removeModalInjectionByVnode(targetInstance.vnode)) {
+        targetInstance = targetInstance.parent;
+    }
 }
 
 export function removeModalInjectionByVnode(vnode: VNode) {
     const injectionIdx = ModalInjections.findIndex(i => i.vnode === vnode);
     if (injectionIdx >= 0) {
+        ModalInjections[injectionIdx].props.callback?.(undefined);
         ModalInjections.splice(injectionIdx, 1);
+        return true;
     }
+    return false;
 }
 
-export async function presentModal<C extends AnyComponent, R extends ComponentReturn<C>>(
+export async function presentModal<C extends Vue__ComponentPublicInstanceConstructor, R extends ComponentReturn<C>>(
     component: C,
     props: Omit<ComponentProps<C>, 'callback'>
-): Promise<R> {
+): Promise<R | undefined> {
     return new Promise<R>(resolve => {
         let modalInjection: ModalInjection<C> | null = null;
         const callback = (result: R) => {

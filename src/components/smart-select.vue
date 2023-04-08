@@ -4,7 +4,7 @@
             v-model="searchText"
             ref="searchField"
             type="text"
-            :class="{ nullable: !!props.nullTitle }"
+            :class="{ nullable: !!nullTitle }"
             @keydown="handleKeyDown"
             :placeholder="effectivePlaceholder"
             v-disabled="effectiveDisabled"
@@ -39,7 +39,7 @@
 // eslint-disable-next-line vue/prefer-import-from-vue
 import { escapeHtml } from '@vue/shared';
 import { debounce } from 'lodash';
-import { defineComponent, defineEmits, defineProps } from 'vue';
+import type { PropType } from 'vue';
 
 const NullSymbol = Symbol('null');
 const CreateSymbol = Symbol('create');
@@ -48,8 +48,8 @@ const VALID_KEYS = `\`1234567890-=[]\\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfgh
 
 // todo: make type safe when Vue alpha is released
 
-type GenericObject = { [key: string]: any };
-interface OptionDescriptor {
+export type GenericObject = { [key: string]: any };
+export interface OptionDescriptor {
     key: string | Symbol;
     title: string;
     subtitle?: string | null;
@@ -57,36 +57,35 @@ interface OptionDescriptor {
     ref?: GenericObject;
 }
 
-export default defineComponent({
-    setup() {
-        const props = defineProps<{
-            modelValue?: GenericObject;
-            loadOptions?: (searchText: string | null) => Promise<GenericObject[]>;
-            options?: GenericObject[];
-            prependOptions?: GenericObject[];
-            appendOptions?: GenericObject[];
-            onCreateItem?: (searchText: string) => void;
-            preload?: boolean;
-            keyProp?: string; // K
-            remoteSearch?: boolean;
-            searchFields?: string[];
-            placeholder?: string;
-            formatter: (option: GenericObject) => string;
-            subtitleFormatter?: (option: GenericObject) => string;
-            nullTitle?: string;
-            noResultsText?: string;
-            disabled?: boolean;
-            optionsListId?: string;
-            debug?: boolean;
-        }>();
+export default {
+    props: {
+        modelValue: {
+            type: Object as PropType<GenericObject | null>,
+            default: null
+        },
+        loadOptions: Function as PropType<(searchText: string | null) => Promise<GenericObject[]>>,
+        options: Object as PropType<GenericObject[] | undefined>,
+        prependOptions: Object as PropType<GenericObject[] | undefined>,
+        appendOptions: Object as PropType<GenericObject[] | undefined>,
+        onCreateItem: Function as PropType<((searchText: string) => void) | undefined>,
+        preload: Boolean as PropType<boolean | undefined>,
+        keyProp: String as PropType<string | undefined>, // K
+        remoteSearch: Boolean as PropType<boolean | undefined>,
+        searchFields: Object as PropType<string[] | undefined>,
+        placeholder: String as PropType<string | undefined>,
+        formatter: Function as PropType<(option: GenericObject) => string>,
+        subtitleFormatter: Function as PropType<((option: GenericObject) => string) | undefined>,
+        nullTitle: String as PropType<string | undefined>,
+        noResultsText: String as PropType<string | undefined>,
+        disabled: Boolean as PropType<boolean | undefined>,
+        optionsListId: String as PropType<string | undefined>,
+        debug: Boolean as PropType<boolean | undefined>
+    },
 
-        defineEmits<{
-            optionsLoaded: (options: any[]) => void;
-            createItem: (searchText: string) => void;
-            'update:modelValue': (value: any) => void;
-        }>();
-
-        return { props };
+    emits: {
+        optionsLoaded: Object as (options: any[]) => void,
+        createItem: Object as (searchText: string) => void,
+        'update:modelValue': Object as (value: GenericObject | null) => void
     },
 
     data() {
@@ -118,17 +117,17 @@ export default defineComponent({
          * EFFECTIVE PROPS
          */
         effectiveDisabled() {
-            return this.props.disabled || !this.loadedOptions;
+            return this.disabled || !this.loadedOptions;
         },
 
         effectivePlaceholder() {
-            if (!this.isLoaded && this.props.preload) return 'Loading...';
-            if (this.props.nullTitle) return this.props.nullTitle;
-            return this.props.placeholder || '';
+            if (!this.isLoaded && this.preload) return 'Loading...';
+            if (this.nullTitle) return this.nullTitle;
+            return this.placeholder || '';
         },
 
         effectiveNoResultsText() {
-            return this.props.noResultsText || 'No options match your search.';
+            return this.noResultsText || 'No options match your search.';
         },
 
         /**
@@ -136,19 +135,19 @@ export default defineComponent({
          */
 
         fullOptionsArray() {
-            return [...(this.props.prependOptions ?? []), ...this.loadedOptions, ...(this.props.appendOptions ?? [])];
+            return [...(this.prependOptions ?? []), ...this.loadedOptions, ...(this.appendOptions ?? [])];
         },
 
         optionsDescriptors() {
             return this.fullOptionsArray.map((option, index) => {
-                const title = this.props.formatter(option);
-                const subtitle = this.props.subtitleFormatter?.(option);
+                const title = this.formatter!(option);
+                const subtitle = this.subtitleFormatter?.(option);
                 const strippedTitle = title ? title.trim().toLowerCase() : '';
                 const strippedSubtitle = subtitle ? subtitle.trim().toLowerCase() : '';
 
                 const searchContent = [];
-                if (this.props.searchFields) {
-                    this.props.searchFields.forEach(field => {
+                if (this.searchFields) {
+                    this.searchFields.forEach(field => {
                         option[field] && searchContent.push(String(option[field]).toLowerCase());
                     });
                 } else {
@@ -157,7 +156,7 @@ export default defineComponent({
                 }
 
                 return {
-                    key: String(this.props.keyProp ? option[this.props.keyProp] : index),
+                    key: String(this.keyProp ? option[this.keyProp] : index),
                     title,
                     subtitle,
                     searchContent: searchContent.join(''),
@@ -194,10 +193,10 @@ export default defineComponent({
                         }
                     }
                 }
-            } else if (this.props.nullTitle) {
+            } else if (this.nullTitle) {
                 options.unshift({
                     key: NullSymbol,
-                    title: this.props.nullTitle
+                    title: this.nullTitle
                 });
             }
 
@@ -213,7 +212,7 @@ export default defineComponent({
         },
 
         options() {
-            this.loadedOptions = this.props.options ?? [];
+            this.loadedOptions = this.options ?? [];
         },
 
         // data
@@ -226,7 +225,7 @@ export default defineComponent({
 
         searchText() {
             // don't disable searching here if it's remote search, as that will need to be done after the fetch
-            if (this.isSearching && !this.props.remoteSearch && !this.searchText.trim().length) {
+            if (this.isSearching && !this.remoteSearch && !this.searchText.trim().length) {
                 this.isSearching = false;
             }
         },
@@ -237,6 +236,10 @@ export default defineComponent({
             } else {
                 this.isSearching = false;
                 this.searchText = this.selectedOptionTitle || '';
+
+                if (this.$refs.optionsContainer) {
+                    (this.$refs.optionsContainer as HTMLElement).style.visibility = 'hidden';
+                }
             }
         },
 
@@ -250,22 +253,22 @@ export default defineComponent({
     async mounted() {
         this.shouldShowCreateOption = this.$attrs['onCreateItem'] !== undefined;
 
-        if (this.props.options) {
-            this.loadedOptions = this.props.options;
+        if (this.options) {
+            this.loadedOptions = this.options;
             this.isLoaded = true;
-        } else if (this.props.preload) {
+        } else if (this.preload) {
             await this.loadRemoteOptions();
         }
 
         this.handleValueChanged();
 
         this.$watch('selectedOption', () => {
-            if (this.selectedOption !== this.props.modelValue) {
+            if (this.selectedOption !== this.modelValue) {
                 this.$emit('update:modelValue', this.selectedOption);
             }
         });
 
-        if (this.props.remoteSearch) {
+        if (this.remoteSearch) {
             this.$watch('searchText', debounce(this.reloadOptionsIfSearching, 250));
         }
     },
@@ -278,15 +281,15 @@ export default defineComponent({
 
         handleSourceUpdate() {
             console.log('source updated');
-            if (this.props.preload) return this.reloadOptions();
+            if (this.preload) return this.reloadOptions();
             if (!this.isLoaded) return;
             this.isLoaded = false;
             this.loadedOptions = [];
         },
 
         async reloadOptions() {
-            const searchText = this.props.remoteSearch && this.isSearching && this.searchText ? this.searchText : null;
-            this.loadedOptions = (await this.props.loadOptions?.(searchText)) ?? [];
+            const searchText = this.remoteSearch && this.isSearching && this.searchText ? this.searchText : null;
+            this.loadedOptions = (await this.loadOptions?.(searchText)) ?? [];
             this.isLoaded = true;
         },
 
@@ -348,17 +351,17 @@ export default defineComponent({
         handleInputFocused() {
             if (this.selectedOption)
                 this.highlightedOptionKey = String(
-                    this.props.keyProp ? this.selectedOption[this.props.keyProp] : this.loadedOptions.indexOf(this.selectedOption)
+                    this.keyProp ? this.selectedOption[this.keyProp] : this.loadedOptions.indexOf(this.selectedOption)
                 );
-            else if (this.props.nullTitle) this.highlightedOptionKey = NullSymbol;
+            else if (this.nullTitle) this.highlightedOptionKey = NullSymbol;
 
             this.shouldDisplayOptions = true;
         },
 
         handleInputBlurred() {
-            if (this.props.debug) return;
+            if (this.debug) return;
 
-            if (!this.searchText.length && this.props.nullTitle) {
+            if (!this.searchText.length && this.nullTitle) {
                 this.selectedOption = null;
                 this.selectedOptionTitle = null;
             }
@@ -368,8 +371,8 @@ export default defineComponent({
 
         handleOptionsDisplayed() {
             this.isLoaded || this.loadRemoteOptions();
+            this.optionsListId && (this.$refs.optionsContainer as HTMLElement).setAttribute('id', this.optionsListId);
             this.teleportOptionsContainer();
-            this.props.optionsListId && (this.$refs.optionsContainer as HTMLElement).setAttribute('id', this.props.optionsListId);
         },
 
         teleportOptionsContainer() {
@@ -393,6 +396,8 @@ export default defineComponent({
                 const maxHeight = window.innerHeight - targetTop - 12;
                 optionsEl.style.maxHeight = maxHeight + 'px';
             }
+
+            optionsEl.style.visibility = 'visible';
 
             document.body.appendChild(optionsEl);
 
@@ -450,7 +455,7 @@ export default defineComponent({
                 const selectedDecoratedOption = this.optionsDescriptors.find(decoratedOption => decoratedOption.key == option.key);
                 const realOption = selectedDecoratedOption!.ref;
                 this.selectedOption = realOption!;
-                this.selectedOptionTitle = this.props.formatter(realOption!);
+                this.selectedOptionTitle = this.formatter!(realOption!);
                 this.searchText = this.selectedOptionTitle || '';
             }
 
@@ -458,9 +463,9 @@ export default defineComponent({
         },
 
         handleValueChanged() {
-            if (this.props.modelValue) {
-                this.selectedOption = this.props.modelValue;
-                this.selectedOptionTitle = this.props.formatter(this.selectedOption);
+            if (this.modelValue) {
+                this.selectedOption = this.modelValue;
+                this.selectedOptionTitle = this.formatter!(this.selectedOption);
                 this.searchText = this.selectedOptionTitle || '';
             } else {
                 this.selectedOption = null;
@@ -473,7 +478,7 @@ export default defineComponent({
             this.loadedOptions.push(option);
         }
     }
-});
+};
 </script>
 
 <style lang="scss">
@@ -522,6 +527,7 @@ export default defineComponent({
 }
 
 .vf-smart-select-options {
+    visibility: hidden;
     position: absolute;
     min-height: 20px;
     border: 1px solid #e8e8e8;
