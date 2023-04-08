@@ -1,6 +1,8 @@
 import {
+    type ComponentInternalInstance,
     type ComponentOptionsMixin,
     type ComponentPropsOptions,
+    type ComponentPublicInstance,
     type ComputedOptions,
     type DefineComponent,
     defineComponent,
@@ -14,6 +16,8 @@ import {
     type VNode
 } from 'vue';
 
+import type { Branded, UnwrapBrand } from '../types';
+
 interface ModalInjection<C extends AnyComponent> {
     id: string;
     component: Raw<C>;
@@ -26,11 +30,27 @@ const ModalInjections: ModalInjection<any>[] = reactive([]);
 
 export const ModalContainer = defineComponent({
     setup() {
-        return () => h('div', { id: 'modal-container' }, [renderList(ModalInjections, injection => injection.vnode)]);
+        return () =>
+            h('div', { id: 'modal-container' }, [
+                renderList(ModalInjections, injection => {
+                    console.log('sending vnote', injection.vnode);
+                    return injection.vnode;
+                })
+            ]);
+    },
+
+    watch: {
+        ModalInjections() {
+            console.log('mi changed', ModalInjections);
+        }
     }
 });
 
-type AnyComponent<
+const _InputBrand = typeof Symbol('ModalInput');
+type InputBrand = typeof _InputBrand;
+export type ModalInput<T> = Branded<InputBrand, T>;
+
+export type AnyComponent<
     A = any,
     B = any,
     C = any,
@@ -40,13 +60,21 @@ type AnyComponent<
     G extends ComponentOptionsMixin = any
 > = DefineComponent<A, B, C, D, E, F, G>;
 
-type UnwrapProps<PropsOrPropOptions> = PropsOrPropOptions extends ComponentPropsOptions ? ExtractPropTypes<PropsOrPropOptions> : PropsOrPropOptions;
-type UnwrappedRawProps<T> = { [K in keyof T]: K extends 'callback' ? T[K] : T[K] extends ModalInput<infer R> ? R : never };
-type WithoutNever<T> = { [P in keyof T as T[P] extends never ? never : P]: T[P] };
-type CleanedUnwrappedRawProps<T> = WithoutNever<UnwrappedRawProps<T>>;
-type ComponentProps<C> = C extends AnyComponent<infer P, infer R> ? UnwrapProps<P> & CleanedUnwrappedRawProps<R> : never;
+export type UnwrapPropsVueInternal<PropsOrPropOptions> = PropsOrPropOptions extends ComponentPropsOptions
+    ? ExtractPropTypes<PropsOrPropOptions>
+    : PropsOrPropOptions;
 
-export type ModalInput<T> = T & { __modalInput?: true };
+// this wasn't necessary at first but suddenly "props" is showing as the type, so adding it for now
+type UnwrapIntermittentPropsObject<T> = T extends { props: Readonly<infer P> } ? P : T;
+type ExtractModalInputProps_<T> = UnwrapBrand<T, InputBrand>;
+type ExtractModalInputProps<T> = ExtractModalInputProps_<UnwrapIntermittentPropsObject<T>>;
+
+type CallbackObject<T> = { callback: T };
+type CallbackProps<T> = T extends CallbackObject<infer R> ? { callback: R } : {};
+
+type ExtractProps<T> = CallbackProps<T> & ExtractModalInputProps<T>;
+type ComponentProps_<P, R> = ExtractProps<UnwrapPropsVueInternal<P>> & ExtractProps<R>;
+type ComponentProps<C> = C extends AnyComponent<infer P, infer R> ? ComponentProps_<P, R> : never;
 
 interface PropsWithCallback<T> {
     callback?: (result: T) => void;
@@ -62,13 +90,17 @@ export function createModalInjection<C extends AnyComponent>(component: C, props
     document.body.appendChild(targetEl);
 
     const rawComponent = markRaw(component as DefineComponent);
+
     // todo: dunno what's going on with types here
-    return {
+    const injection: ModalInjection<C> = {
         id: String(++modalCount),
         component: rawComponent as any,
         props,
         vnode: h(rawComponent, props)
     };
+    ModalInjections.push(injection);
+
+    return injection;
 }
 
 export function removeModalInjection(injection: ModalInjection<any>) {
@@ -76,6 +108,16 @@ export function removeModalInjection(injection: ModalInjection<any>) {
     if (index >= 0) {
         ModalInjections.splice(index, 1);
     }
+}
+
+export function removeModalInjectionByInstance(instance: ComponentPublicInstance) {
+    console.log('closing public', instance);
+    removeModalInjectionByInternalInstance(instance.$);
+}
+
+export function removeModalInjectionByInternalInstance(instance: ComponentInternalInstance) {
+    console.log('closing internal', instance);
+    removeModalInjectionByVnode(instance.vnode);
 }
 
 export function removeModalInjectionByVnode(vnode: VNode) {

@@ -1,0 +1,26 @@
+export type Branded<T, A> = A & { __brand: T };
+export type BrandOf<A> = [A] extends [Branded<infer R, unknown>] ? R : never;
+export type Debrand<A> = A extends Branded<BrandOf<A>, infer R> ? R : never;
+
+export type RequiredKeysOf<BaseType extends object> = Exclude<
+    {
+        [Key in keyof BaseType]: BaseType extends Record<Key, BaseType[Key]> ? Key : never;
+    }[keyof BaseType],
+    undefined
+>;
+
+export type OptionalKeysOf<BaseType extends object> = Exclude<
+    {
+        [Key in keyof BaseType]: BaseType extends Record<Key, BaseType[Key]> ? never : Key;
+    }[keyof BaseType],
+    undefined
+>;
+
+export type PickRequired<T> = T extends object ? Pick<T, RequiredKeysOf<T>> : never;
+export type PickOptional<T> = T extends object ? Pick<T, OptionalKeysOf<T>> : never;
+
+export type WithoutNever<T> = { [P in keyof T as T[P] extends never ? never : P]: T[P] };
+
+export type UnwrapBrand<T, B> = WithoutNever<{
+    [K in keyof T]: BrandOf<T[K]> extends B ? Debrand<T[K]> : never;
+}>;

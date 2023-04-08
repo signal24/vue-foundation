@@ -3,12 +3,10 @@
     "type": "module",
     "version": "4.0.0",
     "description": "Common components, directives, and helpers for Vue 3 apps",
-    "main": "dist/vue-foundation.umd.js",
     "module": "./dist/vue-foundation.es.js",
     "exports": {
         ".": {
-            "import": "./dist/vue-foundation.es.js",
-            "require": "./dist/vue-foundation.umd.js"
+            "import": "./dist/vue-foundation.es.js"
         },
         "./dist/vue-foundation.css": {
             "import": "./dist/vue-foundation.css",

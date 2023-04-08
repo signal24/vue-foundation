@@ -1,5 +1,7 @@
-export * from './ajax-select.vue';
-export * from './alert-modal.vue';
-export * from './modal.vue';
+import VfAjaxSelect from './ajax-select.vue';
+import VfAlertModal from './alert-modal.vue';
+import VfModal from './modal.vue';
+import VfSmartSelect from './smart-select.vue';
+
 export * from './modal-container';
-export * from './smart-select.vue';
+export { VfAjaxSelect, VfAlertModal, VfModal, VfSmartSelect };

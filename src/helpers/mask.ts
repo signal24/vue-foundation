@@ -11,7 +11,7 @@ interface IMaskState {
 }
 type MaskElement = Element & IMaskState;
 
-export function maskComponent(cmp: ComponentInternalInstance, message: string) {
+export function maskComponent(cmp: ComponentInternalInstance, message?: string) {
     const el = cmp.vnode.el;
     const modalParentlEl = el!.closest('.vf-modal');
     return maskEl(modalParentlEl ?? el, message);
@@ -23,7 +23,7 @@ export function unmaskComponent(cmp: ComponentInternalInstance) {
     return unmaskEl(modalParentlEl ?? el);
 }
 
-export function maskEl(el: MaskElement, message: string) {
+export function maskEl(el: MaskElement, message?: string) {
     if (!el[MaskState]) {
         const maskEl = document.createElement('div');
         maskEl.classList.add('vf-mask');
@@ -31,7 +31,9 @@ export function maskEl(el: MaskElement, message: string) {
         el[MaskState] = { maskEl };
     }
 
-    el[MaskState].maskEl.innerText = message;
+    el[MaskState].maskEl.innerText = message ?? '';
+
+    // todo: add inner HTML to config
 
     return () => unmaskEl(el);
 }

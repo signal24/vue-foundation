@@ -14,7 +14,7 @@ export default defineConfig({
             // Could also be a dictionary or array of multiple entry points
             entry: 'src/index.ts',
             name: 'VueFoundatation',
-            formats: ['es', 'cjs', 'umd'],
+            formats: ['es'],
             fileName: format => `vue-foundation.${format}.js`
         },
         rollupOptions: {

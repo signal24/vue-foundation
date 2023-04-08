@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { defineProps, getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
 
-import { removeModalInjectionByVnode } from './modal-container';
+import { removeModalInjectionByInternalInstance } from './modal-container';
 
 const props = defineProps<{
     id?: string;
@@ -66,8 +66,7 @@ function handleEscapeKey(e: KeyboardEvent) {
 
 function closeParent() {
     const instance = getCurrentInstance();
-    console.log('closing', instance);
-    removeModalInjectionByVnode(instance!.vnode);
+    removeModalInjectionByInternalInstance(instance!);
 }
 </script>
 
