@@ -6,23 +6,23 @@ interface IHookState {
     ancestor?: InfiniteScrollHandler;
     window?: InfiniteScrollHandler;
 }
-type InfniteScrollComponent = ComponentInternalInstance & { [HookState]?: IHookState };
+type InfiniteScrollComponent = ComponentInternalInstance & { [HookState]?: IHookState };
 
-interface IOptions {
+export interface IInfiniteScrollOptions {
     elScrolledToBottom?: () => void;
     ancestorScrolledToBottom?: () => void;
     windowScrolledToBottom?: () => void;
 }
 
-export function useInfiniteScroll(options: IOptions) {
-    const instance = getCurrentInstance()!;
-    onMounted(() => installScrollHook(instance, options));
-    onActivated(() => reinstallScrollHook(instance));
-    onDeactivated(() => uninstallScrollHook(instance));
-    onBeforeUnmount(() => uninstallScrollHook(instance));
+export function useInfiniteScroll(options: IInfiniteScrollOptions, instance?: ComponentInternalInstance) {
+    const resolvedInstance = instance ?? getCurrentInstance()!;
+    onMounted(() => installScrollHook(resolvedInstance, options), resolvedInstance);
+    onActivated(() => reinstallScrollHook(resolvedInstance), resolvedInstance);
+    onDeactivated(() => uninstallScrollHook(resolvedInstance), resolvedInstance);
+    onBeforeUnmount(() => uninstallScrollHook(resolvedInstance), resolvedInstance);
 }
 
-function installScrollHook(cmp: InfniteScrollComponent, options: IOptions) {
+export function installScrollHook(cmp: InfiniteScrollComponent, options: IInfiniteScrollOptions) {
     const hookState: IHookState = {};
 
     if (options.elScrolledToBottom) {
@@ -48,14 +48,14 @@ function installScrollHook(cmp: InfniteScrollComponent, options: IOptions) {
     cmp[HookState] = hookState;
 }
 
-function reinstallScrollHook(cmp: InfniteScrollComponent) {
+export function reinstallScrollHook(cmp: InfiniteScrollComponent) {
     const hookState = cmp[HookState];
     hookState?.el?.install();
     hookState?.ancestor?.install();
     hookState?.window?.install();
 }
 
-function uninstallScrollHook(cmp: InfniteScrollComponent) {
+export function uninstallScrollHook(cmp: InfiniteScrollComponent) {
     const hookState = cmp[HookState];
     hookState?.el?.uninstall();
     hookState?.ancestor?.uninstall();
@@ -86,13 +86,14 @@ export class InfiniteScrollHandler {
     constructor(private el: Element, private handler: (e: Event) => void) {}
 
     install() {
-        this.el.addEventListener('scroll', this.onScroll);
+        this.el.addEventListener('scroll', this.onScrollWithContext);
     }
 
     uninstall() {
-        this.el.removeEventListener('scroll', this.onScroll);
+        this.el.removeEventListener('scroll', this.onScrollWithContext);
     }
 
+    onScrollWithContext = this.onScroll.bind(this);
     onScroll(e: Event) {
         if (Math.ceil(this.el.scrollTop + this.el.clientHeight + 5) >= this.el.scrollHeight) {
             if (!this.isTripped) {

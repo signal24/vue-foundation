@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, watch } from 'node:fs';
+import { rmdir } from 'node:fs/promises';
 
 import * as OpenAPI from 'openapi-typescript-codegen';
 
@@ -49,6 +50,12 @@ async function generateClient(openapiYamlPath: string) {
     generatedHash = hash;
 
     try {
+        try {
+            await rmdir('./src/openapi-client-generated', { recursive: true });
+        } catch (e) {
+            // ignore
+        }
+
         await OpenAPI.generate({
             input: openapiYamlPath,
             output: './src/openapi-client-generated',
@@ -56,6 +63,7 @@ async function generateClient(openapiYamlPath: string) {
             useOptions: true,
             useUnionTypes: true
         });
+
         console.log(`[${new Date().toISOString()}] Generated client from ${openapiYamlPath} to ./src/openapi-client/`);
     } catch (err) {
         console.error(`[${new Date().toISOString()}] Error generating client from ${openapiYamlPath}:`, err);

@@ -33,12 +33,6 @@ export const ModalContainer = defineComponent({
                     return injection.vnode;
                 })
             ]);
-    },
-
-    watch: {
-        ModalInjections() {
-            console.log('mi changed', ModalInjections);
-        }
     }
 });
 
@@ -63,6 +57,8 @@ export type ComponentConfig<T extends Vue__ComponentPublicInstanceConstructor> =
 export type ComponentProps<T extends Vue__ComponentPublicInstanceConstructor> = Writable<
     Omit<ComponentConfig<T>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
 >;
+
+export type AnyComponentPublicInstance = { $: ComponentInternalInstance };
 
 interface PropsWithCallback<T> {
     callback?: (result: T) => void;
@@ -98,7 +94,7 @@ export function removeModalInjection(injection: ModalInjection<any>) {
     }
 }
 
-export function removeModalInjectionByInstance(instance: ComponentPublicInstance<any, any, any, any, any, any, any, any>) {
+export function removeModalInjectionByInstance(instance: AnyComponentPublicInstance) {
     removeModalInjectionByInternalInstance(instance.$);
 }
 
@@ -110,7 +106,7 @@ export function removeModalInjectionByInternalInstance(instance: ComponentIntern
 }
 
 export function removeModalInjectionByVnode(vnode: VNode) {
-    const injectionIdx = ModalInjections.findIndex(i => i.vnode === vnode);
+    const injectionIdx = ModalInjections.findIndex(i => i.vnode.component === vnode.component);
     if (injectionIdx >= 0) {
         ModalInjections[injectionIdx].props.callback?.(undefined);
         ModalInjections.splice(injectionIdx, 1);

@@ -36,10 +36,10 @@
 </template>
 
 <script lang="ts">
-// eslint-disable-next-line vue/prefer-import-from-vue
-import { escapeHtml } from '@vue/shared';
-import { debounce } from 'lodash';
+import { debounce, isEqual } from 'lodash';
 import type { PropType } from 'vue';
+
+import { escapeHtml } from '../helpers/string';
 
 const NullSymbol = Symbol('null');
 const CreateSymbol = Symbol('create');
@@ -60,36 +60,41 @@ export interface OptionDescriptor {
 export default {
     props: {
         modelValue: {
-            type: Object as PropType<GenericObject | null>,
+            type: null as unknown as PropType<any>,
             default: null
         },
         loadOptions: Function as PropType<(searchText: string | null) => Promise<GenericObject[]>>,
-        options: Object as PropType<GenericObject[] | undefined>,
-        prependOptions: Object as PropType<GenericObject[] | undefined>,
-        appendOptions: Object as PropType<GenericObject[] | undefined>,
-        onCreateItem: Function as PropType<((searchText: string) => void) | undefined>,
-        preload: Boolean as PropType<boolean | undefined>,
-        keyProp: String as PropType<string | undefined>, // K
-        remoteSearch: Boolean as PropType<boolean | undefined>,
-        searchFields: Object as PropType<string[] | undefined>,
-        placeholder: String as PropType<string | undefined>,
-        formatter: Function as PropType<(option: GenericObject) => string>,
-        subtitleFormatter: Function as PropType<((option: GenericObject) => string) | undefined>,
-        nullTitle: String as PropType<string | undefined>,
-        noResultsText: String as PropType<string | undefined>,
-        disabled: Boolean as PropType<boolean | undefined>,
-        optionsListId: String as PropType<string | undefined>,
-        debug: Boolean as PropType<boolean | undefined>
+        options: Object as PropType<GenericObject[]>,
+        prependOptions: Object as PropType<GenericObject[]>,
+        appendOptions: Object as PropType<GenericObject[]>,
+        onCreateItem: Function as PropType<(searchText: string) => void>,
+        preload: Boolean as PropType<boolean>,
+        remoteSearch: Boolean as PropType<boolean>,
+        searchFields: Object as PropType<string[]>,
+        placeholder: String as PropType<string>,
+        keyExtractor: Function as PropType<(option: any) => string | symbol>,
+        valueExtractor: Function as PropType<(option: any) => any>,
+        formatter: {
+            type: Function as PropType<(option: any) => string>,
+            required: true
+        },
+        subtitleFormatter: Function as PropType<(option: any) => string>,
+        nullTitle: String as PropType<string>,
+        noResultsText: String as PropType<string>,
+        disabled: Boolean as PropType<boolean>,
+        optionsListId: String as PropType<string>,
+        debug: Boolean as PropType<boolean>
     },
 
     emits: {
         optionsLoaded: Object as (options: any[]) => void,
         createItem: Object as (searchText: string) => void,
-        'update:modelValue': Object as (value: GenericObject | null) => void
+        'update:modelValue': Object as (value: any) => void
     },
 
     data() {
         return {
+            isLoading: false,
             isLoaded: false,
             loadedOptions: [],
             isSearching: false,
@@ -100,6 +105,7 @@ export default {
             highlightedOptionKey: null,
             shouldShowCreateOption: false
         } as {
+            isLoading: boolean;
             isLoaded: boolean;
             loadedOptions: GenericObject[];
             isSearching: boolean;
@@ -116,8 +122,16 @@ export default {
         /**
          * EFFECTIVE PROPS
          */
+        effectivePrependOptions() {
+            return this.prependOptions ?? [];
+        },
+
+        effectiveAppendOptions() {
+            return this.appendOptions ?? [];
+        },
+
         effectiveDisabled() {
-            return this.disabled || !this.loadedOptions;
+            return !!this.disabled; // there was another condition here but it didn't make sense
         },
 
         effectivePlaceholder() {
@@ -130,16 +144,20 @@ export default {
             return this.noResultsText || 'No options match your search.';
         },
 
+        effectiveKeyExtractor() {
+            return this.keyExtractor ?? this.valueExtractor;
+        },
+
         /**
          * OPTIONS GENERATION
          */
 
-        fullOptionsArray() {
-            return [...(this.prependOptions ?? []), ...this.loadedOptions, ...(this.appendOptions ?? [])];
+        allOptions() {
+            return [...this.effectivePrependOptions, ...this.loadedOptions, ...this.effectiveAppendOptions];
         },
 
         optionsDescriptors() {
-            return this.fullOptionsArray.map((option, index) => {
+            return this.allOptions.map((option, index) => {
                 const title = this.formatter!(option);
                 const subtitle = this.subtitleFormatter?.(option);
                 const strippedTitle = title ? title.trim().toLowerCase() : '';
@@ -156,7 +174,8 @@ export default {
                 }
 
                 return {
-                    key: String(this.keyProp ? option[this.keyProp] : index),
+                    // eslint-disable-next-line vue/no-use-computed-property-like-method
+                    key: this.effectiveKeyExtractor?.(option) ?? String(index),
                     title,
                     subtitle,
                     searchContent: searchContent.join(''),
@@ -244,8 +263,12 @@ export default {
         },
 
         effectiveOptions() {
-            if (!this.highlightedOptionKey || !this.effectiveOptions.find(option => option.key == this.highlightedOptionKey)) {
-                this.highlightedOptionKey = this.effectiveOptions.length ? this.effectiveOptions[0].key : null;
+            if (this.modelValue && !this.selectedOption) {
+                this.handleValueChanged();
+            }
+
+            if (this.highlightedOptionKey && !this.effectiveOptions.find(option => option.key == this.highlightedOptionKey)) {
+                this.highlightedOptionKey = this.effectiveOptions[0]?.key ?? NullSymbol;
             }
         }
     },
@@ -264,7 +287,10 @@ export default {
 
         this.$watch('selectedOption', () => {
             if (this.selectedOption !== this.modelValue) {
-                this.$emit('update:modelValue', this.selectedOption);
+                this.$emit(
+                    'update:modelValue',
+                    this.selectedOption && this.valueExtractor ? this.valueExtractor(this.selectedOption) : this.selectedOption
+                );
             }
         });
 
@@ -276,11 +302,10 @@ export default {
     methods: {
         async loadRemoteOptions() {
             await this.reloadOptions();
-            this.$emit('optionsLoaded', this.loadedOptions);
+            this.loadedOptions && this.$emit('optionsLoaded', this.loadedOptions);
         },
 
         handleSourceUpdate() {
-            console.log('source updated');
             if (this.preload) return this.reloadOptions();
             if (!this.isLoaded) return;
             this.isLoaded = false;
@@ -289,7 +314,9 @@ export default {
 
         async reloadOptions() {
             const searchText = this.remoteSearch && this.isSearching && this.searchText ? this.searchText : null;
+            this.isLoading = true;
             this.loadedOptions = (await this.loadOptions?.(searchText)) ?? [];
+            this.isLoading = false;
             this.isLoaded = true;
         },
 
@@ -349,13 +376,45 @@ export default {
         },
 
         handleInputFocused() {
-            if (this.selectedOption)
-                this.highlightedOptionKey = String(
-                    this.keyProp ? this.selectedOption[this.keyProp] : this.loadedOptions.indexOf(this.selectedOption)
-                );
-            else if (this.nullTitle) this.highlightedOptionKey = NullSymbol;
-
+            this.setHighlightedOptionKey();
             this.shouldDisplayOptions = true;
+        },
+
+        setHighlightedOptionKey(useFirstItemAsFallback?: boolean) {
+            if (this.selectedOption) {
+                this.highlightedOptionKey = this.getOptionKey(this.selectedOption);
+            } else if (useFirstItemAsFallback) {
+                this.highlightedOptionKey = this.effectiveOptions?.[0].key ?? NullSymbol;
+            } else if (this.nullTitle) {
+                this.highlightedOptionKey = NullSymbol;
+            }
+        },
+
+        getOptionKey(option: GenericObject): string | Symbol {
+            if (this.effectiveKeyExtractor) {
+                // eslint-disable-next-line vue/no-use-computed-property-like-method
+                return this.effectiveKeyExtractor(this.selectedOption)!;
+            }
+
+            return this.getOptionDescriptor(option)?.key ?? '';
+        },
+
+        getOptionDescriptor(option: GenericObject) {
+            const matchedRef = this.effectiveOptions.find(o => o.ref === option);
+            if (matchedRef) {
+                return matchedRef;
+            }
+
+            // for reasons I've yet to determine, the prepend options, although they are wrapped by proxies and have identical content,
+            // are not the same proxy object as selectedOption once assigned -- even though the loaded data *is* the same. I've tried
+            // setting them as reactive using the same method (via data props rather than computed) and it didn't change anything.
+            // therefore, falling back to an isEqual check here when there's no equal object
+            const matchedObj = this.effectiveOptions.find(o => isEqual(o.ref, option));
+            if (matchedObj) {
+                return matchedObj;
+            }
+
+            return null;
         },
 
         handleInputBlurred() {
@@ -464,8 +523,8 @@ export default {
 
         handleValueChanged() {
             if (this.modelValue) {
-                this.selectedOption = this.modelValue;
-                this.selectedOptionTitle = this.formatter!(this.selectedOption);
+                this.selectedOption = this.valueExtractor ? this.allOptions.find(o => this.modelValue === this.valueExtractor!(o)) : this.modelValue;
+                this.selectedOptionTitle = this.selectedOption ? this.formatter!(this.selectedOption) : null;
                 this.searchText = this.selectedOptionTitle || '';
             } else {
                 this.selectedOption = null;

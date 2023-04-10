@@ -42,7 +42,7 @@ declare class ICancelablePromise<T = any> {
 interface IWrappedApiClientOptions<P extends ICancelablePromise = ICancelablePromise, Arguments extends unknown[] = any[]> {
     apiClient: IApiClient;
     onRequest?: (options: IRequestOptions) => IRequestOptions;
-    onError?: (err: Error, options: IRequestOptions) => boolean | void;
+    onError?: (err: Error, options: IRequestOptions) => Error | null | void;
     CancelablePromise: new (...arguments_: Arguments) => P;
 }
 
@@ -61,11 +61,19 @@ export function installApiClientInterceptors({ apiClient, onRequest, onError, Ca
             const promise = originalRequest(options);
             onCancel(promise.cancel);
             promise.then(resolve).catch(err => {
-                if (isApiError(err) && err.status === 422 && typeof err.body === 'object' && 'error' in err.body) {
-                    return reject(new UserError(err.body.error));
+                if (isApiError(err) && typeof err.body === 'object' && 'error' in err.body) {
+                    if (err.status === 422) {
+                        return reject(new UserError(err.body.error));
+                    }
                 }
-                if (onError && onError(err, options)) {
-                    return;
+                if (onError) {
+                    const handlerResult = onError(err, options);
+                    if (handlerResult === null) {
+                        return;
+                    }
+                    if (handlerResult instanceof Error) {
+                        return reject(handlerResult);
+                    }
                 }
                 reject(err);
             });

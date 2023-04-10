@@ -1,4 +1,4 @@
-import type { ComponentInternalInstance } from 'vue';
+import type { AnyComponentPublicInstance } from '@/components';
 
 /*///////////////////////////////////////////////
 Component Overlay Masking
@@ -11,14 +11,14 @@ interface IMaskState {
 }
 type MaskElement = Element & IMaskState;
 
-export function maskComponent(cmp: ComponentInternalInstance, message?: string) {
-    const el = cmp.vnode.el;
+export function maskComponent(cmp: AnyComponentPublicInstance, message?: string) {
+    const el = cmp.$.vnode.el;
     const modalParentlEl = el!.closest('.vf-modal');
     return maskEl(modalParentlEl ?? el, message);
 }
 
-export function unmaskComponent(cmp: ComponentInternalInstance) {
-    const el = cmp.vnode.el;
+export function unmaskComponent(cmp: AnyComponentPublicInstance) {
+    const el = cmp.$.vnode.el;
     const modalParentlEl = el!.closest('.vf-modal');
     return unmaskEl(modalParentlEl ?? el);
 }
@@ -56,12 +56,12 @@ interface IFormMaskState {
 }
 type FormMaskElement = Element & IFormMaskState;
 
-export function maskForm(formOrCmp: Element | ComponentInternalInstance, buttonSelector?: string | Element, buttonText?: string) {
+export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, buttonSelector?: string | Element, buttonText?: string) {
     const form = formOrCmp instanceof Element ? formOrCmp : getFormFromCmp(formOrCmp);
     form.classList.add('vf-masked');
 
     const buttonEl = (
-        buttonSelector instanceof Element ? buttonSelector : form.querySelector(buttonSelector ?? 'button:not([disabled]):first')
+        buttonSelector instanceof Element ? buttonSelector : form.querySelectorAll(buttonSelector ?? 'button:not([disabled])')[0]
     ) as HTMLElement;
     const originalButtonText = buttonEl.tagName === 'INPUT' ? (buttonEl as HTMLInputElement).value : buttonEl.innerText;
     buttonEl.setAttribute('disabled', 'disabled');
@@ -80,7 +80,7 @@ export function maskForm(formOrCmp: Element | ComponentInternalInstance, buttonS
     return () => unmaskForm(form);
 }
 
-export function unmaskForm(formOrCmp: Element | ComponentInternalInstance) {
+export function unmaskForm(formOrCmp: Element | AnyComponentPublicInstance) {
     const form = formOrCmp instanceof Element ? formOrCmp : getFormFromCmp(formOrCmp);
 
     const state = (form as FormMaskElement)[FormMaskState];
@@ -95,8 +95,8 @@ export function unmaskForm(formOrCmp: Element | ComponentInternalInstance) {
     delete (form as FormMaskElement)[FormMaskState];
 }
 
-function getFormFromCmp(cmp: ComponentInternalInstance) {
-    const cmpEl = cmp.vnode.el!;
+function getFormFromCmp(cmp: AnyComponentPublicInstance) {
+    const cmpEl = cmp.$.vnode.el!;
     if (cmpEl.tagName === 'FORM') {
         return cmpEl as HTMLElement;
     } else {

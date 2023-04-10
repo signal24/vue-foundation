@@ -31,3 +31,11 @@ export async function handleErrorAndAlert(errIn: any, alertTitle?: string) {
 
     return alertTitle ? showAlert(alertTitle, err) : showAlert(err);
 }
+
+export async function handleError(errIn: any) {
+    const err = toError(errIn);
+
+    if (!(err instanceof UserError)) {
+        VfOptions.errorHandler(err);
+    }
+}

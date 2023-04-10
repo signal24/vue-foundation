@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import type { DirectiveBinding, ObjectDirective } from 'vue';
 
+import { VfOptions } from '@/config';
+
 export const vDatetime: ObjectDirective<HTMLElement, string> = {
     beforeMount: applyDateTime,
     updated: applyDateTime
@@ -27,7 +29,7 @@ function getDateTimeValue(el: HTMLElement, binding: DirectiveBinding<string>) {
 
     let formatSpec = el.attributes.getNamedItem('format')?.value;
 
-    if (!format && el.attributes.getNamedItem('relative-date') !== null) {
+    if (!formatSpec && el.attributes.getNamedItem('relative-date') !== null) {
         const now = new Date();
         if (now.getFullYear() == theDate.getFullYear() && now.getMonth() == theDate.getMonth() && now.getDate() == theDate.getDate()) {
             prefix = 'at';
@@ -35,11 +37,11 @@ function getDateTimeValue(el: HTMLElement, binding: DirectiveBinding<string>) {
         }
     }
 
-    if (!format) {
-        formatSpec = 'MM/dd/yy HH:mm';
+    if (!formatSpec) {
+        formatSpec = VfOptions.defaultDateTimeFormat;
     }
 
-    let result = format(theDate, formatSpec!);
+    let result = format(theDate, formatSpec);
     if (prefix) result = prefix + ' ' + result;
 
     return result;

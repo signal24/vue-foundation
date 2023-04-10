@@ -23,7 +23,7 @@ export default defineConfig({
             input: {
                 main: path.resolve(__dirname, 'src/index.ts')
             },
-            external: ['date-fns', 'lodash', 'vue'],
+            external: ['date-fns', 'lodash', 'vue', '@vue/shared'],
             output: {
                 assetFileNames: assetInfo => {
                     if (assetInfo.name === 'index.css') return 'vue-foundation.css';

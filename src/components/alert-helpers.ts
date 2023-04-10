@@ -43,27 +43,3 @@ export function showWait(titleOrMessage: string, message?: string): () => void {
     });
     return () => removeModalInjection(injection);
 }
-
-// async function test1() {
-//     presentModal(TestModal, {});
-// }
-
-// type TMC = typeof TestModal;
-// type TMCProps = ComponentProps<TMC>;
-// // type TMCProps = TMC extends AnyComponent<infer P> ? UnwrapPropsVueInternal<P> : never;
-// // type TMCProps2 = TMC extends AnyComponent<infer P, infer R> ? R : never;
-
-// type TMCProps3 = TMCProps; // & TMCProps2;
-// const TMCObj: TMCProps3 = {};
-
-// type AMC = typeof AlertModal;
-// type AMCC = ComponentConfig<AMC>;
-// type Z = AMCC['$props'];
-
-// type AMCProps = ComponentProps<AMC>;
-// const ZZZ: AMCProps = {};
-// // type AMCProps = AMC extends AnyComponent<infer P> ? UnwrapPropsVueInternal<P> : never;
-// // type AMCProps2 = AMC extends AnyComponent<infer P, infer R> ? R : never;
-
-// type AMCProps3 = AMCProps; // & AMCProps2;
-// const AMCObj: AMCProps3 = {};

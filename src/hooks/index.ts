@@ -1,2 +1,2 @@
-export * from './infinite-scroll';
-export * from './resize-watcher';
+export { useInfiniteScroll } from './infinite-scroll';
+export { useResizeWatcher } from './resize-watcher';
