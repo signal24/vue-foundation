@@ -7,10 +7,15 @@ import * as OpenAPI from 'openapi-typescript-codegen';
 let generatedHash: string | null = null;
 
 export function openapiClientGeneratorPlugin(openapiYamlPath: string) {
-    const generator = getGenerator(openapiYamlPath);
+    let generator: ReturnType<typeof getGenerator> = null;
 
     return {
         name: 'openapi-types-generator',
+        apply: 'serve',
+
+        buildStart() {
+            generator = getGenerator(openapiYamlPath);
+        },
 
         closeBundle() {
             generator?.close();
