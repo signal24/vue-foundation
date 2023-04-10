@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, watch } from 'node:fs';
-import { rmdir } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 
 import * as OpenAPI from 'openapi-typescript-codegen';
 
@@ -27,10 +27,10 @@ function getGenerator(openapiYamlPath: string) {
     const watcher = watch(openapiYamlPath);
     watcher.on('change', () => {
         // give the writes a moment to settle
-        setTimeout(() => generateClient(openapiYamlPath), 100);
+        setTimeout(() => generateOpenapiClient(openapiYamlPath), 100);
     });
 
-    generateClient(openapiYamlPath);
+    generateOpenapiClient(openapiYamlPath);
 
     return {
         close() {
@@ -39,7 +39,7 @@ function getGenerator(openapiYamlPath: string) {
     };
 }
 
-async function generateClient(openapiYamlPath: string) {
+export async function generateOpenapiClient(openapiYamlPath: string) {
     const yaml = readFileSync(openapiYamlPath, 'utf8');
     const hash = createHash('sha256').update(yaml).digest('hex');
 
@@ -51,7 +51,7 @@ async function generateClient(openapiYamlPath: string) {
 
     try {
         try {
-            await rmdir('./src/openapi-client-generated', { recursive: true });
+            await rm('./src/openapi-client-generated', { recursive: true });
         } catch (e) {
             // ignore
         }
