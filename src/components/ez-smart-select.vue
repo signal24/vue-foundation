@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { isEqual } from 'lodash';
-import { computed, defineEmits, defineProps, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import VfSmartSelect from './smart-select.vue';
 

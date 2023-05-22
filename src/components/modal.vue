@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
+import { getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { removeModalInjectionByInternalInstance } from './modal-container';
 
