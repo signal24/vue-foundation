@@ -1,5 +1,4 @@
-import { showAlert } from '@/components/alert-helpers';
-
+import { showAlert } from '../components/alert-helpers';
 import { VfOptions } from '../config';
 
 export class UserError extends Error {

@@ -1,4 +1,4 @@
-import type { AnyComponentPublicInstance } from '@/components';
+import type { AnyComponentPublicInstance } from '../components/modal-container';
 
 /*///////////////////////////////////////////////
 Component Overlay Masking
@@ -51,7 +51,7 @@ interface IFormMaskState {
     [FormMaskState]?: {
         disabledElements: HTMLElement[];
         waitButton: HTMLElement;
-        buttonText: string;
+        buttonHtml: string;
     };
 }
 type FormMaskElement = Element & IFormMaskState;
@@ -63,7 +63,7 @@ export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, button
     const buttonEl = (
         buttonSelector instanceof Element ? buttonSelector : form.querySelectorAll(buttonSelector ?? 'button:not([disabled])')[0]
     ) as HTMLElement;
-    const originalButtonText = buttonEl.tagName === 'INPUT' ? (buttonEl as HTMLInputElement).value : buttonEl.innerText;
+    const originalButtonHtml = buttonEl.tagName === 'INPUT' ? (buttonEl as HTMLInputElement).value : buttonEl.innerHTML;
     buttonEl.setAttribute('disabled', 'disabled');
     buttonEl.innerText = buttonText ?? 'Please wait...';
 
@@ -74,7 +74,7 @@ export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, button
     (form as FormMaskElement)[FormMaskState] = {
         disabledElements: inputs,
         waitButton: buttonEl,
-        buttonText: originalButtonText
+        buttonHtml: originalButtonHtml
     };
 
     return () => unmaskForm(form);
@@ -89,7 +89,7 @@ export function unmaskForm(formOrCmp: Element | AnyComponentPublicInstance) {
     form.classList.remove('vf-masked');
 
     state.disabledElements.forEach(el => el.removeAttribute('disabled'));
-    state.waitButton.innerText = state.buttonText;
+    state.waitButton.innerHTML = state.buttonHtml;
     state.waitButton.removeAttribute('disabled');
 
     delete (form as FormMaskElement)[FormMaskState];

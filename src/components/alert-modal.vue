@@ -20,8 +20,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 
-import { formatError } from '@/helpers/error';
-
+import { formatError } from '../helpers/error';
 import Modal from './modal.vue';
 
 const props = defineProps<{

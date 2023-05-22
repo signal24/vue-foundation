@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import type { DirectiveBinding, ObjectDirective } from 'vue';
 
-import { VfOptions } from '@/config';
+import { VfOptions } from '../config';
 
 export const vDatetime: ObjectDirective<HTMLElement, string> = {
     beforeMount: applyDateTime,
