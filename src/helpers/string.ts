@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 // placing this here so we don't have to use the ESLint rule everywhere
 // eslint-disable-next-line vue/prefer-import-from-vue
 export { escapeHtml } from '@vue/shared';
@@ -24,4 +26,8 @@ export function formatUSCurrency(value: string | number) {
             .replace(/0$/, '')
             .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     );
+}
+
+export function uuid() {
+    return uuidv4();
 }

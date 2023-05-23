@@ -27,7 +27,7 @@ export default defineConfig({
             output: {
                 assetFileNames: assetInfo => {
                     if (assetInfo.name === 'index.css') return 'vue-foundation.css';
-                    return assetInfo.name;
+                    return assetInfo.name!;
                 },
                 exports: 'named',
                 globals: {

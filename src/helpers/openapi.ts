@@ -18,17 +18,17 @@ interface IBaseHttpRequest {
     request<T>(options: IRequestOptions): ICancelablePromise<T>;
 }
 
-interface IApiClient {
+export interface IApiClient {
     request: IBaseHttpRequest;
 }
 
-interface IApiError extends Error {
+export interface IApiError extends Error {
     status: number;
     statusText: string;
     body: any;
 }
 
-declare class ICancelablePromise<T = any> {
+export declare class ICancelablePromise<T = any> {
     constructor(executor: (resolve: (value: any) => void, reject: (reason: any) => void, onCancel: (cancel: () => void) => void) => void);
     then<TResult1 = any, TResult2 = never>(
         onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null,
@@ -46,7 +46,7 @@ interface IWrappedApiClientOptions<P extends ICancelablePromise = ICancelablePro
     CancelablePromise: new (...arguments_: Arguments) => P;
 }
 
-function isApiError(err: any): err is IApiError {
+export function isApiError(err: any): err is IApiError {
     return err instanceof Error && 'status' in err && 'body' in err;
 }
 
