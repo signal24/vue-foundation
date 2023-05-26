@@ -7,10 +7,30 @@ import * as OpenAPI from 'openapi-typescript-codegen';
 const DEFAULT_OUT_PATH = './src/openapi-client-generated';
 
 let generatedHash: string | null = null;
+let generatorMap: Record<string, string> = {};
 let overridesMap: Record<string, string> | null = null;
 let overridesInverseMap: Record<string, string> | null = null;
 
-export function loadOpenapiOverrides() {
+export function loadOpenapiConfig() {
+    loadGeneratorMap();
+    loadOverridesMap();
+}
+
+function loadGeneratorMap() {
+    if (!existsSync('./openapi-specs.json')) {
+        console.error('openapi-specs.json not found. Cannot generate OpenAPI client.');
+        return;
+    }
+
+    try {
+        const specsContent = readFileSync('./openapi-specs.json', 'utf8');
+        generatorMap = JSON.parse(specsContent);
+    } catch (e) {
+        console.error('Failed to load openapi-specs.json:', e);
+    }
+}
+
+function loadOverridesMap() {
     if (!existsSync('./openapi-specs.dev.json')) {
         return;
     }
@@ -24,16 +44,13 @@ export function loadOpenapiOverrides() {
     }
 }
 
-export function openapiClientGeneratorPlugin(
-    openapiYamlPath: string,
-    outPath: string = DEFAULT_OUT_PATH
-): {
+export function openapiClientGeneratorPlugin(): {
     name: string;
     apply: 'serve';
     buildStart(): void;
     closeBundle(): void;
 } {
-    let generator: ReturnType<typeof getGenerator> = null;
+    let generators: ReturnType<typeof createWatchfulGenerators> | null = null;
 
     return {
         name: 'openapi-types-generator',
@@ -42,18 +59,26 @@ export function openapiClientGeneratorPlugin(
         buildStart() {
             // apply a slight delay so any output doesn't get pushed off screen
             setTimeout(() => {
-                loadOpenapiOverrides();
-                generator = getGenerator(openapiYamlPath, outPath);
+                generators = createWatchfulGenerators();
             }, 250);
         },
 
         closeBundle() {
-            generator?.close();
+            if (generators) {
+                for (const generator of generators) {
+                    generator?.close();
+                }
+            }
         }
     };
 }
 
-function getGenerator(openapiYamlPath: string, outPath: string) {
+function createWatchfulGenerators() {
+    loadOpenapiConfig();
+    return Object.entries(generatorMap).map(([openapiYamlPath, outPath]) => createWatchfulGenerator(openapiYamlPath, outPath));
+}
+
+function createWatchfulGenerator(openapiYamlPath: string, outPath: string) {
     const resolvedPath = overridesMap?.[openapiYamlPath] ?? openapiYamlPath;
 
     if (!existsSync(resolvedPath)) {
@@ -76,7 +101,15 @@ function getGenerator(openapiYamlPath: string, outPath: string) {
     };
 }
 
-async function generateOpenapiClientInternal(openapiYamlPath: string, outPath: string = DEFAULT_OUT_PATH) {
+export async function generateConfiguredOpenapiClients() {
+    loadOpenapiConfig();
+    for (const [openapiYamlPath, outPath] of Object.entries(generatorMap)) {
+        const resolvedPath = overridesMap?.[openapiYamlPath] ?? openapiYamlPath;
+        await generateOpenapiClient(resolvedPath, outPath);
+    }
+}
+
+export async function generateOpenapiClient(openapiYamlPath: string, outPath: string = DEFAULT_OUT_PATH) {
     const yaml = readFileSync(openapiYamlPath, 'utf8');
     const hash = createHash('sha256').update(yaml).digest('hex');
 
@@ -109,9 +142,4 @@ async function generateOpenapiClientInternal(openapiYamlPath: string, outPath: s
     } catch (err) {
         console.error(`[${new Date().toISOString()}] Error generating client from ${openapiYamlPath}:`, err);
     }
-}
-
-export async function generateOpenapiClient(openapiYamlPath: string, outPath: string = DEFAULT_OUT_PATH) {
-    const resolvedPath = overridesMap?.[openapiYamlPath] ?? openapiYamlPath;
-    return generateOpenapiClientInternal(resolvedPath, outPath);
 }
