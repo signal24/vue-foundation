@@ -27,22 +27,19 @@ export function installScrollHook(cmp: InfiniteScrollComponent, options: IInfini
 
     if (options.elScrolledToBottom) {
         hookState.el = new InfiniteScrollHandler(cmp.vnode.el as Element, options.elScrolledToBottom);
-        hookState.el.install();
     }
 
     if (options.ancestorScrolledToBottom) {
         const scrollableAncestorEl = discoverScrollableAncestorEl(cmp.vnode.el as Element);
         if (scrollableAncestorEl) {
             hookState.ancestor = new InfiniteScrollHandler(scrollableAncestorEl, options.ancestorScrolledToBottom);
-            hookState.ancestor.install();
         } else {
-            console.warn('no scollable ancestor found for component:', cmp);
+            console.warn('[VueFoundation] No scollable ancestor found for component:', cmp);
         }
     }
 
     if (options.windowScrolledToBottom) {
         hookState.window = new InfiniteScrollHandler(window as unknown as Element, options.windowScrolledToBottom);
-        hookState.window.install();
     }
 
     cmp[HookState] = hookState;
@@ -83,7 +80,9 @@ function discoverScrollableAncestorEl(el: Element): Element | null {
 export class InfiniteScrollHandler {
     isTripped = false;
 
-    constructor(private el: Element, private handler: (e: Event) => void) {}
+    constructor(private el: Element, private handler: (e: Event) => void) {
+        this.install();
+    }
 
     install() {
         this.el.addEventListener('scroll', this.onScrollWithContext);
