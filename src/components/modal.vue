@@ -22,6 +22,8 @@ import { getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { removeModalInjectionByInternalInstance } from './modal-container';
 
+const instance = getCurrentInstance();
+
 const props = defineProps<{
     id?: string;
     closeOnMaskClick?: boolean;
@@ -35,16 +37,18 @@ defineEmits(['formSubmit']);
 const overlay = ref<HTMLElement>();
 
 onMounted(() => {
-    window.addEventListener('keydown', handleEscapeKey);
     document.body.classList.add('vf-modal-open');
 
     if (props.closeOnMaskClick) {
+        window.addEventListener('keydown', handleEscapeKey);
         overlay.value?.addEventListener('click', handleOverlayClick);
     }
 });
 
 onBeforeUnmount(() => {
-    let areOtherModalsOpen = document.body.querySelectorAll('.vf-modal').length > 0;
+    window.removeEventListener('keydown', handleEscapeKey);
+
+    const areOtherModalsOpen = document.body.querySelectorAll('.vf-modal').length > 0;
     areOtherModalsOpen || document.body.classList.remove('vf-modal-open');
 });
 
@@ -65,7 +69,6 @@ function handleEscapeKey(e: KeyboardEvent) {
 }
 
 function closeParent() {
-    const instance = getCurrentInstance();
     removeModalInjectionByInternalInstance(instance!);
 }
 </script>

@@ -1,7 +1,7 @@
 {
     "name": "@signal24/vue-foundation",
     "type": "module",
-    "version": "4.3.0",
+    "version": "4.3.1",
     "description": "Common components, directives, and helpers for Vue 3 apps",
     "module": "./dist/vue-foundation.es.js",
     "bin": {
@@ -25,6 +25,7 @@
     "scripts": {
         "dev": "vite",
         "build": "rm -rf dist && vite build && vue-tsc --declaration --emitDeclarationOnly -p tsconfig.app.json && tsc -p tsconfig.vite-plugins.json && find dist -name '*.tsbuildinfo' -delete && chmod +x dist/src/vite-plugins/vite-openapi-plugin.cli.js",
+        "build:watch": "fswatch -o src | xargs -n1 -I{} yarn build",
         "preview": "vite preview",
         "test:types": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
         "test:unit": "vitest",
