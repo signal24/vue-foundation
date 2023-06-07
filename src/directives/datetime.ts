@@ -23,7 +23,7 @@ function getDateTimeValue(el: HTMLElement, binding: DirectiveBinding<string>) {
     const tzDateStr = el.attributes.getNamedItem('local') !== null ? isoDateStr.replace(/Z$/, '') : isoDateStr.replace(/(Z|\+00:00)?$/, 'Z');
     const theDate = new Date(tzDateStr);
 
-    if (!el.attributes.getNamedItem('display-utc') !== null) {
+    if (el.attributes.getNamedItem('display-utc') !== null) {
         theDate.setMinutes(theDate.getMinutes() - theDate.getTimezoneOffset());
     }
 
