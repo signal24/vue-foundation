@@ -65,6 +65,8 @@ export function installApiClientInterceptors({ apiClient, onRequest, onError, Ca
                     if (err.status === 422) {
                         return reject(new UserError(err.body.error));
                     }
+
+                    err.message = `${err.body.error} (${err.status})`;
                 }
                 if (onError) {
                     const handlerResult = onError(err, options);
