@@ -1,7 +1,7 @@
 <template>
     <Teleport to="#vf-modal-target">
         <div :id="id" class="vf-overlay vf-modal-wrap" :class="props.class" ref="overlay">
-            <form action="." class="vf-modal" :class="{ scrolls }" @submit.prevent="$emit('formSubmit')">
+            <form action="." class="vf-modal" :class="{ scrolls }" @submit.prevent="$emit('formSubmit')" ref="form">
                 <div v-if="$slots.header" class="vf-modal-header">
                     <slot name="header" />
                     <i v-if="props.closeX" class="close" @click="closeParent"></i>
@@ -20,6 +20,7 @@
 <script lang="ts" setup>
 import { getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
 
+import { maskForm, unmaskForm } from '../helpers/mask';
 import { removeModalInjectionByInternalInstance } from './modal-container';
 
 const instance = getCurrentInstance();
@@ -33,8 +34,10 @@ const props = defineProps<{
 }>();
 
 defineEmits(['formSubmit']);
+defineExpose({ mask, unmask });
 
 const overlay = ref<HTMLElement>();
+const form = ref<HTMLFormElement>();
 
 onMounted(() => {
     document.body.classList.add('vf-modal-open');
@@ -70,6 +73,14 @@ function handleEscapeKey(e: KeyboardEvent) {
 
 function closeParent() {
     removeModalInjectionByInternalInstance(instance!);
+}
+
+function mask() {
+    maskForm(form.value!);
+}
+
+function unmask() {
+    unmaskForm(form.value!);
 }
 </script>
 

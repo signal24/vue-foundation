@@ -61,7 +61,7 @@ export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, button
     form.classList.add('vf-masked');
 
     const buttonEl = (
-        buttonSelector instanceof Element ? buttonSelector : form.querySelectorAll(buttonSelector ?? 'button:not([disabled])')[0]
+        buttonSelector instanceof Element ? buttonSelector : form.querySelectorAll(buttonSelector ?? 'button:not([disabled]):not([type="button"])')[0]
     ) as HTMLElement;
     const originalButtonHtml = buttonEl.tagName === 'INPUT' ? (buttonEl as HTMLInputElement).value : buttonEl.innerHTML;
     buttonEl.setAttribute('disabled', 'disabled');
