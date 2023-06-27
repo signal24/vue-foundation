@@ -39,6 +39,8 @@ export function showWait(message: string): () => void;
 export function showWait(titleOrMessage: string, message?: string): () => void {
     const injection = createModalInjection(AlertModal, {
         ...resolveAlertParams(titleOrMessage, message),
+        isBare: true,
+        classes: ['wait'],
         callback: () => {}
     });
     return () => removeModalInjection(injection);
