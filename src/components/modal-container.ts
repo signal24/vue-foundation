@@ -15,10 +15,10 @@ import {
     type VNodeProps
 } from 'vue';
 
-interface ModalInjection<C extends Vue__ComponentPublicInstanceConstructor> {
+interface ModalInjection<C extends ModalComponent> {
     id: string;
-    component: Raw<C>;
-    props: ComponentProps<C>;
+    component: ModalComponentUnwrapped<C>;
+    props: ModalComponentProps<C>;
     vnode: VNode;
 }
 
@@ -51,21 +51,37 @@ export type Vue__ComponentPublicInstanceConstructor<
     new (...args: any[]): T;
 };
 
-export type ComponentConfig<T extends Vue__ComponentPublicInstanceConstructor> = T extends Vue__ComponentPublicInstanceConstructor<infer P>
+export type ObjectComponentConfig<T extends Vue__ComponentPublicInstanceConstructor> = T extends Vue__ComponentPublicInstanceConstructor<infer P>
     ? P
     : never;
-export type ComponentProps<T extends Vue__ComponentPublicInstanceConstructor> = Writable<
-    Omit<ComponentConfig<T>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
+export type ObjectComponentProps<T extends Vue__ComponentPublicInstanceConstructor> = Writable<
+    Omit<ObjectComponentConfig<T>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
 >;
 
-export type AnyComponentPublicInstance = { $: ComponentInternalInstance };
+type ObjectOrDefault<T> = T extends object ? T : PropsWithCallback<{}>;
+export type ModalComponent = Vue__ComponentPublicInstanceConstructor | ((props: any) => any);
+export type ModalComponentConfig<T> = T extends Vue__ComponentPublicInstanceConstructor
+    ? {
+          props: ObjectComponentProps<T>;
+          component: Raw<T>;
+      }
+    : T extends (props: infer P) => any
+    ? {
+          props: Omit<ObjectOrDefault<P>, keyof VNodeProps | keyof AllowedComponentProps>;
+          component: T;
+      }
+    : never;
+export type ModalComponentUnwrapped<T extends ModalComponent> = ModalComponentConfig<T>['component'];
+export type ModalComponentProps<T extends ModalComponent> = ModalComponentConfig<T>['props'];
 
 interface PropsWithCallback<T> {
     callback?: (result: T) => void;
 }
-type ComponentReturn<C extends Vue__ComponentPublicInstanceConstructor> = ComponentProps<C> extends PropsWithCallback<infer R> ? R : never;
+type ComponentReturn<M extends ModalComponent> = ModalComponentProps<M> extends PropsWithCallback<infer R> ? R : never;
 
-export function createModalInjection<C extends Vue__ComponentPublicInstanceConstructor>(component: C, props: ComponentProps<C>): ModalInjection<C> {
+export type AnyComponentPublicInstance = { $: ComponentInternalInstance };
+
+export function createModalInjection<C extends ModalComponent>(component: C, props: ModalComponentProps<C>): ModalInjection<C> {
     // create or reconfigure the existing modal target
     // re-injecting every time keeps the modal container at the very end of the DOM
     const targetEl = document.getElementById('vf-modal-target') ?? document.createElement('div');
@@ -115,9 +131,9 @@ export function removeModalInjectionByVnode(vnode: VNode) {
     return false;
 }
 
-export async function presentModal<C extends Vue__ComponentPublicInstanceConstructor, R extends ComponentReturn<C>>(
+export async function presentModal<C extends ModalComponent, R extends ComponentReturn<C>>(
     component: C,
-    props: Omit<ComponentProps<C>, 'callback'>
+    props: Omit<ModalComponentProps<C>, 'callback'>
 ): Promise<R | undefined> {
     return new Promise<R>(resolve => {
         let modalInjection: ModalInjection<C> | null = null;
@@ -125,7 +141,7 @@ export async function presentModal<C extends Vue__ComponentPublicInstanceConstru
             removeModalInjection(modalInjection!);
             resolve(result);
         };
-        const resolvedProps = { ...props, callback } as ComponentProps<C>;
+        const resolvedProps = { ...props, callback } as ModalComponentProps<C>;
         modalInjection = createModalInjection(component, resolvedProps);
     });
 }
