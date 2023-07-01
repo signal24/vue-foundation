@@ -1,5 +1,5 @@
 import AlertModal from './alert-modal.vue';
-import { createModalInjection, presentModal, removeModalInjection } from './modal-container';
+import { createOverlayInjection, presentOverlay, removeOverlayInjection } from './overlay-container';
 
 function resolveAlertParams(titleOrMessage: string | Error, message?: string | Error) {
     const title = message ? (titleOrMessage as string) : undefined;
@@ -10,13 +10,13 @@ function resolveAlertParams(titleOrMessage: string | Error, message?: string | E
 export async function showAlert(title: string, message: string | Error): Promise<void>;
 export async function showAlert(message: string | Error): Promise<void>;
 export async function showAlert(titleOrMessage: string | Error, message?: string | Error): Promise<void> {
-    await presentModal(AlertModal, resolveAlertParams(titleOrMessage, message));
+    await presentOverlay(AlertModal, resolveAlertParams(titleOrMessage, message));
 }
 
 export async function showConfirm(title: string, message: string): Promise<boolean>;
 export async function showConfirm(message: string): Promise<boolean>;
 export async function showConfirm(titleOrMessage: string, message?: string): Promise<boolean> {
-    const result = await presentModal(AlertModal, {
+    const result = await presentOverlay(AlertModal, {
         ...resolveAlertParams(titleOrMessage, message),
         shouldConfirm: true
     });
@@ -26,7 +26,7 @@ export async function showConfirm(titleOrMessage: string, message?: string): Pro
 export async function showConfirmDestroy(title: string, message: string): Promise<boolean>;
 export async function showConfirmDestroy(message: string): Promise<boolean>;
 export async function showConfirmDestroy(titleOrMessage: string, message?: string): Promise<boolean> {
-    const result = await presentModal(AlertModal, {
+    const result = await presentOverlay(AlertModal, {
         ...resolveAlertParams(titleOrMessage, message),
         shouldConfirm: true,
         classes: ['destructive']
@@ -37,11 +37,11 @@ export async function showConfirmDestroy(titleOrMessage: string, message?: strin
 export function showWait(title: string, message: string): () => void;
 export function showWait(message: string): () => void;
 export function showWait(titleOrMessage: string, message?: string): () => void {
-    const injection = createModalInjection(AlertModal, {
+    const injection = createOverlayInjection(AlertModal, {
         ...resolveAlertParams(titleOrMessage, message),
         isBare: true,
         classes: ['wait'],
         callback: () => {}
     });
-    return () => removeModalInjection(injection);
+    return () => removeOverlayInjection(injection);
 }

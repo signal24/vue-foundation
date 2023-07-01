@@ -1,27 +1,25 @@
 <template>
-    <Teleport to="#vf-modal-target">
-        <div :id="id" class="vf-overlay vf-modal-wrap" :class="props.class" ref="overlay">
-            <form action="." class="vf-modal" :class="{ scrolls }" @submit.prevent="$emit('formSubmit')" ref="form">
-                <div v-if="$slots.header" class="vf-modal-header">
-                    <slot name="header" />
-                    <i v-if="props.closeX" class="close" @click="closeParent"></i>
-                </div>
-                <div class="vf-modal-content">
-                    <slot />
-                </div>
-                <div v-if="$slots.footer" class="vf-modal-footer">
-                    <slot name="footer" />
-                </div>
-            </form>
-        </div>
-    </Teleport>
+    <div :id="id" class="vf-overlay vf-modal-wrap" :class="props.class" ref="overlay">
+        <form action="." class="vf-modal" :class="{ scrolls }" @submit.prevent="$emit('formSubmit')" ref="form">
+            <div v-if="$slots.header" class="vf-modal-header">
+                <slot name="header" />
+                <i v-if="props.closeX" class="close" @click="closeParent"></i>
+            </div>
+            <div class="vf-modal-content">
+                <slot />
+            </div>
+            <div v-if="$slots.footer" class="vf-modal-footer">
+                <slot name="footer" />
+            </div>
+        </form>
+    </div>
 </template>
 
 <script lang="ts" setup>
 import { getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { maskForm, unmaskForm } from '../helpers/mask';
-import { removeModalInjectionByInternalInstance } from './modal-container';
+import { dismissOverlayInjectionByInternalInstance } from './overlay-container';
 
 const instance = getCurrentInstance();
 
@@ -72,7 +70,7 @@ function handleEscapeKey(e: KeyboardEvent) {
 }
 
 function closeParent() {
-    removeModalInjectionByInternalInstance(instance!);
+    dismissOverlayInjectionByInternalInstance(instance!);
 }
 
 function mask() {

@@ -1,4 +1,4 @@
-import type { AnyComponentPublicInstance } from '../components/modal-container';
+import type { AnyComponentPublicInstance } from '../components/overlay-container';
 
 /*///////////////////////////////////////////////
 Component Overlay Masking
