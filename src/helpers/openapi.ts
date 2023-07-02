@@ -53,6 +53,8 @@ export function isApiError(err: any): err is IApiError {
 export function installApiClientInterceptors({ apiClient, onRequest, onError, CancelablePromise }: IWrappedApiClientOptions) {
     const originalRequest = apiClient.request.request.bind(apiClient.request);
     apiClient.request.request = (options: IRequestOptions) => {
+        options = rewriteOptionsForFileUpload(options);
+
         if (onRequest) {
             options = onRequest(options);
         }
@@ -80,5 +82,41 @@ export function installApiClientInterceptors({ apiClient, onRequest, onError, Ca
                 reject(err);
             });
         });
+    };
+}
+
+export class FileUploadRequest {
+    constructor(blob: Blob) {
+        this.blob = blob;
+    }
+
+    validator = null;
+    lastModifiedDate = null;
+    size = 0;
+    path = '';
+    name = '';
+    type = '';
+    blob!: Blob;
+}
+
+function rewriteOptionsForFileUpload(options: IRequestOptions): IRequestOptions {
+    const hasFileUpload = typeof options.body === 'object' && Object.values(options.body).some(v => v instanceof FileUploadRequest);
+    if (!hasFileUpload) return options;
+
+    const formData: Record<string, any> = {};
+    const jsonBody: Record<string, any> = {};
+    for (const [key, value] of Object.entries(options.body)) {
+        if (value instanceof FileUploadRequest) {
+            formData[key] = value.blob;
+        } else {
+            jsonBody[key] = value;
+        }
+    }
+    formData._payload = new Blob([JSON.stringify(jsonBody)], { type: 'application/json' });
+
+    return {
+        ...options,
+        body: undefined,
+        formData
     };
 }
