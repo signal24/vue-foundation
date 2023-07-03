@@ -53,7 +53,7 @@ export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
         }
 
         if (item.shouldConfirm) {
-            itemEl.addEventListener('click', () => confirmAction(itemEl, item.handler));
+            itemEl.addEventListener('click', e => confirmAction(e, itemEl, item.handler));
         } else {
             itemEl.addEventListener('click', () => item.handler());
         }
@@ -85,7 +85,7 @@ export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
         wrapperEl.remove();
     }
 
-    function confirmAction(itemEl: HTMLElement, handler: () => void) {
+    function confirmAction(e: MouseEvent, itemEl: HTMLElement, handler: () => void) {
         if (itemEl.classList.contains('pending-confirm')) {
             return handler();
         }
@@ -106,4 +106,3 @@ export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
 }
 
 // TODO: actually de-select text rather than just using CSS to hide its selection
-// TODO: confirm isn't working
