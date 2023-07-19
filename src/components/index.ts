@@ -6,5 +6,6 @@ import VfSmartSelect from './smart-select.vue';
 
 export * from './alert-helpers';
 export * from './overlay-container';
+export * from './toast-helpers';
 
 export { VfAjaxSelect, VfAlertModal, VfEzSmartSelect, VfModal, VfSmartSelect };
