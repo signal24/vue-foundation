@@ -1,10 +1,10 @@
-import { createOverlayInjection, removeOverlayInjection } from './overlay-container';
+import { createOverlayInjection, type OverlayInjection, removeOverlayInjection } from './overlay-container';
 import Toast, { type IToastOptions } from './toast.vue';
 
 export function showToast(options: IToastOptions) {
-    const injection = createOverlayInjection(Toast, {
+    const injection: OverlayInjection<typeof Toast> = createOverlayInjection(Toast, {
         ...options,
-        callback: () => {}
+        callback: () => removeOverlayInjection(injection)
     });
     return () => removeOverlayInjection(injection);
 }

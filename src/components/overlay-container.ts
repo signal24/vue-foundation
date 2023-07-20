@@ -23,7 +23,7 @@ interface OverlayOptions {
     anchor?: OverlayAnchorOptions;
 }
 
-interface OverlayInjection<C extends OverlayComponent> {
+export interface OverlayInjection<C extends OverlayComponent> {
     id: string;
     component: OverlayComponentUnwrapped<C>;
     props: OverlayComponentProps<C>;
