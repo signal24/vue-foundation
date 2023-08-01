@@ -60,7 +60,10 @@ class VfTooltip {
     private handleTargetMouseEnterWithContext = this.handleTargetMouseEnter.bind(this);
     private handleTargetMouseLeaveWithContext = this.handleTargetMouseLeave.bind(this);
 
-    constructor(private el: HTMLElement, private config: ITooltipOptions) {
+    constructor(
+        private el: HTMLElement,
+        private config: ITooltipOptions
+    ) {
         el.addEventListener('mouseenter', this.handleTargetMouseEnterWithContext);
         el.addEventListener('mouseleave', this.handleTargetMouseLeaveWithContext);
     }

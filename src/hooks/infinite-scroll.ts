@@ -80,7 +80,10 @@ function discoverScrollableAncestorEl(el: Element): Element | null {
 export class InfiniteScrollHandler {
     isTripped = false;
 
-    constructor(private el: Element, private handler: (e: Event) => void) {
+    constructor(
+        private el: Element,
+        private handler: (e: Event) => void
+    ) {
         this.install();
     }
 

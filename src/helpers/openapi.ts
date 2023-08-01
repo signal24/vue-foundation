@@ -41,8 +41,10 @@ export declare class ICancelablePromise<T = any> {
 
 interface IWrappedApiClientOptions<P extends ICancelablePromise = ICancelablePromise, Arguments extends unknown[] = any[]> {
     apiClient: IApiClient;
+    wrapper?: (options: IRequestOptions, fn: (options: IRequestOptions) => P) => P;
     onRequest?: (options: IRequestOptions) => IRequestOptions;
     onError?: (err: Error, options: IRequestOptions) => Error | null | void;
+    afterRequest?: (options: IRequestOptions) => void;
     CancelablePromise: new (...arguments_: Arguments) => P;
 }
 
@@ -50,36 +52,42 @@ export function isApiError(err: any): err is IApiError {
     return err instanceof Error && 'status' in err && 'body' in err;
 }
 
-export function installApiClientInterceptors({ apiClient, onRequest, onError, CancelablePromise }: IWrappedApiClientOptions) {
+export function installApiClientInterceptors({ apiClient, wrapper, onRequest, onError, afterRequest, CancelablePromise }: IWrappedApiClientOptions) {
     const originalRequest = apiClient.request.request.bind(apiClient.request);
+    const resolvedWrapper = wrapper ?? ((options, fn) => fn(options));
     apiClient.request.request = (options: IRequestOptions) => {
-        options = rewriteOptionsForFileUpload(options);
+        return resolvedWrapper(options, options => {
+            options = rewriteOptionsForFileUpload(options);
 
-        if (onRequest) {
-            options = onRequest(options);
-        }
+            if (onRequest) {
+                options = onRequest(options);
+            }
 
-        return new CancelablePromise((resolve: (value: any) => void, reject: (err: any) => void, onCancel: (handler: () => void) => void) => {
-            const promise = originalRequest(options);
-            onCancel(promise.cancel);
-            promise.then(resolve).catch(err => {
-                if (isApiError(err) && typeof err.body === 'object' && 'error' in err.body) {
-                    if (err.status === 422) {
-                        return reject(new UserError(err.body.error));
-                    }
+            return new CancelablePromise((resolve: (value: any) => void, reject: (err: any) => void, onCancel: (handler: () => void) => void) => {
+                const promise = originalRequest(options);
+                onCancel(promise.cancel);
+                promise
+                    .then(resolve)
+                    .catch(err => {
+                        if (isApiError(err) && typeof err.body === 'object' && 'error' in err.body) {
+                            if (err.status === 422) {
+                                return reject(new UserError(err.body.error));
+                            }
 
-                    err.message = `${err.body.error} (${err.status})`;
-                }
-                if (onError) {
-                    const handlerResult = onError(err, options);
-                    if (handlerResult === null) {
-                        return;
-                    }
-                    if (handlerResult instanceof Error) {
-                        return reject(handlerResult);
-                    }
-                }
-                reject(err);
+                            err.message = `${err.body.error} (${err.status})`;
+                        }
+                        if (onError) {
+                            const handlerResult = onError(err, options);
+                            if (handlerResult === null) {
+                                return;
+                            }
+                            if (handlerResult instanceof Error) {
+                                return reject(handlerResult);
+                            }
+                        }
+                        reject(err);
+                    })
+                    .finally(() => afterRequest?.(options));
             });
         });
     };
