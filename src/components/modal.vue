@@ -1,5 +1,5 @@
 <template>
-    <div :id="id" class="vf-overlay vf-modal-wrap" :class="props.class" ref="overlay">
+    <div :id="id" class="vf-overlay vf-modal-wrap" :class="classList" ref="overlay">
         <form action="." class="vf-modal" :class="{ scrolls }" @submit.prevent="$emit('formSubmit')" ref="form">
             <div v-if="$slots.header" class="vf-modal-header">
                 <slot name="header" />
@@ -16,7 +16,8 @@
 </template>
 
 <script lang="ts" setup>
-import { getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
+import { compact } from 'lodash';
+import { computed, getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { maskForm, unmaskForm } from '../helpers/mask';
 import { dismissOverlayInjectionByInternalInstance } from './overlay-container';
@@ -32,10 +33,16 @@ const props = defineProps<{
 }>();
 
 defineEmits(['formSubmit']);
-defineExpose({ mask, unmask });
+defineExpose({ mask, unmask, hide, unhide });
 
 const overlay = ref<HTMLElement>();
 const form = ref<HTMLFormElement>();
+
+const isHidden = ref(false);
+
+const classList = computed(() => {
+    return compact([props.class, isHidden.value && 'hidden']);
+});
 
 onMounted(() => {
     document.body.classList.add('vf-modal-open');
@@ -80,6 +87,14 @@ function mask() {
 function unmask() {
     unmaskForm(form.value!);
 }
+
+function hide() {
+    isHidden.value = true;
+}
+
+function unhide() {
+    isHidden.value = false;
+}
 </script>
 
 <style lang="scss">
@@ -90,6 +105,10 @@ function unmask() {
     width: 100%;
     height: 100%;
     z-index: 100;
+
+    &.hidden {
+        display: none;
+    }
 }
 
 .vf-modal-wrap {
