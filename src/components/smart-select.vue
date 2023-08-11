@@ -10,6 +10,7 @@
             v-disabled="effectiveDisabled"
             @focus="handleInputFocused"
             @blur="handleInputBlurred"
+            :required="required"
         />
         <div v-if="shouldDisplayOptions" ref="optionsContainer" class="vf-smart-select-options">
             <div v-if="!isLoaded" class="no-results">Loading...</div>
@@ -83,12 +84,12 @@ export default {
         noResultsText: String as PropType<string>,
         disabled: Boolean as PropType<boolean>,
         optionsListId: String as PropType<string>,
-        debug: Boolean as PropType<boolean>
+        debug: Boolean as PropType<boolean>,
+        required: Boolean as PropType<boolean>
     },
 
     emits: {
         optionsLoaded: Object as (options: any[]) => void,
-        createItem: Object as (searchText: string) => void,
         'update:modelValue': Object as (value: any) => void
     },
 
@@ -232,6 +233,7 @@ export default {
 
         options() {
             this.loadedOptions = this.options ?? [];
+            this.isLoaded = true;
         },
 
         // data
@@ -274,7 +276,7 @@ export default {
     },
 
     async mounted() {
-        this.shouldShowCreateOption = this.$attrs['onCreateItem'] !== undefined;
+        this.shouldShowCreateOption = this.onCreateItem !== undefined;
 
         if (this.options) {
             this.loadedOptions = this.options;
@@ -303,13 +305,6 @@ export default {
         async loadRemoteOptions() {
             await this.reloadOptions();
             this.loadedOptions && this.$emit('optionsLoaded', this.loadedOptions);
-        },
-
-        handleSourceUpdate() {
-            if (this.preload) return this.reloadOptions();
-            if (!this.isLoaded) return;
-            this.isLoaded = false;
-            this.loadedOptions = [];
         },
 
         async reloadOptions() {
@@ -509,7 +504,7 @@ export default {
                 this.searchText = '';
                 this.selectedOption = null;
                 this.selectedOptionTitle = null;
-                this.$emit('createItem', createText);
+                this.onCreateItem?.(createText);
             } else {
                 const selectedDecoratedOption = this.optionsDescriptors.find(decoratedOption => decoratedOption.key == option.key);
                 const realOption = selectedDecoratedOption!.ref;
@@ -534,7 +529,7 @@ export default {
         },
 
         addRemoteOption(option: GenericObject) {
-            this.loadedOptions.push(option);
+            this.loadedOptions.unshift(option);
         }
     }
 };
