@@ -50,8 +50,8 @@ const FormMaskState = Symbol('FormMaskState');
 interface IFormMaskState {
     [FormMaskState]?: {
         disabledElements: HTMLElement[];
-        waitButton: HTMLElement;
-        buttonHtml: string;
+        waitButton?: HTMLElement;
+        buttonHtml?: string;
     };
 }
 type FormMaskElement = Element & IFormMaskState;
@@ -62,10 +62,13 @@ export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, button
 
     const buttonEl = (
         buttonSelector instanceof Element ? buttonSelector : form.querySelectorAll(buttonSelector ?? 'button:not([disabled]):not([type="button"])')[0]
-    ) as HTMLElement;
-    const originalButtonHtml = buttonEl.tagName === 'INPUT' ? (buttonEl as HTMLInputElement).value : buttonEl.innerHTML;
-    buttonEl.setAttribute('disabled', 'disabled');
-    buttonEl.innerText = buttonText ?? 'Please wait...';
+    ) as HTMLElement | undefined;
+    let originalButtonHtml: string | undefined;
+    if (buttonEl) {
+        originalButtonHtml = buttonEl.tagName === 'INPUT' ? (buttonEl as HTMLInputElement).value : buttonEl.innerHTML;
+        buttonEl.setAttribute('disabled', 'disabled');
+        buttonEl.innerText = buttonText ?? 'Please wait...';
+    }
 
     const inputsQR = form.querySelectorAll('input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])');
     const inputs = [...inputsQR] as HTMLElement[];
@@ -89,8 +92,11 @@ export function unmaskForm(formOrCmp: Element | AnyComponentPublicInstance) {
     form.classList.remove('vf-masked');
 
     state.disabledElements.forEach(el => el.removeAttribute('disabled'));
-    state.waitButton.innerHTML = state.buttonHtml;
-    state.waitButton.removeAttribute('disabled');
+
+    if (state.waitButton) {
+        state.waitButton.innerHTML = state.buttonHtml!;
+        state.waitButton.removeAttribute('disabled');
+    }
 
     delete (form as FormMaskElement)[FormMaskState];
 }
