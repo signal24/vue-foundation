@@ -1,12 +1,9 @@
 {
     "name": "@signal24/vue-foundation",
     "type": "module",
-    "version": "4.7.3",
+    "version": "4.7.4",
     "description": "Common components, directives, and helpers for Vue 3 apps",
     "module": "./dist/vue-foundation.es.js",
-    "bin": {
-        "vf-generate-openapi-client": "./dist/src/vite-plugins/vite-openapi-plugin.cli.js"
-    },
     "exports": {
         ".": {
             "import": "./dist/vue-foundation.es.js",
@@ -24,7 +21,7 @@
     "typings": "./dist/src/index.d.ts",
     "scripts": {
         "dev": "vite",
-        "build": "rm -rf dist && vite build && vue-tsc --declaration --emitDeclarationOnly -p tsconfig.app.json && tsc -p tsconfig.vite-plugins.json && find dist -name '*.tsbuildinfo' -delete && chmod +x dist/src/vite-plugins/vite-openapi-plugin.cli.js",
+        "build": "rm -rf dist && vite build && vue-tsc --declaration --emitDeclarationOnly -p tsconfig.app.json && tsc -p tsconfig.vite-plugins.json && find dist -name '*.tsbuildinfo' -delete",
         "build:watch": "fswatch -o src | xargs -n1 -I{} yarn build",
         "preview": "vite preview",
         "test:types": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
@@ -46,6 +43,7 @@
     "devDependencies": {
         "@nabla/vite-plugin-eslint": "^1.5.0",
         "@rushstack/eslint-patch": "^1.3.2",
+        "@signal24/openapi-client-codegen": "^1.0.4",
         "@tsconfig/node18": "^18.2.0",
         "@types/jsdom": "^21.1.1",
         "@types/lodash": "^4.14.196",
@@ -63,7 +61,6 @@
         "eslint-plugin-unused-imports": "^3.0.0",
         "eslint-plugin-vue": "^9.16.1",
         "jsdom": "^22.1.0",
-        "openapi-typescript-codegen": "^0.25.0",
         "prettier": "^3.0.0",
         "sass": "^1.64.2",
         "start-server-and-test": "^2.0.0",
