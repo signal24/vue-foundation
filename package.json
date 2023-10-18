@@ -1,7 +1,7 @@
 {
     "name": "@signal24/vue-foundation",
     "type": "module",
-    "version": "4.8.0",
+    "version": "4.9.0",
     "description": "Common components, directives, and helpers for Vue 3 apps",
     "module": "./dist/vue-foundation.es.js",
     "exports": {
@@ -34,6 +34,7 @@
     },
     "license": "MIT",
     "dependencies": {
+        "@signal24/openapi-client-codegen": "^1.1.0",
         "date-fns": "^2.30.0",
         "lodash": "^4.17.21",
         "type-fest": "^4.5.0",
@@ -43,7 +44,6 @@
     "devDependencies": {
         "@nabla/vite-plugin-eslint": "^1.5.0",
         "@rushstack/eslint-patch": "^1.5.1",
-        "@signal24/openapi-client-codegen": "^1.1.0",
         "@tsconfig/node18": "^18.2.2",
         "@types/jsdom": "^21.1.4",
         "@types/lodash": "^4.14.200",
