@@ -1,4 +1,4 @@
-import { createWatchfulOpenapiClientGenerators } from '@signal24/openapi-client-codegen/generator';
+import { createWatchfulOpenapiClientGenerators } from '@signal24/openapi-client-codegen/node';
 
 export function openapiClientGeneratorPlugin(): {
     name: string;

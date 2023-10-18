@@ -1,4 +1,4 @@
-import { installOpenApiClientInterceptors, isOpenApiError } from '@signal24/openapi-client-codegen/helpers';
+import { installOpenApiClientInterceptors, isOpenApiError } from '@signal24/openapi-client-codegen/browser';
 
 import { UserError } from '.';
 
