@@ -10,7 +10,12 @@ export function installApiClientInterceptors(clientOptions: Parameters<typeof in
                 err = new UserError(err.body.error);
             }
 
-            clientOptions.onError?.(err, options);
+            const onErrResult = clientOptions.onError?.(err, options);
+            if (onErrResult !== undefined) {
+                return onErrResult;
+            }
+
+            return err;
         }
     });
 }
