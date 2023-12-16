@@ -99,5 +99,6 @@ onMounted(() => {
 <style lang="scss">
 .vf-overlay-anchor {
     position: absolute;
+    z-index: 100;
 }
 </style>
