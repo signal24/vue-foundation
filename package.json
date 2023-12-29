@@ -1,7 +1,7 @@
 {
     "name": "@signal24/vue-foundation",
     "type": "module",
-    "version": "4.12.1",
+    "version": "4.12.2",
     "description": "Common components, directives, and helpers for Vue 3 apps",
     "module": "./dist/vue-foundation.es.js",
     "exports": {
@@ -74,9 +74,6 @@
         "vitest": "^1.1.0",
         "vue": "^3.3.13",
         "vue-tsc": "^1.8.27"
-    },
-    "resolutions": {
-        "jackspeak": "2.1.1"
     },
     "packageManager": "yarn@4.0.2"
 }
