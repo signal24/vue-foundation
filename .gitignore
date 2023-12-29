@@ -3,3 +3,9 @@ yarn-error.log
 package-lock.json
 dist
 .eslintcache
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
