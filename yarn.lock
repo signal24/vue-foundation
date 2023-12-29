@@ -635,9 +635,9 @@ __metadata:
     vue-tsc: "npm:^1.8.27"
   peerDependencies:
     "@signal24/openapi-client-codegen": ^1.1.0
-    date-fns: ^2.30.0
+    date-fns: ^3.0.6
     lodash: ^4.17.21
-    vue: ^3.3.7
+    vue: ^3.3.13
   languageName: unknown
   linkType: soft
 
