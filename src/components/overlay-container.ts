@@ -77,11 +77,11 @@ export type OverlayComponentConfig<T> = T extends Vue__ComponentPublicInstanceCo
           component: Raw<T>;
       }
     : T extends (props: infer P) => any
-    ? {
-          props: Omit<ObjectOrDefault<P>, keyof VNodeProps | keyof AllowedComponentProps>;
-          component: T;
-      }
-    : never;
+      ? {
+            props: Omit<ObjectOrDefault<P>, keyof VNodeProps | keyof AllowedComponentProps>;
+            component: T;
+        }
+      : never;
 export type OverlayComponentUnwrapped<T extends OverlayComponent> = OverlayComponentConfig<T>['component'];
 export type OverlayComponentProps<T extends OverlayComponent> = OverlayComponentConfig<T>['props'];
 

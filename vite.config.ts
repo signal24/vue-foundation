@@ -26,7 +26,7 @@ export default defineConfig({
             external: ['date-fns', 'lodash', 'vue', '@vue/shared', '@signal24/openapi-client-codegen/browser'],
             output: {
                 assetFileNames: assetInfo => {
-                    if (assetInfo.name === 'index.css') return 'vue-foundation.css';
+                    if (assetInfo.name === 'main.css') return 'vue-foundation.css';
                     return assetInfo.name!;
                 },
                 exports: 'named',
