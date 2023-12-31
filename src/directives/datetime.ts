@@ -38,7 +38,11 @@ function getDateTimeValue(el: HTMLElement, binding: DirectiveBinding<string>) {
     }
 
     if (!formatSpec) {
-        formatSpec = VfOptions.defaultDateTimeFormat;
+        if (el.attributes.getNamedItem('date-only') !== null) {
+            formatSpec = VfOptions.defaultDateFormat;
+        } else {
+            formatSpec = VfOptions.defaultDateTimeFormat;
+        }
     }
 
     let result = format(theDate, formatSpec);
