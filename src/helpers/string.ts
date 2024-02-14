@@ -18,10 +18,10 @@ export function formatPhone(value: string) {
     return '(' + cleanValue.substring(0, 3) + ') ' + cleanValue.substring(3, 6) + '-' + cleanValue.substring(6);
 }
 
-export function formatUSCurrency(value: string | number) {
+export function formatUSCurrency(value: string | number, divisor = 1) {
     return (
         '$' +
-        Number(value)
+        (Number(value) / divisor)
             .toFixed(3)
             .replace(/0$/, '')
             .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
