@@ -53,8 +53,8 @@ function desnake(value: string | null) {
     return value ? desnakeCase(value) : null;
 }
 
-function usCurrency(value: string | number) {
-    return formatUSCurrency(value);
+function usCurrency(value: string | number, divisor = 1) {
+    return formatUSCurrency(value, divisor);
 }
 
 const FilterFns = {
