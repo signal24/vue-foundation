@@ -400,11 +400,14 @@ export default {
                 return matchedRef;
             }
 
-            // for reasons I've yet to determine, the prepend options, although they are wrapped by proxies and have identical content,
-            // are not the same proxy object as selectedOption once assigned -- even though the loaded data *is* the same. I've tried
-            // setting them as reactive using the same method (via data props rather than computed) and it didn't change anything.
-            // therefore, falling back to an isEqual check here when there's no equal object
-            const matchedObj = this.effectiveOptions.find(o => isEqual(o.ref, option));
+            // didn't find an object match, so we'll try a content match. a couple reasons:
+            // 1) the initial selection may have come from an owning object and the object as a whole may differ from the full content list
+            // 2) for reasons I've yet to determine, the prepend options, although they are wrapped by proxies and have identical content,
+            //    are not the same proxy object as selectedOption once assigned -- even though the loaded data *is* the same. I've tried
+            //    setting them as reactive using the same method (via data props rather than computed) and it didn't change anything.
+            //    therefore, falling back to an isEqual check here when there's no equal object
+            const matcher = this.keyExtractor ? (a: GenericObject, b: GenericObject) => this.keyExtractor!(a) === this.keyExtractor!(b) : isEqual;
+            const matchedObj = this.effectiveOptions.find(o => matcher(o.ref!, option));
             if (matchedObj) {
                 return matchedObj;
             }
