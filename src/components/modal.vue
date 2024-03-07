@@ -82,6 +82,7 @@ function closeParent() {
 
 function mask() {
     maskForm(form.value!);
+    return () => unmask();
 }
 
 function unmask() {
@@ -90,6 +91,7 @@ function unmask() {
 
 function hide() {
     isHidden.value = true;
+    return () => unhide();
 }
 
 function unhide() {
