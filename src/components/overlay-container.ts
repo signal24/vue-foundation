@@ -90,7 +90,7 @@ interface PropsWithCallback<T> {
 }
 type ComponentReturn<M extends OverlayComponent> = OverlayComponentProps<M> extends PropsWithCallback<infer R> ? R : never;
 
-export type AnyComponentPublicInstance = { $: ComponentInternalInstance };
+export type AnyComponentPublicInstance = { $?: ComponentInternalInstance };
 
 export function createOverlayInjection<C extends OverlayComponent>(
     component: C,
@@ -124,7 +124,7 @@ export function createOverlayInjection<C extends OverlayComponent>(
 }
 
 export function dismissOverlayInjectionByInstance(instance: AnyComponentPublicInstance) {
-    dismissOverlayInjectionByInternalInstance(instance.$);
+    instance.$ && dismissOverlayInjectionByInternalInstance(instance.$);
 }
 
 export function dismissOverlayInjectionByInternalInstance(instance: ComponentInternalInstance) {

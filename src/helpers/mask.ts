@@ -12,13 +12,13 @@ interface IMaskState {
 type MaskElement = Element & IMaskState;
 
 export function maskComponent(cmp: AnyComponentPublicInstance, message?: string) {
-    const el = cmp.$.vnode.el;
+    const el = cmp.$?.vnode.el;
     const modalParentlEl = el!.closest('.vf-modal');
     return maskEl(modalParentlEl ?? el, message);
 }
 
 export function unmaskComponent(cmp: AnyComponentPublicInstance) {
-    const el = cmp.$.vnode.el;
+    const el = cmp.$?.vnode.el;
     const modalParentlEl = el!.closest('.vf-modal');
     return unmaskEl(modalParentlEl ?? el);
 }
@@ -58,6 +58,8 @@ type FormMaskElement = Element & IFormMaskState;
 
 export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, buttonSelector?: string | Element, buttonText?: string) {
     const form = formOrCmp instanceof Element ? formOrCmp : getFormFromCmp(formOrCmp);
+    if (!form) return;
+
     form.classList.add('vf-masked');
 
     const buttonEl = (
@@ -85,6 +87,7 @@ export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, button
 
 export function unmaskForm(formOrCmp: Element | AnyComponentPublicInstance) {
     const form = formOrCmp instanceof Element ? formOrCmp : getFormFromCmp(formOrCmp);
+    if (!form) return;
 
     const state = (form as FormMaskElement)[FormMaskState];
     if (!state) return;
@@ -101,8 +104,9 @@ export function unmaskForm(formOrCmp: Element | AnyComponentPublicInstance) {
     delete (form as FormMaskElement)[FormMaskState];
 }
 
-function getFormFromCmp(cmp: AnyComponentPublicInstance) {
-    const cmpEl = cmp.$.vnode.el!;
+function getFormFromCmp(cmp: AnyComponentPublicInstance | null) {
+    const cmpEl = cmp?.$?.vnode.el;
+    if (!cmpEl) return null;
     if (cmpEl.tagName === 'FORM') {
         return cmpEl as HTMLElement;
     } else {

@@ -25,7 +25,8 @@ const instance = getCurrentInstance();
 onMounted(updateAttributes);
 
 function updateAttributes() {
-    const overlayEl = instance!.vnode.el as HTMLElement;
+    if (!instance) return;
+    const overlayEl = instance.vnode.el as HTMLElement;
     const { styles, classes } = computeAnchoredStyle(overlayEl, anchorEl);
     anchorStyles.value = styles;
     anchorClasses.value = classes;
