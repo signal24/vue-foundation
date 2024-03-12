@@ -58,7 +58,7 @@ type FormMaskElement = Element & IFormMaskState;
 
 export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, buttonSelector?: string | Element, buttonText?: string) {
     const form = formOrCmp instanceof Element ? formOrCmp : getFormFromCmp(formOrCmp);
-    if (!form) return;
+    if (!form) return () => {};
 
     form.classList.add('vf-masked');
 
