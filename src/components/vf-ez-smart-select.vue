@@ -2,43 +2,43 @@
     <VfSmartSelect v-model="selectedItem" :options="computedOpts" :formatter="ezFormatter" :null-title="nullTitle" :placeholder="placeholder" />
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="T extends string">
 import { isEqual } from 'lodash';
 import { computed, ref, watch } from 'vue';
 
 import VfSmartSelect from './vf-smart-select.vue';
 
 interface IComputedOption {
-    value: string;
+    value: T;
     label: string;
 }
 
 const props = defineProps<{
-    modelValue: string | null | undefined;
+    modelValue: T | null | undefined;
     nullTitle?: string;
     placeholder?: string;
-    options: { [K: string]: string } | string[];
-    formatter?: (title: string) => string;
+    options: { [key in T]: string } | T[];
+    formatter?: (label: string, key: T) => string;
 }>();
 
 const computedOpts = computed(() => {
     return Array.isArray(props.options)
-        ? props.options.map(o => ({ value: o, label: o }))
+        ? props.options.map(o => ({ value: o, label: String(o) }))
         : Object.entries(props.options).map(([value, label]) => ({
-              value,
-              label
+              value: value as T,
+              label: label as string
           }));
 });
 
 const ezFormatter = computed(() => {
     if (props.formatter) {
-        return (o: IComputedOption) => props.formatter!(o.label);
+        return (o: IComputedOption) => props.formatter!(o.label, o.value);
     }
     return (o: IComputedOption) => o.label;
 });
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string | null): void;
+    (e: 'update:modelValue', value: T | null): void;
 }>();
 
 const selectedItem = ref<IComputedOption | null>(computedOpts.value.find(o => o.value === props.modelValue) ?? null);
