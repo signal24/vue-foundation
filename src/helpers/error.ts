@@ -20,7 +20,14 @@ export function formatError(err: any): string {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toError(err: any) {
-    return err instanceof Error ? err : new Error(String(err));
+    if (isError(err)) return err;
+    return new Error(String(err));
+}
+
+export function isError(err: unknown): err is Error {
+    if (err instanceof Error) return true;
+    if (typeof err === 'object' && err !== null && 'message' in err && 'name' in err) return true;
+    return false;
 }
 
 interface IErrorAlertOptions {
