@@ -3,6 +3,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unusedImports from 'eslint-plugin-unused-imports';
 import pluginVue from 'eslint-plugin-vue';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
@@ -27,11 +28,13 @@ export default tseslint.config(
                 projectService: true
             },
 
-            // not sure why some of these TS generics are needed.
-            // will circle back when Vue officially updates to ESLint 9
             globals: {
+                // not sure why some of these TS generics are needed.
+                // will circle back when Vue officially updates to ESLint 9
                 Omit: false,
-                Record: false
+                Record: false,
+
+                ...globals.browser
             }
         }
     },

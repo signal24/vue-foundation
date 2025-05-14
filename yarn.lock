@@ -1252,15 +1252,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@signal24/openapi-client-codegen@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "@signal24/openapi-client-codegen@npm:2.4.0"
+"@signal24/openapi-client-codegen@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "@signal24/openapi-client-codegen@npm:2.5.0"
   dependencies:
     "@hey-api/client-fetch": "npm:^0.10.0"
     "@hey-api/openapi-ts": "npm:^0.67.3"
   bin:
     generate-openapi-client: dist/src/node/cli.js
-  checksum: 10c0/9782dc89f2fbc0d85af9fb0491443c6dcbba5dca495b5099dbcfe3eb27a0fe2434c269c7e1167a41e60a4a307fccfd002fa8d3c86acf67f6a40f560d418c0f0c
+  checksum: 10c0/9cd73019e218f6011cc20511c96fb55c0f1cd5b67e9a0959d37df77008db7a53385f4cc429e236af7ab18f750bc4a9a337cbacc12daacac9953a24e9dc5ffcba
   languageName: node
   linkType: hard
 
@@ -1270,11 +1270,11 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:9.26.0"
     "@nabla/vite-plugin-eslint": "npm:^2.0.5"
-    "@signal24/openapi-client-codegen": "npm:^2.4.0"
+    "@signal24/openapi-client-codegen": "npm:^2.5.0"
     "@tsconfig/node22": "npm:^22.0.1"
     "@types/jsdom": "npm:^21.1.7"
     "@types/lodash": "npm:^4.17.16"
-    "@types/node": "npm:^22.15.17"
+    "@types/node": "npm:^22.15.18"
     "@types/uuid": "npm:^10.0.0"
     "@vitejs/plugin-vue": "npm:^5.2.4"
     "@vue/eslint-config-prettier": "npm:^10.2.0"
@@ -1374,12 +1374,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.15.17":
-  version: 22.15.17
-  resolution: "@types/node@npm:22.15.17"
+"@types/node@npm:^22.15.18":
+  version: 22.15.18
+  resolution: "@types/node@npm:22.15.18"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/fb92aa10b628683c5b965749f955bc2322485ecb0ea6c2f4cae5f2c7537a16834607e67083a9e9281faaae8d7dee9ada8d6a5c0de9a52c17d82912ef00c0fdd4
+  checksum: 10c0/e23178c568e2dc6b93b6aa3b8dfb45f9556e527918c947fe7406a4c92d2184c7396558912400c3b1b8d0fa952ec63819aca2b8e4d3545455fc6f1e9623e09ca6
   languageName: node
   linkType: hard
 
