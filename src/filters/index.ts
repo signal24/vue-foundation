@@ -1,4 +1,8 @@
+import currency from 'currency.js';
+import { addDays, format, parse } from 'date-fns';
 import { startCase as _startCase, upperFirst as _upperFirst } from 'lodash';
+
+import { VfOptions } from '@/config';
 
 import { desnakeCase, formatNumber, formatPhone, formatUSCurrency } from '..';
 
@@ -48,6 +52,12 @@ function upperCase(value: string | null) {
     return value ? value.toUpperCase() : null;
 }
 
+function upperWords(value: null): null;
+function upperWords(value: string): string;
+function upperWords(value: string | null) {
+    return value ? startCase(value.toLowerCase()) : null;
+}
+
 function desnake(value: null): null;
 function desnake(value: string): string;
 function desnake(value: string | null) {
@@ -56,6 +66,30 @@ function desnake(value: string | null) {
 
 function usCurrency(value: string | number, divisor = 1) {
     return formatUSCurrency(value, divisor);
+}
+
+function divide(value: number, divisor: number) {
+    return currency(value).divide(divisor).value;
+}
+
+function date(value: string | null, formatStr?: string) {
+    if (!value) return value;
+    return format(new Date(value), formatStr ?? VfOptions.defaultDateFormat);
+}
+
+function time(value: string | null, formatStr?: string) {
+    if (!value) return value;
+    return format(new Date(value), formatStr ?? VfOptions.defaultTimeFormat);
+}
+
+function dateTime(value: string | null, formatStr?: string) {
+    if (!value) return value;
+    return format(new Date(value), formatStr ?? VfOptions.defaultDateFormat);
+}
+
+function oneDayForward(date?: string | null) {
+    if (!date) return date;
+    return format(addDays(parse(date, 'yyyy-MM-dd', new Date()), 1), VfOptions.defaultDateFormat);
 }
 
 const FilterFns = {
@@ -67,8 +101,14 @@ const FilterFns = {
     upperFirst,
     startCase,
     upperCase,
+    upperWords,
     desnake,
-    usCurrency
+    usCurrency,
+    divide,
+    date,
+    time,
+    dateTime,
+    oneDayForward
 };
 
 // type FilterFn = (value: any, ...unknown: any[]) => any;

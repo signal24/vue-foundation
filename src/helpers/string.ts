@@ -1,3 +1,4 @@
+import currency from 'currency.js';
 import { v4 as uuidv4 } from 'uuid';
 
 // placing this here so we don't have to use the ESLint rule everywhere
@@ -19,13 +20,7 @@ export function formatPhone(value: string) {
 }
 
 export function formatUSCurrency(value: string | number, divisor = 1) {
-    return (
-        '$' +
-        (Number(value) / divisor)
-            .toFixed(3)
-            .replace(/0$/, '')
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    );
+    return currency(value).divide(divisor).format();
 }
 
 export function uuid() {
