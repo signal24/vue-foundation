@@ -1,5 +1,12 @@
 <template>
-    <VfSmartSelect v-model="selectedItem" :options="computedOpts" :formatter="ezFormatter" :null-title="nullTitle" :placeholder="placeholder" />
+    <VfSmartSelect
+        v-model="selectedItem"
+        :options="computedOpts"
+        :formatter="ezFormatter"
+        :null-title="nullTitle"
+        :placeholder="placeholder"
+        :name="name"
+    />
 </template>
 
 <script lang="ts" setup generic="T extends string">
@@ -19,6 +26,7 @@ const props = defineProps<{
     placeholder?: string;
     options: { [key in T]: string } | T[];
     formatter?: (label: string, key: T) => string;
+    name?: string;
 }>();
 
 const computedOpts = computed(() => {

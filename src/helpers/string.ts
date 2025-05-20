@@ -1,6 +1,8 @@
 import currency from 'currency.js';
 import { v4 as uuidv4 } from 'uuid';
 
+import { VfOptions } from '@/config';
+
 // placing this here so we don't have to use the ESLint rule everywhere
 // eslint-disable-next-line vue/prefer-import-from-vue
 export { escapeHtml } from '@vue/shared';
@@ -19,8 +21,10 @@ export function formatPhone(value: string) {
     return '(' + cleanValue.substring(0, 3) + ') ' + cleanValue.substring(3, 6) + '-' + cleanValue.substring(6);
 }
 
-export function formatUSCurrency(value: string | number, divisor = 1) {
-    return currency(value).divide(divisor).format();
+export function formatUSCurrency(value: string | number, divisor?: number) {
+    return currency(value)
+        .divide(divisor ?? VfOptions.defaultCurrencyDivisor)
+        .format();
 }
 
 export function uuid() {

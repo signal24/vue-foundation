@@ -64,7 +64,7 @@ function desnake(value: string | null) {
     return value ? desnakeCase(value) : null;
 }
 
-function usCurrency(value: string | number, divisor = 1) {
+function usCurrency(value: string | number, divisor?: number) {
     return formatUSCurrency(value, divisor);
 }
 

@@ -9,6 +9,7 @@
             :class="{ nullable: !!nullTitle }"
             :placeholder="effectivePlaceholder"
             :required="required"
+            :name="name"
             data-1p-ignore
             @keydown="handleKeyDown"
             @focus="handleInputFocused"
@@ -79,6 +80,7 @@ const props = defineProps<{
     required?: boolean;
     showCreateTextOnNewItem?: boolean;
     autoNext?: boolean;
+    name?: string;
 }>();
 
 const emit = defineEmits<{
