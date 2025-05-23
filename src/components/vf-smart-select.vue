@@ -15,26 +15,34 @@
             @focus="handleInputFocused"
             @blur="handleInputBlurred"
         />
-        <div v-if="shouldDisplayOptions" ref="optionsContainer" class="vf-smart-select-options">
+        <div v-if="shouldDisplayOptions" ref="optionsContainer" class="vf-smart-select-options" :class="{ grouped: isGrouped }">
             <div v-if="!isLoaded" class="no-results">Loading...</div>
             <template v-else>
-                <div
-                    v-for="option in effectiveOptions"
-                    :key="String(option.key)"
-                    class="option"
-                    :class="[highlightedOptionKey === option.key && 'highlighted', option.ref && classForOption?.(option.ref)]"
-                    @mousemove="handleOptionHover(option)"
-                    @mousedown="selectOption(option)"
-                >
-                    <slot name="option" :option="option">
-                        <div class="title" v-html="option.title" />
-                        <div v-if="option.subtitle" class="subtitle" v-html="option.subtitle" />
-                    </slot>
-                </div>
-                <div v-if="!effectiveOptions.length && searchText" class="no-results">
-                    <slot name="no-results">
-                        {{ effectiveNoResultsText }}
-                    </slot>
+                <div v-for="group in groupedOptions" :key="group.groupTitle" class="group">
+                    <div v-if="group.groupTitle" class="group-title">
+                        <slot name="group" :group="group.groupTitle">
+                            {{ group.groupTitle }}
+                        </slot>
+                    </div>
+
+                    <div
+                        v-for="option in group.options"
+                        :key="option.key"
+                        class="option"
+                        :class="[highlightedOptionKey === option.key && 'highlighted', option.ref && classForOption?.(option.ref)]"
+                        @mousemove="handleOptionHover(option)"
+                        @mousedown="selectOption(option)"
+                    >
+                        <slot name="option" :option="option">
+                            <div class="title" v-html="option.title" />
+                            <div v-if="option.subtitle" class="subtitle" v-html="option.subtitle" />
+                        </slot>
+                    </div>
+                    <div v-if="!effectiveOptions.length && searchText" class="no-results">
+                        <slot name="no-results">
+                            {{ effectiveNoResultsText }}
+                        </slot>
+                    </div>
                 </div>
             </template>
         </div>
@@ -42,7 +50,7 @@
 </template>
 
 <script lang="ts" setup generic="T, V = T">
-import { debounce, isEqual } from 'lodash';
+import { debounce, groupBy, isEqual, uniq } from 'lodash';
 import { computed, onMounted, type Ref, ref, watch } from 'vue';
 
 import { escapeHtml } from '../helpers/string';
@@ -69,6 +77,8 @@ const props = defineProps<{
     valueField?: keyof T;
     valueExtractor?: (option: T) => V;
     labelField?: keyof T;
+    groupField?: keyof T;
+    groupFormatter?: (option: T) => string;
     formatter?: (option: T) => string;
     subtitleFormatter?: (option: T) => string;
     classForOption?: (option: T) => string;
@@ -129,6 +139,11 @@ const effectiveKeyExtractor = computed(() => {
     if (effectiveValueExtractor.value) return (option: T) => String(effectiveValueExtractor.value!(option));
     return null;
 });
+const effectiveGroupFormatter = computed(() => {
+    if (props.groupFormatter) return props.groupFormatter;
+    if (props.groupField) return (option: T) => String(option[props.groupField!]);
+    return null;
+});
 const effectiveFormatter = computed(() => {
     if (props.formatter) return props.formatter;
     if (props.labelField) return (option: T) => String(option[props.labelField!]);
@@ -136,9 +151,11 @@ const effectiveFormatter = computed(() => {
 });
 
 const allOptions = computed(() => [...effectivePrependOptions.value, ...loadedOptions.value, ...effectiveAppendOptions.value]);
+const isGrouped = computed(() => !!(props.groupField || props.groupFormatter));
 
 const optionsDescriptors = computed(() => {
     return allOptions.value.map((option, index) => {
+        const group = effectiveGroupFormatter.value?.(option);
         const title = effectiveFormatter.value(option);
         const subtitle = props.subtitleFormatter?.(option);
         const strippedTitle = title ? title.trim().toLowerCase() : '';
@@ -160,6 +177,7 @@ const optionsDescriptors = computed(() => {
 
         return {
             key: effectiveKeyExtractor.value?.(option) ?? String(index),
+            group,
             title,
             subtitle,
             searchContent: searchContent.join(''),
@@ -206,6 +224,24 @@ const effectiveOptions = computed(() => {
     }
 
     return options;
+});
+
+const groupedOptions = computed(() => {
+    if (!effectiveOptions.value[0]?.group) {
+        return [
+            {
+                groupTitle: '',
+                options: effectiveOptions.value
+            }
+        ];
+    }
+
+    const groupTitles = uniq(effectiveOptions.value.map(option => option.group ?? ''));
+    const groupedOptions = groupBy(effectiveOptions.value, option => option.group);
+    return groupTitles.map(groupTitle => ({
+        groupTitle,
+        options: groupedOptions[groupTitle!]
+    }));
 });
 
 // watch props
@@ -592,6 +628,11 @@ function focusNextInput() {
     background: white;
     overflow: auto;
     z-index: 101;
+
+    .group-title {
+        padding: 5px 8px;
+        color: #999;
+    }
 
     .option,
     .no-results {
