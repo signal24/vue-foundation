@@ -227,7 +227,7 @@ const effectiveOptions = computed(() => {
 });
 
 const groupedOptions = computed(() => {
-    if (!effectiveOptions.value[0]?.group) {
+    if (!isGrouped.value) {
         return [
             {
                 groupTitle: '',
@@ -237,7 +237,7 @@ const groupedOptions = computed(() => {
     }
 
     const groupTitles = uniq(effectiveOptions.value.map(option => option.group ?? ''));
-    const groupedOptions = groupBy(effectiveOptions.value, option => option.group);
+    const groupedOptions = groupBy(effectiveOptions.value, option => option.group ?? '');
     return groupTitles.map(groupTitle => ({
         groupTitle,
         options: groupedOptions[groupTitle!]

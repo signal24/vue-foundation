@@ -7,7 +7,7 @@
         </div>
 
         <div>
-            <VfSmartSelect v-model="selectedOption" :options="options" label-field="label" group-field="group" />
+            <VfSmartSelect v-model="selectedOption" :options="options" label-field="label" group-field="group" null-title="No selection" />
 
             Selected value: {{ selectedOption?.label ?? '-' }}
         </div>
