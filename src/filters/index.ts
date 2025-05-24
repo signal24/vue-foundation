@@ -84,7 +84,7 @@ function time(value: string | null, formatStr?: string) {
 
 function dateTime(value: string | null, formatStr?: string) {
     if (!value) return value;
-    return format(new Date(value), formatStr ?? VfOptions.defaultDateFormat);
+    return format(new Date(value), formatStr ?? `${VfOptions.defaultDateFormat} ${VfOptions.defaultTimeFormat}`);
 }
 
 function oneDayForward(date?: string | null) {
