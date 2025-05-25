@@ -274,7 +274,7 @@ watch(shouldDisplayOptions, () => {
         setTimeout(handleOptionsDisplayed, 0);
     } else {
         isSearching.value = false;
-        searchText.value = selectedOptionTitle.value || '';
+        searchText.value = selectedOptionTitle.value ?? '';
 
         if (optionsContainer.value) {
             optionsContainer.value.style.visibility = 'hidden';
@@ -283,11 +283,14 @@ watch(shouldDisplayOptions, () => {
 });
 
 watch(effectiveOptions, () => {
-    if (props.modelValue && !selectedOption.value) {
+    if (props.modelValue !== null && selectedOption.value === null) {
         handleValueChanged();
     }
 
-    if ((highlightedOptionKey.value || isSearching.value) && !effectiveOptions.value.find(option => option.key == highlightedOptionKey.value)) {
+    if (
+        (highlightedOptionKey.value !== null || isSearching.value) &&
+        !effectiveOptions.value.find(option => option.key == highlightedOptionKey.value)
+    ) {
         highlightedOptionKey.value = effectiveOptions.value[0]?.key ?? NullSymbol;
     }
 });
@@ -308,7 +311,9 @@ onMounted(async () => {
         if (selectedOption.value !== props.modelValue) {
             emit(
                 'update:modelValue',
-                selectedOption.value && effectiveValueExtractor.value ? effectiveValueExtractor.value(selectedOption.value) : selectedOption.value
+                selectedOption.value !== null && effectiveValueExtractor.value !== null
+                    ? effectiveValueExtractor.value(selectedOption.value)
+                    : selectedOption.value
             );
         }
     });
@@ -324,7 +329,7 @@ async function loadRemoteOptions() {
 }
 
 async function reloadOptions() {
-    const effectiveSearchText = props.remoteSearch && isSearching.value && searchText.value ? searchText.value : null;
+    const effectiveSearchText = props.remoteSearch && isSearching.value && searchText.value.length ? searchText.value : null;
     isLoading.value = true;
     loadedOptions.value = (await props.loadOptions?.(effectiveSearchText)) ?? [];
     isLoading.value = false;
@@ -517,7 +522,7 @@ function incrementHighlightedOption(increment: number) {
 function selectOption(option: VfSmartSelectOptionDescriptor<T>) {
     isSearching.value = false;
 
-    if (option.key == NullSymbol) {
+    if (option.key === NullSymbol) {
         searchText.value = '';
         selectedOption.value = null;
         selectedOptionTitle.value = null;
@@ -532,7 +537,7 @@ function selectOption(option: VfSmartSelectOptionDescriptor<T>) {
         const realOption = selectedDecoratedOption!.ref;
         selectedOption.value = realOption!;
         selectedOptionTitle.value = effectiveFormatter.value(realOption!);
-        searchText.value = selectedOptionTitle.value || '';
+        searchText.value = selectedOptionTitle.value ?? '';
     }
 
     searchField.value?.blur();
@@ -540,12 +545,12 @@ function selectOption(option: VfSmartSelectOptionDescriptor<T>) {
 }
 
 function handleValueChanged() {
-    if (props.modelValue) {
+    if (props.modelValue !== null) {
         selectedOption.value = effectiveValueExtractor.value
             ? allOptions.value.find(o => props.modelValue === effectiveValueExtractor.value!(o))
             : props.modelValue;
-        selectedOptionTitle.value = selectedOption.value ? effectiveFormatter.value(selectedOption.value) : null;
-        searchText.value = selectedOptionTitle.value || '';
+        selectedOptionTitle.value = selectedOption.value !== null ? effectiveFormatter.value(selectedOption.value) : null;
+        searchText.value = selectedOptionTitle.value ?? '';
     } else {
         selectedOption.value = null;
         selectedOptionTitle.value = null;
