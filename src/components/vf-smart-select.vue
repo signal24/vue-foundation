@@ -51,7 +51,7 @@
 
 <script lang="ts" setup generic="T, V = T">
 import { debounce, groupBy, isEqual, uniq } from 'lodash';
-import { computed, onMounted, type Ref, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 import { escapeHtml } from '../helpers/string';
 import type { VfSmartSelectOptionDescriptor } from './vf-smart-select.types';
@@ -63,6 +63,7 @@ const VALID_KEYS = `\`1234567890-=[]\\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfgh
 
 const props = defineProps<{
     modelValue: V | null;
+    loadingText?: string;
     loadOptions?: (searchText: string | null) => Promise<T[]>;
     options?: T[];
     prependOptions?: T[];
@@ -82,6 +83,7 @@ const props = defineProps<{
     formatter?: (option: T) => string;
     subtitleFormatter?: (option: T) => string;
     classForOption?: (option: T) => string;
+    selectionFormatter?: (option: T) => string;
     nullTitle?: string;
     noResultsText?: string;
     disabled?: boolean;
@@ -108,7 +110,7 @@ const optionsContainer = ref<HTMLDivElement>();
 
 const isLoading = ref(false);
 const isLoaded = ref(false);
-const loadedOptions = ref<T[]>([]) as Ref<T[]>;
+const loadedOptions = ref<T[]>();
 const isSearching = ref(false);
 const searchText = ref('');
 const selectedOption = ref<T | null>(null);
@@ -120,7 +122,7 @@ const shouldShowCreateTextOnNewItem = computed(() => props.showCreateTextOnNewIt
 
 const effectivePrependOptions = computed(() => props.prependOptions ?? []);
 const effectiveAppendOptions = computed(() => props.appendOptions ?? []);
-const effectiveDisabled = computed(() => !!props.disabled);
+const effectiveDisabled = computed(() => !!props.disabled || (!props.options && !loadedOptions.value));
 const effectivePlaceholder = computed(() => {
     if (!isLoaded.value && props.preload) return 'Loading...';
     if (props.nullTitle) return props.nullTitle;
@@ -149,8 +151,12 @@ const effectiveFormatter = computed(() => {
     if (props.labelField) return (option: T) => String(option[props.labelField!]);
     return (option: T) => String(option);
 });
+const effectiveSelectionFormatter = computed(() => {
+    if (props.selectionFormatter) return props.selectionFormatter;
+    return effectiveFormatter.value;
+});
 
-const allOptions = computed(() => [...effectivePrependOptions.value, ...loadedOptions.value, ...effectiveAppendOptions.value]);
+const allOptions = computed(() => [...effectivePrependOptions.value, ...(loadedOptions.value ?? []), ...effectiveAppendOptions.value]);
 const isGrouped = computed(() => !!(props.groupField || props.groupFormatter));
 
 const optionsDescriptors = computed(() => {
@@ -249,7 +255,7 @@ watch(() => props.modelValue, handleValueChanged);
 watch(
     () => props.options,
     () => {
-        loadedOptions.value = props.options ?? [];
+        loadedOptions.value = props.options;
         isLoaded.value = true;
     }
 );
@@ -301,11 +307,15 @@ onMounted(async () => {
     if (props.options) {
         loadedOptions.value = [...props.options];
         isLoaded.value = true;
-    } else if (props.preload) {
+    } else if (props.loadOptions && props.preload) {
         await loadRemoteOptions();
     }
 
-    handleValueChanged();
+    if (!props.options && (props.valueField || props.valueExtractor)) {
+        searchText.value = props.loadingText ?? '...';
+    } else {
+        handleValueChanged();
+    }
 
     watch(selectedOption, () => {
         if (selectedOption.value !== props.modelValue) {
@@ -536,7 +546,7 @@ function selectOption(option: VfSmartSelectOptionDescriptor<T>) {
         const selectedDecoratedOption = optionsDescriptors.value.find(decoratedOption => decoratedOption.key == option.key);
         const realOption = selectedDecoratedOption!.ref;
         selectedOption.value = realOption!;
-        selectedOptionTitle.value = effectiveFormatter.value(realOption!);
+        selectedOptionTitle.value = effectiveSelectionFormatter.value(realOption!);
         searchText.value = selectedOptionTitle.value ?? '';
     }
 
@@ -549,7 +559,7 @@ function handleValueChanged() {
         selectedOption.value = effectiveValueExtractor.value
             ? allOptions.value.find(o => props.modelValue === effectiveValueExtractor.value!(o))
             : props.modelValue;
-        selectedOptionTitle.value = selectedOption.value !== null ? effectiveFormatter.value(selectedOption.value) : null;
+        selectedOptionTitle.value = selectedOption.value !== null ? effectiveSelectionFormatter.value(selectedOption.value) : null;
         searchText.value = selectedOptionTitle.value ?? '';
     } else {
         selectedOption.value = null;
@@ -559,7 +569,7 @@ function handleValueChanged() {
 }
 
 function addRemoteOption(option: T) {
-    loadedOptions.value.unshift(option);
+    loadedOptions.value!.unshift(option);
 }
 
 function focusNextInput() {
