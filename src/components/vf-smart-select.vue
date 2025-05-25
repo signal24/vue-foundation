@@ -51,7 +51,7 @@
 
 <script lang="ts" setup generic="T, V = T">
 import { debounce, groupBy, isEqual, uniq } from 'lodash';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import { isNotNullOrUndefined } from '@/helpers';
 
@@ -333,6 +333,10 @@ onMounted(async () => {
     if (props.remoteSearch) {
         watch(searchText, debounce(reloadOptionsIfSearching, 250));
     }
+});
+
+onBeforeUnmount(() => {
+    optionsContainer.value?.remove();
 });
 
 async function loadRemoteOptions() {
