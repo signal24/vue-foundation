@@ -42,6 +42,19 @@
 
             Selected value: {{ selectedDelayedOption2 ?? '-' }}
         </div>
+
+        <div>
+            <VfSmartSelect
+                v-model="selectedDelayedOption3"
+                :options="delayedOptions"
+                label-field="label"
+                value-field="value"
+                group-field="group"
+                null-title="No selection"
+            />
+
+            Selected value: {{ selectedDelayedOption3 ?? '-' }}
+        </div>
     </div>
 </template>
 
@@ -75,7 +88,8 @@ const delayedOptions = ref<IOption[]>();
 const selectedInstantOption1 = ref<IOption | null>(null);
 const selectedInstantOption2 = ref<IOption | null>(null);
 const selectedDelayedOption1 = ref<IOption | null>(options[1]);
-const selectedDelayedOption2 = ref<string | null>(options[1].value);
+const selectedDelayedOption2 = ref<string | null>('2');
+const selectedDelayedOption3 = ref<string | null>('19'); // intentionally invalid value
 
 function setDelayedOptions() {
     delayedOptions.value = cloneDeep(options);

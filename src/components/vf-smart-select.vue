@@ -53,6 +53,8 @@
 import { debounce, groupBy, isEqual, uniq } from 'lodash';
 import { computed, onMounted, ref, watch } from 'vue';
 
+import { isNotNullOrUndefined } from '@/helpers';
+
 import { escapeHtml } from '../helpers/string';
 import type { VfSmartSelectOptionDescriptor } from './vf-smart-select.types';
 
@@ -321,7 +323,7 @@ onMounted(async () => {
         if (selectedOption.value !== props.modelValue) {
             emit(
                 'update:modelValue',
-                selectedOption.value !== null && effectiveValueExtractor.value !== null
+                isNotNullOrUndefined(selectedOption.value) && effectiveValueExtractor.value !== null
                     ? effectiveValueExtractor.value(selectedOption.value)
                     : selectedOption.value
             );
@@ -559,7 +561,7 @@ function handleValueChanged() {
         selectedOption.value = effectiveValueExtractor.value
             ? allOptions.value.find(o => props.modelValue === effectiveValueExtractor.value!(o))
             : props.modelValue;
-        selectedOptionTitle.value = selectedOption.value !== null ? effectiveSelectionFormatter.value(selectedOption.value) : null;
+        selectedOptionTitle.value = isNotNullOrUndefined(selectedOption.value) ? effectiveSelectionFormatter.value(selectedOption.value) : null;
         searchText.value = selectedOptionTitle.value ?? '';
     } else {
         selectedOption.value = null;

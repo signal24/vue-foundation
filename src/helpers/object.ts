@@ -18,3 +18,7 @@ export function nullifyEmptyInputs<T extends Record<string, unknown>, K extends 
     }
     return result;
 }
+
+export function isNotNullOrUndefined<T>(value: T | null | undefined): value is T {
+    return value !== null && value !== undefined;
+}
