@@ -111,8 +111,7 @@ const searchField = ref<HTMLInputElement>();
 const optionsContainer = ref<HTMLDivElement>();
 
 const isLoading = ref(false);
-const isLoaded = ref(false);
-const loadedOptions = ref<T[]>();
+const remoteOptions = ref<T[]>();
 const isSearching = ref(false);
 const searchText = ref('');
 const selectedOption = ref<T | null>(null);
@@ -122,9 +121,12 @@ const highlightedOptionKey = ref<string | symbol | null>(null);
 const shouldShowCreateOption = ref(false);
 const shouldShowCreateTextOnNewItem = computed(() => props.showCreateTextOnNewItem ?? true);
 
+const isLoaded = computed(() => !!(props.options || remoteOptions.value));
+const loadedOptions = computed(() => props.options ?? remoteOptions.value ?? []);
+
 const effectivePrependOptions = computed(() => props.prependOptions ?? []);
 const effectiveAppendOptions = computed(() => props.appendOptions ?? []);
-const effectiveDisabled = computed(() => !!props.disabled || (!props.options && !loadedOptions.value));
+const effectiveDisabled = computed(() => !!props.disabled || !isLoaded.value);
 const effectivePlaceholder = computed(() => {
     if (!isLoaded.value && props.preload) return 'Loading...';
     if (props.nullTitle) return props.nullTitle;
@@ -158,7 +160,7 @@ const effectiveSelectionFormatter = computed(() => {
     return effectiveFormatter.value;
 });
 
-const allOptions = computed(() => [...effectivePrependOptions.value, ...(loadedOptions.value ?? []), ...effectiveAppendOptions.value]);
+const allOptions = computed(() => [...effectivePrependOptions.value, ...loadedOptions.value, ...effectiveAppendOptions.value]);
 const isGrouped = computed(() => !!(props.groupField || props.groupFormatter));
 
 const optionsDescriptors = computed(() => {
@@ -254,13 +256,6 @@ const groupedOptions = computed(() => {
 
 // watch props
 watch(() => props.modelValue, handleValueChanged);
-watch(
-    () => props.options,
-    () => {
-        loadedOptions.value = props.options;
-        isLoaded.value = true;
-    }
-);
 
 // watch data
 
@@ -306,10 +301,7 @@ watch(effectiveOptions, () => {
 onMounted(async () => {
     shouldShowCreateOption.value = props.onCreateItem !== undefined;
 
-    if (props.options) {
-        loadedOptions.value = [...props.options];
-        isLoaded.value = true;
-    } else if (props.loadOptions && props.preload) {
+    if (props.loadOptions && props.preload) {
         await loadRemoteOptions();
     }
 
@@ -341,15 +333,14 @@ onBeforeUnmount(() => {
 
 async function loadRemoteOptions() {
     await reloadOptions();
-    if (loadedOptions.value) emit('optionsLoaded', loadedOptions.value);
+    if (remoteOptions.value) emit('optionsLoaded', remoteOptions.value);
 }
 
 async function reloadOptions() {
     const effectiveSearchText = props.remoteSearch && isSearching.value && searchText.value.length ? searchText.value : null;
     isLoading.value = true;
-    loadedOptions.value = (await props.loadOptions?.(effectiveSearchText)) ?? [];
+    remoteOptions.value = (await props.loadOptions?.(effectiveSearchText)) ?? [];
     isLoading.value = false;
-    isLoaded.value = true;
 }
 
 function reloadOptionsIfSearching() {
@@ -575,7 +566,7 @@ function handleValueChanged() {
 }
 
 function addRemoteOption(option: T) {
-    loadedOptions.value!.unshift(option);
+    remoteOptions.value!.unshift(option);
 }
 
 function focusNextInput() {

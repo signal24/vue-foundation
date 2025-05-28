@@ -55,12 +55,25 @@
 
             Selected value: {{ selectedDelayedOption3 ?? '-' }}
         </div>
+
+        <div>
+            <VfSmartSelect
+                v-model="selectedCreateOption"
+                :options="createOptions"
+                :formatter="o => o.label"
+                :value-extractor="o => o.value"
+                :on-create-item="createOption"
+                :show-create-text-on-new-item="true"
+            />
+
+            Selected value: {{ selectedCreateOption ?? '-' }}
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { cloneDeep } from 'lodash';
-import { onMounted, ref } from 'vue';
+import { cloneDeep, compact } from 'lodash';
+import { computed, onMounted, ref } from 'vue';
 
 import VfSmartSelect from '@/components/vf-smart-select.vue';
 
@@ -90,9 +103,20 @@ const selectedInstantOption2 = ref<IOption | null>(null);
 const selectedDelayedOption1 = ref<IOption | null>(options[1]);
 const selectedDelayedOption2 = ref<string | null>('2');
 const selectedDelayedOption3 = ref<string | null>('19'); // intentionally invalid value
+const selectedCreateOption = ref<string | null>(null);
+
+const createdOptionTitle = ref<string>();
+const createOptions = computed(() =>
+    compact([createdOptionTitle.value && { label: createdOptionTitle.value, value: 'new' }, ...(delayedOptions.value || [])])
+);
 
 function setDelayedOptions() {
     delayedOptions.value = cloneDeep(options);
+}
+
+function createOption(name: string) {
+    createdOptionTitle.value = name;
+    selectedCreateOption.value = 'new';
 }
 
 onMounted(() => setTimeout(setDelayedOptions, 1000));
