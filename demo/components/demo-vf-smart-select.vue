@@ -68,6 +68,24 @@
 
             Selected value: {{ selectedCreateOption ?? '-' }}
         </div>
+
+        <div>
+            <VfSmartSelect v-model="selectedLoadedOption" :load-options="loadOptions" :formatter="o => o.label" :value-extractor="o => o.value" />
+
+            Selected value: {{ selectedLoadedOption ?? '-' }}
+        </div>
+
+        <div>
+            <VfSmartSelect v-model="selectedLoadedOption2" :load-options="loadOptions" :formatter="o => o.label" :value-extractor="o => o.value" />
+
+            Selected value: {{ selectedLoadedOption2 ?? '-' }}
+        </div>
+
+        <div>
+            <VfSmartSelect v-model="selectedLoadedOption3" :load-options="loadOptions" :formatter="o => o.label" />
+
+            Selected value: {{ selectedLoadedOption3 ?? '-' }}
+        </div>
     </div>
 </template>
 
@@ -76,6 +94,7 @@ import { cloneDeep, compact } from 'lodash';
 import { computed, onMounted, ref } from 'vue';
 
 import VfSmartSelect from '@/components/vf-smart-select.vue';
+import { sleepSecs } from '@/helpers';
 
 interface IOption {
     label: string;
@@ -104,6 +123,9 @@ const selectedDelayedOption1 = ref<IOption | null>(options[1]);
 const selectedDelayedOption2 = ref<string | null>('2');
 const selectedDelayedOption3 = ref<string | null>('19'); // intentionally invalid value
 const selectedCreateOption = ref<string | null>(null);
+const selectedLoadedOption = ref<string | null>(null);
+const selectedLoadedOption2 = ref<string | null>('5');
+const selectedLoadedOption3 = ref<IOption | null>({ value: '5', label: 'Option 5', group: 'Set 1' });
 
 const createdOptionTitle = ref<string>();
 const createOptions = computed(() =>
@@ -112,6 +134,11 @@ const createOptions = computed(() =>
 
 function setDelayedOptions() {
     delayedOptions.value = cloneDeep(options);
+}
+
+async function loadOptions() {
+    await sleepSecs(0.25);
+    return [...options];
 }
 
 function createOption(name: string) {

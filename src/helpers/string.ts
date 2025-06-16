@@ -17,7 +17,7 @@ export function desnakeCase(value: string) {
 
 export function formatPhone(value: string) {
     const cleanValue = value.replace(/\D/g, '').replace(/^1/, '');
-    if (cleanValue.length != 10) return value;
+    if (cleanValue.length !== 10) return value;
     return '(' + cleanValue.substring(0, 3) + ') ' + cleanValue.substring(3, 6) + '-' + cleanValue.substring(6);
 }
 

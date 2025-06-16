@@ -126,7 +126,7 @@ const loadedOptions = computed(() => props.options ?? remoteOptions.value ?? [])
 
 const effectivePrependOptions = computed(() => props.prependOptions ?? []);
 const effectiveAppendOptions = computed(() => props.appendOptions ?? []);
-const effectiveDisabled = computed(() => !!props.disabled || !isLoaded.value);
+const effectiveDisabled = computed(() => !!props.disabled || (!isLoaded.value && !props.loadOptions));
 const effectivePlaceholder = computed(() => {
     if (!isLoaded.value && props.preload) return 'Loading...';
     if (props.nullTitle) return props.nullTitle;
@@ -305,7 +305,7 @@ onMounted(async () => {
         await loadRemoteOptions();
     }
 
-    if (!props.options && (props.valueField || props.valueExtractor)) {
+    if (!props.options && (props.valueField || props.valueExtractor) && (!props.loadOptions || props.preload)) {
         searchText.value = props.loadingText ?? '...';
     } else {
         handleValueChanged();
@@ -341,6 +341,7 @@ async function reloadOptions() {
     isLoading.value = true;
     remoteOptions.value = (await props.loadOptions?.(effectiveSearchText)) ?? [];
     isLoading.value = false;
+    setHighlightedOptionKey();
 }
 
 function reloadOptionsIfSearching() {
