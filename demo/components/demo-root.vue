@@ -6,15 +6,21 @@
         </select>
 
         <DemoVfSmartSelect v-if="selectedDemo === 'VfSmartSelect'" />
+        <DemoVfAlertModal v-else-if="selectedDemo === 'VfAlertModal'" />
+
+        <OverlayContainer />
     </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
 
+import { OverlayContainer } from '@/components';
+
+import DemoVfAlertModal from './demo-vf-alert-modal.vue';
 import DemoVfSmartSelect from './demo-vf-smart-select.vue';
 
-const demos = ['VfSmartSelect'] as const;
+const demos = ['VfSmartSelect', 'VfAlertModal'] as const;
 const selectedDemo = ref<(typeof demos)[number] | null>();
 </script>
 

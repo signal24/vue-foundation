@@ -189,3 +189,13 @@ export async function presentOverlay<C extends OverlayComponent, R extends Compo
         overlayInjection = createOverlayInjection(component, resolvedProps, options);
     });
 }
+
+export async function updateOverlayProps<C extends OverlayComponent>(
+    injection: OverlayInjection<C, any>,
+    props: Partial<Omit<OverlayComponentProps<C>, 'callback'>>
+) {
+    const targetProps = injection.vnode.component!.props;
+    for (const key in props) {
+        targetProps[key] = props[key];
+    }
+}

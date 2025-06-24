@@ -1,4 +1,4 @@
-import { createOverlayInjection, presentOverlay, removeOverlayInjection } from './overlay-container';
+import { createOverlayInjection, presentOverlay, removeOverlayInjection, updateOverlayProps } from './overlay-container';
 import AlertModal from './vf-alert-modal.vue';
 
 interface IAlertOptions {
@@ -63,4 +63,27 @@ export function showWait(arg0: string | IAlertOptions, arg1?: string): () => voi
         callback: () => {}
     });
     return () => removeOverlayInjection(injection);
+}
+
+interface IMutableWait {
+    update: (message: string) => void;
+    dismiss: () => void;
+}
+export function showMutableWait(title: string, message: string): IMutableWait;
+export function showMutableWait(message: string): IMutableWait;
+export function showMutableWait(options: IAlertOptions): IMutableWait;
+export function showMutableWait(arg0: string | IAlertOptions, arg1?: string): IMutableWait {
+    const params = resolveAlertParams(arg0, arg1);
+    const injection = createOverlayInjection(AlertModal, {
+        ...params,
+        isBare: true,
+        classes: ['wait', ...params.classes],
+        callback: () => {}
+    });
+    return {
+        update: (message: string) => {
+            updateOverlayProps(injection, { message });
+        },
+        dismiss: () => removeOverlayInjection(injection)
+    };
 }
