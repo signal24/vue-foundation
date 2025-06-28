@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { computed, defineEmits, defineProps, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 // todo: make type safe when Vue alpha is released
 

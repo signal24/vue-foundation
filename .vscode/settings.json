@@ -6,8 +6,5 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "prettier.configPath": ".prettierrc.json",
     "typescript.tsdk": "node_modules/typescript/lib",
-    "eslint.useFlatConfig": true,
-    "terminal.integrated.env.windows": {
-        "CYPRESS_INSTALL_BINARY": "0"
-    }
+    "eslint.useFlatConfig": true
 }
