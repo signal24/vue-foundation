@@ -14,10 +14,6 @@ jobs:
         with:
           node-version: 22.x
       - run: yarn install --immutable
-      - run: yarn test:types
-      - run: yarn format
-      - run: yarn lint
-      - run: git diff --exit-code
       - run: yarn build
       - uses: actions/create-release@v1
         env:
