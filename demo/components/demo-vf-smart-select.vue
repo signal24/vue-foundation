@@ -1,12 +1,13 @@
 <template>
     <div id="demo-vf-smart-select">
         <div>
+            <b>Local options + label field</b>
             <VfSmartSelect v-model="selectedInstantOption1" :options="instantOptions" label-field="label" />
-
             Selected value label: {{ selectedInstantOption1?.label ?? '-' }}
         </div>
 
         <div>
+            <b>Local options + label field + group + null title</b>
             <VfSmartSelect
                 v-model="selectedInstantOption2"
                 :options="instantOptions"
@@ -14,11 +15,23 @@
                 group-field="group"
                 null-title="No selection"
             />
-
             Selected value label: {{ selectedInstantOption2?.label ?? '-' }}
         </div>
 
         <div>
+            <b>Local delayed options + label field + group + null title</b>
+            <VfSmartSelect
+                v-model="selectedInstantOption2"
+                :options="delayedOptions"
+                label-field="label"
+                group-field="group"
+                null-title="No selection"
+            />
+            Selected value label: {{ selectedInstantOption2?.label ?? '-' }}
+        </div>
+
+        <div>
+            <b>Local delayed options + label field + group + null title + preselected</b>
             <VfSmartSelect
                 v-model="selectedDelayedOption1"
                 :options="delayedOptions"
@@ -26,11 +39,11 @@
                 group-field="group"
                 null-title="No selection"
             />
-
             Selected value label: {{ selectedDelayedOption1?.label ?? '-' }}
         </div>
 
         <div>
+            <b>Local delayed options + value field + label field + group + null title + preselected</b>
             <VfSmartSelect
                 v-model="selectedDelayedOption2"
                 :options="delayedOptions"
@@ -39,11 +52,11 @@
                 group-field="group"
                 null-title="No selection"
             />
-
             Selected value: {{ selectedDelayedOption2 ?? '-' }}
         </div>
 
         <div>
+            <b>Local delayed options + value field + label field + group + null title</b>
             <VfSmartSelect
                 v-model="selectedDelayedOption3"
                 :options="delayedOptions"
@@ -52,11 +65,11 @@
                 group-field="group"
                 null-title="No selection"
             />
-
             Selected value: {{ selectedDelayedOption3 ?? '-' }}
         </div>
 
         <div>
+            <b>Local delayed options + formatter + create item</b>
             <VfSmartSelect
                 v-model="selectedCreateOption"
                 :options="createOptions"
@@ -65,25 +78,79 @@
                 :on-create-item="createOption"
                 :show-create-text-on-new-item="true"
             />
-
             Selected value: {{ selectedCreateOption ?? '-' }}
         </div>
 
         <div>
+            <b>Load options + formatter + value extractor</b>
             <VfSmartSelect v-model="selectedLoadedOption" :load-options="loadOptions" :formatter="o => o.label" :value-extractor="o => o.value" />
-
             Selected value: {{ selectedLoadedOption ?? '-' }}
         </div>
 
         <div>
-            <VfSmartSelect v-model="selectedLoadedOption2" :load-options="loadOptions" :formatter="o => o.label" :value-extractor="o => o.value" />
+            <b>Load options + formatter + value extractor + placeholder</b>
+            <VfSmartSelect
+                v-model="selectedLoadedOption"
+                :load-options="loadOptions"
+                :formatter="o => o.label"
+                :value-extractor="o => o.value"
+                placeholder="Select an option"
+            />
+            Selected value: {{ selectedLoadedOption ?? '-' }}
+        </div>
 
+        <div>
+            <b>Load options (w/ preload) + formatter + value extractor</b>
+            <VfSmartSelect
+                v-model="selectedLoadedOption"
+                :load-options="loadOptions"
+                :formatter="o => o.label"
+                :value-extractor="o => o.value"
+                preload
+            />
+            Selected value: {{ selectedLoadedOption ?? '-' }}
+        </div>
+
+        <div>
+            <b>Load options (w/ preload)</b>
+            <VfSmartSelect
+                v-model="selectedLoadedOption"
+                :load-options="loadOptions"
+                :formatter="o => o.label"
+                :value-extractor="o => o.value"
+                preload
+                placeholder="Select an option"
+            />
+            Selected value: {{ selectedLoadedOption ?? '-' }}
+        </div>
+
+        <div>
+            <b>Load options (no preload) with predefined value + value field</b>
+            <VfSmartSelect v-model="selectedLoadedOption2" :load-options="loadOptions" :formatter="o => o.label" :value-extractor="o => o.value" />
             Selected value: {{ selectedLoadedOption2 ?? '-' }}
         </div>
 
         <div>
-            <VfSmartSelect v-model="selectedLoadedOption3" :load-options="loadOptions" :formatter="o => o.label" />
+            <b>Load options (w/ preload) with predefined value + value field</b>
+            <VfSmartSelect
+                v-model="selectedLoadedOption2"
+                :load-options="loadOptions"
+                :formatter="o => o.label"
+                :value-extractor="o => o.value"
+                preload
+            />
+            Selected value: {{ selectedLoadedOption2 ?? '-' }}
+        </div>
 
+        <div>
+            <b>Load options (no preload) with predefined value</b>
+            <VfSmartSelect v-model="selectedLoadedOption3" :load-options="loadOptions" :formatter="o => o.label" />
+            Selected value: {{ selectedLoadedOption3 ?? '-' }}
+        </div>
+
+        <div>
+            <b>Load options (w/ preload) with predefined value</b>
+            <VfSmartSelect v-model="selectedLoadedOption3" :load-options="loadOptions" :formatter="o => o.label" preload />
             Selected value: {{ selectedLoadedOption3 ?? '-' }}
         </div>
     </div>
@@ -137,7 +204,7 @@ function setDelayedOptions() {
 }
 
 async function loadOptions() {
-    await sleepSecs(0.25);
+    await sleepSecs(2);
     return [...options];
 }
 
@@ -146,15 +213,21 @@ function createOption(name: string) {
     selectedCreateOption.value = 'new';
 }
 
-onMounted(() => setTimeout(setDelayedOptions, 1000));
+onMounted(() => setTimeout(setDelayedOptions, 2000));
 </script>
 
 <style lang="scss" scoped>
 #demo-vf-smart-select {
-    max-width: 450px;
-
     > div {
         margin-top: 12px;
+    }
+
+    .vf-smart-select {
+        max-width: 400px;
+    }
+
+    b {
+        display: block;
     }
 }
 </style>

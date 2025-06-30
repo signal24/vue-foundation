@@ -127,8 +127,15 @@ const loadedOptions = computed(() => props.options ?? remoteOptions.value ?? [])
 const effectivePrependOptions = computed(() => props.prependOptions ?? []);
 const effectiveAppendOptions = computed(() => props.appendOptions ?? []);
 const effectiveDisabled = computed(() => !!props.disabled || (!isLoaded.value && !props.loadOptions));
+const effectiveLoadingText = computed(() => props.loadingText || '...');
 const effectivePlaceholder = computed(() => {
-    if (!isLoaded.value && props.preload) return 'Loading...';
+    if (!isLoaded.value) {
+        if (!props.loadOptions) return effectiveLoadingText.value;
+        if (props.preload) return effectiveLoadingText.value;
+        if (props.modelValue && (props.valueField || props.valueExtractor)) {
+            return effectiveLoadingText.value;
+        }
+    }
     if (props.nullTitle) return props.nullTitle;
     return props.placeholder || '';
 });
@@ -302,11 +309,16 @@ onMounted(async () => {
     shouldShowCreateOption.value = props.onCreateItem !== undefined;
 
     if (props.loadOptions && props.preload) {
+        searchText.value = effectiveLoadingText.value;
         await loadRemoteOptions();
+        searchText.value = '';
     }
 
-    if (!props.options && (props.valueField || props.valueExtractor) && (!props.loadOptions || props.preload)) {
-        searchText.value = props.loadingText ?? '...';
+    // if we have a value, but we don't have options and we use a specific field for the value,
+    // then the value is not something we can pass through the formatter.
+    // thus, we have to wait to parse the value and render the value later.
+    if (!props.options && !props.loadOptions && (props.valueField || props.valueExtractor)) {
+        searchText.value = effectiveLoadingText.value;
     } else {
         handleValueChanged();
     }
