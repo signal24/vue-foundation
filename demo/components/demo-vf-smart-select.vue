@@ -38,6 +38,7 @@
                 label-field="label"
                 group-field="group"
                 null-title="No selection"
+                @update:model-value="logModelValueChange"
             />
             Selected value label: {{ selectedDelayedOption1?.label ?? '-' }}
         </div>
@@ -51,6 +52,7 @@
                 value-field="value"
                 group-field="group"
                 null-title="No selection"
+                @update:model-value="logModelValueChange"
             />
             Selected value: {{ selectedDelayedOption2 ?? '-' }}
         </div>
@@ -211,6 +213,11 @@ async function loadOptions() {
 function createOption(name: string) {
     createdOptionTitle.value = name;
     selectedCreateOption.value = 'new';
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function logModelValueChange(newValue: any) {
+    console.log('Model value changed:', newValue);
 }
 
 onMounted(() => setTimeout(setDelayedOptions, 2000));

@@ -324,13 +324,12 @@ onMounted(async () => {
     }
 
     watch(selectedOption, () => {
-        if (selectedOption.value !== props.modelValue) {
-            emit(
-                'update:modelValue',
-                isNotNullOrUndefined(selectedOption.value) && effectiveValueExtractor.value !== null
-                    ? effectiveValueExtractor.value(selectedOption.value)
-                    : selectedOption.value
-            );
+        const effectiveValue =
+            isNotNullOrUndefined(selectedOption.value) && effectiveValueExtractor.value !== null
+                ? effectiveValueExtractor.value(selectedOption.value)
+                : selectedOption.value;
+        if (!isEqual(props.modelValue, effectiveValue)) {
+            emit('update:modelValue', effectiveValue);
         }
     });
 
