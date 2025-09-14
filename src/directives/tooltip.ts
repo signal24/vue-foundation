@@ -166,8 +166,8 @@ class VfTooltip {
         let tipX = e.pageX + 10,
             tipY = e.pageY + 20;
 
-        if (tipX + tipWidth > viewWidth) tipX = e.pageX - 5 - tipWidth;
-        if (tipY + tipHeight > viewHeight) tipY = e.pageY - 5 - tipHeight;
+        if (tipX + tipWidth > viewWidth) tipX = Math.max(10, e.pageX - 5 - tipWidth);
+        if (tipY + tipHeight > viewHeight) tipY = Math.max(10, e.pageY - 5 - tipHeight);
 
         this.tipEl!.style.left = tipX + 'px';
         this.tipEl!.style.top = tipY + 'px';
