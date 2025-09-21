@@ -4,6 +4,7 @@ interface IOptions {
     defaultDateFormat: string;
     defaultTimeFormat: string;
     defaultCurrencyDivisor: number;
+    onOverlaysChanged?: (count: number) => void;
 }
 
 export const VfOptions: IOptions = {

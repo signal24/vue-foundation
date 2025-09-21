@@ -14,8 +14,11 @@ import {
     renderList,
     Teleport,
     type VNode,
-    type VNodeProps
+    type VNodeProps,
+    watch
 } from 'vue';
+
+import { VfOptions } from '@/config';
 
 import OverlayAnchor from './overlay-anchor.vue';
 import type { OverlayAnchorOptions } from './overlay-types';
@@ -36,6 +39,9 @@ export interface OverlayInjection<C extends OverlayComponent, R extends Componen
 
 let overlayCount = 0;
 const OverlayInjections: OverlayInjection<any, any>[] = reactive([]);
+watch(OverlayInjections, () => {
+    VfOptions.onOverlaysChanged?.(OverlayInjections.length);
+});
 
 export const OverlayContainer = defineComponent({
     setup() {
