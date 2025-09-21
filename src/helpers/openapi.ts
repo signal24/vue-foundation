@@ -1,4 +1,4 @@
-import { configureOpenApiClient, type OpenApiClient, type OpenApiClientOptions, OpenApiError } from '@signal24/openapi-client-codegen/browser';
+import { configureOpenApiClient, type OpenApiClient, type OpenApiClientOptions, OpenApiError } from '@signal24/openapi-client-codegen';
 
 import { UserError } from '.';
 

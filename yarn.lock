@@ -911,15 +911,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@signal24/openapi-client-codegen@npm:^2.5.2":
-  version: 2.5.2
-  resolution: "@signal24/openapi-client-codegen@npm:2.5.2"
+"@signal24/openapi-client-codegen@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "@signal24/openapi-client-codegen@npm:2.6.0"
   dependencies:
     "@hey-api/client-fetch": "npm:^0.10.0"
     "@hey-api/openapi-ts": "npm:^0.67.3"
   bin:
-    generate-openapi-client: dist/src/node/cli.js
-  checksum: 10c0/b24fcda36fe1cc1d8465e495bb9f8d2d80fb24d8f9a7033d7876fa133afebad8b7adeb6521f4a72b987a638ccfb70eda062325fea2da395c899c97941fab7ac8
+    generate-openapi-client: dist/src/generator/cli.js
+  checksum: 10c0/a5259894f6beaa0a3877a2bfd97ea02aa60cca6f3e3fab053232f36c3a76379833d4fc720c04dc9ed2ba298db8d05d6efccf5d0af7d1b8557bf558e7f5635d10
   languageName: node
   linkType: hard
 
@@ -929,7 +929,7 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:9.30.1"
     "@nabla/vite-plugin-eslint": "npm:^2.0.5"
-    "@signal24/openapi-client-codegen": "npm:^2.5.2"
+    "@signal24/openapi-client-codegen": "npm:^2.6.0"
     "@tsconfig/node22": "npm:^22.0.2"
     "@types/jsdom": "npm:^21.1.7"
     "@types/lodash": "npm:^4.17.20"

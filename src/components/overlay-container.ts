@@ -38,6 +38,7 @@ export interface OverlayInjection<C extends OverlayComponent, R extends Componen
 }
 
 let overlayCount = 0;
+
 const OverlayInjections: OverlayInjection<any, any>[] = reactive([]);
 watch(OverlayInjections, () => {
     VfOptions.onOverlaysChanged?.(OverlayInjections.length);
