@@ -30,7 +30,7 @@ export default defineConfig({
             input: {
                 main: path.resolve(__dirname, 'src/index.ts')
             },
-            external: ['date-fns', 'lodash', 'vue', '@vue/shared', '@signal24/openapi-client-codegen/browser'],
+            external: ['date-fns', 'lodash', 'vue', '@vue/shared', '@signal24/openapi-client-codegen'],
             output: {
                 assetFileNames: assetInfo => {
                     if (assetInfo.name === 'main.css') return 'vue-foundation.css';
