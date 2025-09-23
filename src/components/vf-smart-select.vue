@@ -12,6 +12,7 @@
             :name="name"
             data-1p-ignore
             @keydown="handleKeyDown"
+            @paste="handlePaste"
             @focus="handleInputFocused"
             @blur="handleInputBlurred"
         />
@@ -409,6 +410,10 @@ function handleKeyDown(e: KeyboardEvent) {
     if (!e.metaKey && VALID_KEYS.includes(e.key)) {
         isSearching.value = true;
     }
+}
+
+function handlePaste() {
+    isSearching.value = true;
 }
 
 function handleInputFocused() {
