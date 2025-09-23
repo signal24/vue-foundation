@@ -126,7 +126,7 @@ const loadedOptions = computed(() => props.options ?? remoteOptions.value ?? [])
 
 const effectivePrependOptions = computed(() => props.prependOptions ?? []);
 const effectiveAppendOptions = computed(() => props.appendOptions ?? []);
-const effectiveDisabled = computed(() => !!props.disabled || (!isLoaded.value && (isLoading.value || !props.loadOptions))); // need to check this. what about with typeahead?
+const effectiveDisabled = computed(() => !!props.disabled || (!isLoaded.value && !props.loadOptions));
 const effectiveLoadingText = computed(() => props.loadingText || '...');
 const effectivePlaceholder = computed(() => {
     if (!isLoaded.value) {

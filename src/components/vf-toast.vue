@@ -1,5 +1,5 @@
 <template>
-    <div class="vf-toast" :class="className" @click.stop="handleClick">
+    <div class="vf-toast" :class="[className, { top: position === 'top', bottom: position !== 'top' }]" @click.stop="handleClick">
         <div class="content">
             <div class="message">{{ message }}</div>
             <div v-if="!disableClose" class="close">x</div>
@@ -14,6 +14,7 @@
 import { onMounted, ref } from 'vue';
 
 export interface IToastOptions {
+    position?: 'top' | 'bottom';
     message: string;
     className?: string;
     durationSecs?: number | null;
@@ -51,9 +52,16 @@ if (props.durationSecs !== null) {
 <style lang="scss">
 .vf-toast {
     position: absolute;
-    bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.vf-toast.bottom {
+    bottom: 50px;
+}
+
+.vf-toast.top {
+    top: 50px;
 }
 
 .vf-toast .content {
