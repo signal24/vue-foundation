@@ -14,6 +14,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
+import { watch } from 'vue';
 
 import { OverlayContainer } from '@/components';
 
@@ -21,7 +22,11 @@ import DemoVfAlertModal from './demo-vf-alert-modal.vue';
 import DemoVfSmartSelect from './demo-vf-smart-select.vue';
 
 const demos = ['VfSmartSelect', 'VfAlertModal'] as const;
-const selectedDemo = ref<(typeof demos)[number] | null>();
+const selectedDemo = ref<(typeof demos)[number] | null>(sessionStorage.getItem('selectedDemo') as (typeof demos)[number] | null);
+
+watch(selectedDemo, () => {
+    sessionStorage.setItem('selectedDemo', selectedDemo.value ?? '');
+});
 </script>
 
 <style lang="scss" scoped></style>

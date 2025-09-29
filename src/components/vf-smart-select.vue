@@ -310,16 +310,14 @@ onMounted(async () => {
     shouldShowCreateOption.value = props.onCreateItem !== undefined;
 
     if (props.loadOptions && props.preload) {
-        searchText.value = effectiveLoadingText.value;
-        await loadRemoteOptions();
-        searchText.value = '';
+        await loadInitialRemoteOptions();
     }
 
     // if we have a value, but we don't have options and we use a specific field for the value,
     // then the value is not something we can pass through the formatter.
     // thus, we have to wait to parse the value and render the value later.
-    if (!props.options && !props.loadOptions && (props.valueField || props.valueExtractor)) {
-        searchText.value = effectiveLoadingText.value;
+    else if (!props.options && !props.loadOptions && (props.valueField || props.valueExtractor)) {
+        // do nothing & let the placeholder formatter handle it
     } else {
         handleValueChanged();
     }
@@ -343,16 +341,18 @@ onBeforeUnmount(() => {
     optionsContainer.value?.remove();
 });
 
-async function loadRemoteOptions() {
-    await reloadOptions();
+async function loadInitialRemoteOptions() {
+    await reloadOptions(true);
+    handleValueChanged();
     if (remoteOptions.value) emit('optionsLoaded', remoteOptions.value);
 }
 
-async function reloadOptions() {
+async function reloadOptions(invokeValueChanged = false) {
     const effectiveSearchText = props.remoteSearch && isSearching.value && searchText.value.length ? searchText.value : null;
     isLoading.value = true;
     remoteOptions.value = (await props.loadOptions?.(effectiveSearchText)) ?? [];
     isLoading.value = false;
+    if (invokeValueChanged) handleValueChanged();
     setHighlightedOptionKey();
 }
 
@@ -473,7 +473,7 @@ function handleInputBlurred() {
 }
 
 function handleOptionsDisplayed() {
-    if (!isLoaded.value) loadRemoteOptions();
+    if (!isLoaded.value) loadInitialRemoteOptions();
     if (props.optionsListId) optionsContainer.value?.setAttribute('id', props.optionsListId);
     teleportOptionsContainer();
 }

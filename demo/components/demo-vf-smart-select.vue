@@ -3,7 +3,7 @@
         <div>
             <b>Local options + label field</b>
             <VfSmartSelect v-model="selectedInstantOption1" :options="instantOptions" label-field="label" />
-            Selected value label: {{ selectedInstantOption1?.label ?? '-' }}
+            Selected object: {{ JSON.stringify(selectedInstantOption1) }}
         </div>
 
         <div>
@@ -15,7 +15,21 @@
                 group-field="group"
                 null-title="No selection"
             />
-            Selected value label: {{ selectedInstantOption2?.label ?? '-' }}
+            Selected object: {{ JSON.stringify(selectedInstantOption2) }}
+        </div>
+
+        <div>
+            <b>Local options + label field + value field + null title + loading text</b>
+            <VfSmartSelect
+                v-model="selectedDelayedOption0"
+                :options="delayedOptions"
+                label="Options"
+                loading-text="Loading..."
+                null-title="Select an option"
+                label-field="label"
+                value-field="value"
+            />
+            Selected value: {{ selectedDelayedOption0 ?? '-' }}
         </div>
 
         <div>
@@ -27,7 +41,7 @@
                 group-field="group"
                 null-title="No selection"
             />
-            Selected value label: {{ selectedInstantOption2?.label ?? '-' }}
+            Selected object: {{ JSON.stringify(selectedInstantOption2) }}
         </div>
 
         <div>
@@ -40,7 +54,7 @@
                 null-title="No selection"
                 @update:model-value="logModelValueChange"
             />
-            Selected value label: {{ selectedDelayedOption1?.label ?? '-' }}
+            Selected object: {{ JSON.stringify(selectedDelayedOption1) }}
         </div>
 
         <div>
@@ -58,7 +72,7 @@
         </div>
 
         <div>
-            <b>Local delayed options + value field + label field + group + null title</b>
+            <b>Local delayed options + value field + label field + group + null title + preselected invalid</b>
             <VfSmartSelect
                 v-model="selectedDelayedOption3"
                 :options="delayedOptions"
@@ -188,6 +202,7 @@ const delayedOptions = ref<IOption[]>();
 
 const selectedInstantOption1 = ref<IOption | null>(null);
 const selectedInstantOption2 = ref<IOption | null>(null);
+const selectedDelayedOption0 = ref<number | null>(null);
 const selectedDelayedOption1 = ref<IOption | null>(options[1]);
 const selectedDelayedOption2 = ref<string | null>('2');
 const selectedDelayedOption3 = ref<string | null>('19'); // intentionally invalid value
