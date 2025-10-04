@@ -933,6 +933,7 @@ __metadata:
     "@tsconfig/node22": "npm:^22.0.2"
     "@types/jsdom": "npm:^21.1.7"
     "@types/lodash": "npm:^4.17.20"
+    "@types/mark.js": "npm:^8"
     "@types/node": "npm:^24.0.10"
     "@types/uuid": "npm:^10.0.0"
     "@vitejs/plugin-vue": "npm:^6.0.0"
@@ -948,6 +949,7 @@ __metadata:
     eslint-plugin-vue: "npm:^10.2.0"
     jsdom: "npm:^26.1.0"
     lodash: "npm:^4.17.21"
+    mark.js: "npm:^8.11.1"
     prettier: "npm:^3.6.2"
     sass: "npm:^1.89.2"
     start-server-and-test: "npm:^2.0.12"
@@ -1007,6 +1009,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jquery@npm:*":
+  version: 3.5.33
+  resolution: "@types/jquery@npm:3.5.33"
+  dependencies:
+    "@types/sizzle": "npm:*"
+  checksum: 10c0/d96c42762b7370ddf3b81cdad436a79d275e0ff09e2f4d7fbf2bbd8f97acef4110a11f1c3cb683195a1eba4fd9959e59d73f84d56ce2c010907a2bea696eb057
+  languageName: node
+  linkType: hard
+
 "@types/jsdom@npm:^21.1.7":
   version: 21.1.7
   resolution: "@types/jsdom@npm:21.1.7"
@@ -1032,12 +1043,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mark.js@npm:^8":
+  version: 8.11.12
+  resolution: "@types/mark.js@npm:8.11.12"
+  dependencies:
+    "@types/jquery": "npm:*"
+  checksum: 10c0/dcbaa2d634da5c13745f24744c57102a25d9483acd2b75ce518bb38131b58d84ee16d20abd709338c4331fb975795333637d426919dabbc11c7ef811cfa766d6
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*, @types/node@npm:^24.0.10":
   version: 24.0.10
   resolution: "@types/node@npm:24.0.10"
   dependencies:
     undici-types: "npm:~7.8.0"
   checksum: 10c0/11dbd869d3e12ee7b7818113588950e538783e45d227122174c763cb05977defbd1e01b44b5ccd4b8997e42c3df7f7b83c6ee05cfa43d924c8882886bc5f6582
+  languageName: node
+  linkType: hard
+
+"@types/sizzle@npm:*":
+  version: 2.3.10
+  resolution: "@types/sizzle@npm:2.3.10"
+  checksum: 10c0/d43ec1cd0b5e1f66b1abeaf359608853629cd3d6b8dc8b3b40b85a5ee2ce149a4485ccd7eee5c58b5a2814d384f5a951f1dab5d49041ad83457270cb2bc66fe7
   languageName: node
   linkType: hard
 
@@ -3259,6 +3286,13 @@ __metadata:
   version: 0.1.0
   resolution: "map-stream@npm:0.1.0"
   checksum: 10c0/7dd6debe511c1b55d9da75e1efa65a28b1252a2d8357938d2e49b412713c478efbaefb0cdf0ee0533540c3bf733e8f9f71e1a15aa0fe74bf71b64e75bf1576bd
+  languageName: node
+  linkType: hard
+
+"mark.js@npm:^8.11.1":
+  version: 8.11.1
+  resolution: "mark.js@npm:8.11.1"
+  checksum: 10c0/5e69e776db61abdd857b5cbb7070c8a3b1b0e5c12bf077fcd5a8c6f17b1f85ed65275aba5662b57136d1b9f82b54bb34d4ef4220f7703c9a7ab806ae1e208cff
   languageName: node
   linkType: hard
 

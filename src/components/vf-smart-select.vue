@@ -52,11 +52,11 @@
 
 <script lang="ts" setup generic="T, V = T">
 import { debounce, groupBy, isEqual, uniq } from 'lodash';
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import Mark from 'mark.js';
+import { computed, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue';
 
 import { isNotNullOrUndefined } from '@/helpers';
 
-import { escapeHtml } from '../helpers/string';
 import type { VfSmartSelectOptionDescriptor } from './vf-smart-select.types';
 
 const NullSymbol = Symbol('null');
@@ -183,7 +183,11 @@ const optionsDescriptors = computed(() => {
         if (props.searchFields) {
             props.searchFields.forEach(field => {
                 if (option[field]) {
-                    searchContent.push(String(option[field]).toLowerCase());
+                    searchContent.push(
+                        String(option[field])
+                            .toLowerCase()
+                            .replace(/^[a-z0-9 ]+$/i, '')
+                    );
                 }
             });
         } else {
@@ -208,20 +212,13 @@ const effectiveOptions = computed(() => {
     let options = [...optionsDescriptors.value];
 
     if (isSearching.value) {
-        const strippedSearchText = searchText.value.trim().toLowerCase();
+        const strippedSearchText = searchText.value
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9 ]+$/i, '');
 
         if (strippedSearchText.length) {
             options = options.filter(option => option.searchContent!.includes(strippedSearchText));
-
-            const escapedSearchText = escapeHtml(searchText.value).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-            const searchRe = new RegExp(`(${escapedSearchText})`, 'ig');
-
-            options = options.map(option => ({
-                ...option,
-                title: option.title.replace(searchRe, '<mark>$1</mark>'),
-                subtitle: option.subtitle?.replace(searchRe, '<mark>$1</mark>')
-            }));
-
             if (shouldShowCreateOption.value) {
                 const hasExactMatch = options.find(option => option.searchContent === strippedSearchText) !== undefined;
                 if (!hasExactMatch) {
@@ -602,6 +599,24 @@ function focusNextInput() {
     const nextInput = allFocusableElements[currentInputIndex + 1] as HTMLElement;
     if (nextInput) setTimeout(() => nextInput.focus(), 0);
 }
+
+onUpdated(() => {
+    if (!shouldDisplayOptions.value || !isSearching.value || !searchText.value) return;
+    const terms = searchText.value
+        .trim()
+        .replace(/[^a-z0-9 -]/gi, '')
+        .split(' ');
+    optionsContainer.value?.querySelectorAll('.option').forEach(el => {
+        const mark = new Mark(el as HTMLElement);
+        mark.unmark();
+        mark.mark(terms, {
+            done: () => {
+                // fix spaces around marks getting stripped
+                el.innerHTML = el.innerHTML.replace(/ <mark /g, '&nbsp;<mark ').replace(/<\/mark> /g, '</mark>&nbsp;');
+            }
+        });
+    });
+});
 </script>
 
 <style lang="scss">
