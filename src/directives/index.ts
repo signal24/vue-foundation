@@ -9,6 +9,7 @@ import { vDuration } from './duration';
 import { vHotkey } from './hotkey';
 import { vInfiniteScroll } from './infinite-scroll';
 import { vReadonly } from './readonly';
+import { vStickyMinWidth } from './sticky-min-width';
 import { vTooltip } from './tooltip';
 
 declare module 'vue' {
@@ -23,6 +24,7 @@ declare module 'vue' {
         vInfiniteScroll: typeof vInfiniteScroll;
         vReadonly: typeof vReadonly;
         vTooltip: typeof vTooltip;
+        vStickyMinWidth: typeof vStickyMinWidth;
     }
 }
 
@@ -37,4 +39,5 @@ export function registerDirectives(app: App<Element>): void {
     app.directive('infinite-scroll', vInfiniteScroll);
     app.directive('readonly', vReadonly);
     app.directive('tooltip', vTooltip);
+    app.directive('sticky-min-width', vStickyMinWidth);
 }
