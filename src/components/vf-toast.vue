@@ -31,6 +31,7 @@ const props = defineProps<
 function handleClick() {
     if (props.onClick) {
         props.onClick();
+        props.callback();
     } else if (!props.disableClose) {
         props.callback();
     }
