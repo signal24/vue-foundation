@@ -1,5 +1,5 @@
 <template>
-    <Modal :class="['vf-alert', ...(classes ?? [])]">
+    <Modal :class="['vf-alert', ...(classes ?? [])]" scrolls>
         <template v-if="title" #header>
             {{ title }}
         </template>
