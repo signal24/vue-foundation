@@ -423,7 +423,7 @@ function setHighlightedOptionKey(useFirstItemAsFallback?: boolean) {
     if (selectedOption.value) {
         highlightedOptionKey.value = getOptionKey(selectedOption.value);
     } else if (useFirstItemAsFallback) {
-        highlightedOptionKey.value = effectiveOptions.value?.[0].key ?? NullSymbol;
+        highlightedOptionKey.value = effectiveOptions.value?.[0]?.key ?? NullSymbol;
     } else if (props.nullTitle) {
         highlightedOptionKey.value = NullSymbol;
     }
@@ -485,7 +485,7 @@ function teleportOptionsContainer() {
 
     for (let key in styles) {
         if (!/^(font|text)/.test(key)) continue;
-        optionsEl.style[key] = styles[key];
+        optionsEl.style[key] = styles[key]!;
     }
 
     optionsEl.style.top = targetTop + 'px';
@@ -527,7 +527,7 @@ function incrementHighlightedOption(increment: number) {
 
     if (highlightedOptionIdx == targetOptionIdx) return;
 
-    highlightedOptionKey.value = effectiveOptions.value[targetOptionIdx].key;
+    highlightedOptionKey.value = effectiveOptions.value[targetOptionIdx]!.key;
 
     const containerEl = optionsContainer.value!;
     const targetOptionEl = containerEl?.querySelectorAll('.option')[targetOptionIdx] as HTMLElement;

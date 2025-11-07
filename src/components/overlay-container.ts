@@ -148,7 +148,7 @@ export function dismissOverlayInjectionByInternalInstance(instance: ComponentInt
 export function dismissOverlayInjectionByVnode(vnode: VNode) {
     const injectionIdx = OverlayInjections.findIndex(i => i.vnode.component === vnode.component);
     if (injectionIdx >= 0) {
-        OverlayInjections[injectionIdx].props.callback();
+        OverlayInjections[injectionIdx]!.props.callback();
         return true;
     }
     return false;
@@ -157,7 +157,7 @@ export function dismissOverlayInjectionByVnode(vnode: VNode) {
 export function dismissOverlayInjectionById(id: string) {
     const injectionIdx = OverlayInjections.findIndex(i => i.id === id);
     if (injectionIdx >= 0) {
-        OverlayInjections[injectionIdx].props.callback();
+        OverlayInjections[injectionIdx]!.props.callback();
         return true;
     }
     return false;
