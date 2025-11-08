@@ -30,6 +30,7 @@ const props = defineProps<{
     scrolls?: boolean;
     closeX?: boolean;
     class?: string | string[];
+    onClose?: () => void;
 }>();
 
 defineEmits(['formSubmit']);
@@ -77,7 +78,11 @@ function handleEscapeKey(e: KeyboardEvent) {
 }
 
 function closeParent() {
-    dismissOverlayInjectionByInternalInstance(instance!);
+    if (props.onClose) {
+        props.onClose();
+    } else {
+        dismissOverlayInjectionByInternalInstance(instance!);
+    }
 }
 
 function mask() {
