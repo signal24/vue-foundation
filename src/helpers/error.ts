@@ -8,6 +8,10 @@ export class UserError extends Error {
     }
 }
 
+interface ErrorWithCause extends Error {
+    cause?: Error;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formatError(err: any): string {
     if (err instanceof UserError) {
@@ -19,9 +23,12 @@ export function formatError(err: any): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function toError(err: any) {
-    if (isError(err)) return err;
-    return new Error(String(err));
+export function toError(err: any, cause?: any): ErrorWithCause {
+    const error = (isError(err) ? err : new Error(String(err))) as ErrorWithCause;
+    if (cause) {
+        error.cause = toError(cause);
+    }
+    return error;
 }
 
 export function isError(err: unknown): err is Error {
@@ -31,12 +38,14 @@ export function isError(err: unknown): err is Error {
 }
 
 interface IErrorAlertOptions {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cause?: any;
     title?: string;
     classes?: string[];
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function handleErrorAndAlert(errIn: any, options?: IErrorAlertOptions) {
-    const err = toError(errIn);
+    const err = toError(errIn, options?.cause);
 
     if (!(err instanceof UserError)) {
         VfOptions.errorHandler(err);
@@ -50,8 +59,8 @@ export async function handleErrorAndAlert(errIn: any, options?: IErrorAlertOptio
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function handleError(errIn: any) {
-    const err = toError(errIn);
+export async function handleError(errIn: any, cause?: any) {
+    const err = toError(errIn, cause);
 
     if (!(err instanceof UserError)) {
         VfOptions.errorHandler(err);
