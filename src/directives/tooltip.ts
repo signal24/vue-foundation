@@ -1,5 +1,7 @@
 import type { DirectiveBinding, ObjectDirective } from 'vue';
 
+import { showAlert } from '@/components';
+
 type TooltipValue = string | null | false | undefined;
 
 export const vTooltip: ObjectDirective<TooltipElement, TooltipValue> = {
@@ -21,7 +23,8 @@ function createTip(el: TooltipElement, binding: DirectiveBinding<TooltipValue>) 
     if (tipText) {
         const config: ITooltipOptions = {
             content: tipText,
-            html: el.getAttribute('html') !== null
+            html: el.getAttribute('html') !== null,
+            alertOnTap: el.getAttribute('alert-on-tap') !== null
         };
 
         if (!el[TooltipState]) {
@@ -45,6 +48,7 @@ interface ITooltipOptions {
     delay?: number;
     html?: boolean;
     class?: string | string[];
+    alertOnTap?: boolean;
 }
 
 // todo: improve with mutation observer to see removal of node
@@ -69,6 +73,7 @@ class VfTooltip {
         el.addEventListener('mouseenter', this.handleTargetMouseEnterWithContext);
         el.addEventListener('mouseleave', this.handleTargetMouseLeaveWithContext);
         el.addEventListener('click', this.handleTargetMouseLeaveWithContext);
+        if (config.alertOnTap) el.addEventListener('touchstart', () => this.showTapAlert());
     }
 
     configure(config: ITooltipOptions) {
@@ -91,6 +96,14 @@ class VfTooltip {
         this.renderTooltip();
 
         if (e) this.handleMouseMove(e);
+    }
+
+    showTapAlert() {
+        showAlert({
+            title: this.config.title,
+            message: this.config.content,
+            isHtml: this.config.html ?? false
+        });
     }
 
     renderTooltip() {

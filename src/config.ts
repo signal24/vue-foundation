@@ -5,6 +5,7 @@ interface IOptions {
     defaultTimeFormat: string;
     defaultCurrencyDivisor: number;
     onOverlaysChanged?: (count: number) => void;
+    disableStickyMinWidthDirective?: boolean;
 }
 
 export const VfOptions: IOptions = {

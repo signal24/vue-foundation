@@ -6,6 +6,7 @@ interface IAlertOptions {
     message: string | Error;
     classes?: string[];
     iconClass?: string | string[];
+    isHtml?: boolean;
 }
 
 function resolveAlertParams(arg0: string | Error | IAlertOptions, arg1?: string | Error) {

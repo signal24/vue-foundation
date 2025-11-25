@@ -6,8 +6,8 @@
 
         <i v-if="iconClass" :class="['vf-alert-icon', iconClass]" />
 
-        <div v-if="isHtml" :innerHtml="message" class="user-message"></div>
-        <div v-else :innerText="textMessage"></div>
+        <div v-if="isHtml" :innerHTML="resolvedMessage" class="user-message"></div>
+        <div v-else :innerText="resolvedMessage"></div>
 
         <template v-if="!isBare" #footer>
             <template v-if="shouldConfirm">
@@ -36,7 +36,7 @@ const props = defineProps<{
     callback: (ok: boolean) => void;
 }>();
 
-const textMessage = computed(() => {
+const resolvedMessage = computed(() => {
     if (props.message instanceof Error) {
         return formatError(props.message);
     }
