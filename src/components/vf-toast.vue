@@ -2,7 +2,7 @@
     <div class="vf-toast" :class="[className, { top: position === 'top', bottom: position !== 'top' }]" @click.stop="handleClick">
         <div class="content">
             <div class="message">{{ message }}</div>
-            <div v-if="!disableClose" class="close">x</div>
+            <div v-if="!disableClose" class="close" @click.stop="close">x</div>
         </div>
         <div v-if="durationSecs !== null" class="progress-bar">
             <div ref="progressInnerEl" class="inner"></div>
@@ -35,6 +35,10 @@ function handleClick() {
     } else if (!props.disableClose) {
         props.callback();
     }
+}
+
+function close() {
+    props.callback();
 }
 
 const progressInnerEl = ref<HTMLElement>();
