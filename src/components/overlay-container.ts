@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Writable } from 'type-fest';
 import {
     type AllowedComponentProps,
+    type Component,
+    type ComponentCustomProps,
     type ComponentInternalInstance,
-    type ComponentPublicInstance,
-    type ComputedOptions,
     defineComponent,
     h,
     markRaw,
-    type MethodOptions,
     type Raw,
     reactive,
     renderList,
@@ -23,23 +21,23 @@ import { VfOptions } from '@/config';
 import OverlayAnchor from './overlay-anchor.vue';
 import type { OverlayAnchorOptions } from './overlay-types';
 
-interface OverlayOptions<C extends OverlayComponent, R extends ComponentReturn<C>> {
+interface OverlayOptions<C extends Component, R extends ComponentReturn<C>> {
     anchor?: OverlayAnchorOptions;
     onCallback?: (result: R) => void | Promise<boolean>;
 }
 
-export interface OverlayInjection<C extends OverlayComponent, R extends ComponentReturn<C>> {
+export interface OverlayInjection<C extends Component> {
     id: string;
-    component: OverlayComponentUnwrapped<C>;
-    props: OverlayComponentProps<C>;
-    options: OverlayOptions<C, R>;
+    component: Raw<C>;
+    props: { callback?: () => void } & OverlayComponentProps<C>;
+    options: OverlayOptions<C, any>;
     vnode: VNode;
     wrapperVnode?: VNode;
 }
 
 let overlayCount = 0;
 
-const OverlayInjections: OverlayInjection<any, any>[] = reactive([]);
+const OverlayInjections: OverlayInjection<any>[] = reactive([]);
 watch(OverlayInjections, () => {
     VfOptions.onOverlaysChanged?.(OverlayInjections.length);
 });
@@ -55,57 +53,47 @@ export const OverlayContainer = defineComponent({
     }
 });
 
-// copied in from Vue since it's not exported
-// tood: it may be a lot easier than this. see the docs for props passed to "h"
-export type Vue__ComponentPublicInstanceConstructor<
-    T extends ComponentPublicInstance<Props, RawBindings, D, C, M> = ComponentPublicInstance<any>,
-    Props = any,
-    RawBindings = any,
-    D = any,
-    C extends ComputedOptions = ComputedOptions,
-    M extends MethodOptions = MethodOptions
-> = {
-    __isFragment?: never;
-    __isTeleport?: never;
-    __isSuspense?: never;
-    new (...args: any[]): T;
-};
-
-export type ObjectComponentConfig<T extends Vue__ComponentPublicInstanceConstructor> =
-    T extends Vue__ComponentPublicInstanceConstructor<infer P> ? P : never;
-export type ObjectComponentProps<T extends Vue__ComponentPublicInstanceConstructor> = Writable<
-    Omit<ObjectComponentConfig<T>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
->;
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-type ObjectOrDefault<T> = T extends object ? T : PropsWithCallback<{}>;
-export type OverlayComponent = Vue__ComponentPublicInstanceConstructor | ((props: any) => any);
-export type OverlayComponentConfig<T> = T extends Vue__ComponentPublicInstanceConstructor
-    ? {
-          props: ObjectComponentProps<T>;
-          component: Raw<T>;
-      }
-    : T extends (props: infer P) => any
-      ? {
-            props: Omit<ObjectOrDefault<P>, keyof VNodeProps | keyof AllowedComponentProps>;
-            component: T;
-        }
-      : never;
-export type OverlayComponentUnwrapped<T extends OverlayComponent> = OverlayComponentConfig<T>['component'];
-export type OverlayComponentProps<T extends OverlayComponent> = OverlayComponentConfig<T>['props'];
-
-interface PropsWithCallback<T> {
-    callback?: (result: T) => void;
-}
-type ComponentReturn<M extends OverlayComponent> = OverlayComponentProps<M> extends PropsWithCallback<infer R> ? R : never;
-
 export type AnyComponentPublicInstance = { $?: ComponentInternalInstance };
 
-export function createOverlayInjection<C extends OverlayComponent, R extends ComponentReturn<C>>(
-    component: C,
+// Handle both regular and generic components
+type ExtractComponentProps<C> = C extends new (...args: any) => any
+    ? InstanceType<C>['$props']
+    : C extends (props: infer P, ...args: any) => any
+      ? P
+      : C extends { __props?: infer P }
+        ? P
+        : never;
+
+// Remove Vue's internal prop types and the Record<string, unknown> index signature
+type CleanProps<P> = {
+    [K in keyof P as K extends keyof (VNodeProps & AllowedComponentProps & ComponentCustomProps) ? never : string extends K ? never : K]: P[K];
+};
+
+// Check if component has a callback prop with correct signature
+type HasCallbackProp<C> =
+    CleanProps<ExtractComponentProps<C>> extends {
+        callback: (result: any) => void;
+    }
+        ? true
+        : false;
+
+// Constraint type - resolves to C if valid, never if not
+type OverlayComponent<C extends Component> = HasCallbackProp<C> extends true ? C : never;
+
+type ComponentReturn<C> =
+    CleanProps<ExtractComponentProps<C>> extends {
+        callback: (result: infer R) => void;
+    }
+        ? R
+        : never;
+
+type OverlayComponentProps<C> = CleanProps<ExtractComponentProps<C>>;
+
+export function createOverlayInjection<C extends Component, R extends ComponentReturn<C>>(
+    component: OverlayComponent<C>,
     props: OverlayComponentProps<C>,
     options?: OverlayOptions<C, R>
-): OverlayInjection<C, R> {
+): OverlayInjection<C> {
     // create or reconfigure the existing overlay target
     // re-injecting every time keeps the overlay container at the very end of the DOM
     const targetEl = document.getElementById('vf-overlay-target') ?? document.createElement('div');
@@ -119,9 +107,9 @@ export function createOverlayInjection<C extends OverlayComponent, R extends Com
     const wrapperVnode = options?.anchor ? h(OverlayAnchor, { overlayId, anchor: options.anchor }, () => [vnode]) : undefined;
 
     // todo: dunno what's going on with types here
-    const injection: OverlayInjection<C, R> = {
+    const injection: OverlayInjection<C> = {
         id: overlayId,
-        component: rawComponent as any,
+        component: rawComponent,
         props,
         options: options ?? {},
         vnode,
@@ -148,7 +136,7 @@ export function dismissOverlayInjectionByInternalInstance(instance: ComponentInt
 export function dismissOverlayInjectionByVnode(vnode: VNode) {
     const injectionIdx = OverlayInjections.findIndex(i => i.vnode.component === vnode.component);
     if (injectionIdx >= 0) {
-        OverlayInjections[injectionIdx]!.props.callback();
+        OverlayInjections[injectionIdx]!.props.callback?.();
         return true;
     }
     return false;
@@ -157,26 +145,26 @@ export function dismissOverlayInjectionByVnode(vnode: VNode) {
 export function dismissOverlayInjectionById(id: string) {
     const injectionIdx = OverlayInjections.findIndex(i => i.id === id);
     if (injectionIdx >= 0) {
-        OverlayInjections[injectionIdx]!.props.callback();
+        OverlayInjections[injectionIdx]!.props.callback?.();
         return true;
     }
     return false;
 }
 
-export function removeOverlayInjection(injection: OverlayInjection<any, any>) {
+export function removeOverlayInjection(injection: OverlayInjection<any>) {
     const index = OverlayInjections.indexOf(injection);
     if (index >= 0) {
         OverlayInjections.splice(index, 1);
     }
 }
 
-export async function presentOverlay<C extends OverlayComponent, R extends ComponentReturn<C>>(
-    component: C,
+export async function presentOverlay<C extends Component, R extends ComponentReturn<C>>(
+    component: OverlayComponent<C>,
     props: Omit<OverlayComponentProps<C>, 'callback'>,
     options?: OverlayOptions<C, R>
 ): Promise<R | undefined> {
     return new Promise<R>(resolve => {
-        let overlayInjection: OverlayInjection<C, R> | null = null;
+        let overlayInjection: OverlayInjection<C> | null = null;
         const callback = async (result: R) => {
             if (options?.onCallback) {
                 const hookResult = options.onCallback(result);
@@ -197,12 +185,12 @@ export async function presentOverlay<C extends OverlayComponent, R extends Compo
     });
 }
 
-export async function updateOverlayProps<C extends OverlayComponent>(
-    injection: OverlayInjection<C, any>,
+export async function updateOverlayProps<C extends Component>(
+    injection: OverlayInjection<C>,
     props: Partial<Omit<OverlayComponentProps<C>, 'callback'>>
 ) {
     const targetProps = injection.vnode.component!.props;
     for (const key in props) {
-        targetProps[key] = props[key];
+        targetProps[key] = (props as any)[key];
     }
 }
