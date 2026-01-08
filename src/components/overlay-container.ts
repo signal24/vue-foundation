@@ -69,17 +69,6 @@ type CleanProps<P> = {
     [K in keyof P as K extends keyof (VNodeProps & AllowedComponentProps & ComponentCustomProps) ? never : string extends K ? never : K]: P[K];
 };
 
-// Check if component has a callback prop with correct signature
-type HasCallbackProp<C> =
-    CleanProps<ExtractComponentProps<C>> extends {
-        callback: (result: any) => void;
-    }
-        ? true
-        : false;
-
-// Constraint type - resolves to C if valid, never if not
-type OverlayComponent<C extends Component> = HasCallbackProp<C> extends true ? C : never;
-
 type ComponentReturn<C> =
     CleanProps<ExtractComponentProps<C>> extends {
         callback: (result: infer R) => void;
@@ -90,7 +79,7 @@ type ComponentReturn<C> =
 type OverlayComponentProps<C> = CleanProps<ExtractComponentProps<C>>;
 
 export function createOverlayInjection<C extends Component, R extends ComponentReturn<C>>(
-    component: OverlayComponent<C>,
+    component: C,
     props: OverlayComponentProps<C>,
     options?: OverlayOptions<C, R>
 ): OverlayInjection<C> {
@@ -159,7 +148,7 @@ export function removeOverlayInjection(injection: OverlayInjection<any>) {
 }
 
 export async function presentOverlay<C extends Component, R extends ComponentReturn<C>>(
-    component: OverlayComponent<C>,
+    component: C,
     props: Omit<OverlayComponentProps<C>, 'callback'>,
     options?: OverlayOptions<C, R>
 ): Promise<R | undefined> {
