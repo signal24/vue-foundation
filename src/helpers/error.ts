@@ -18,7 +18,8 @@ export function formatError(err: any): string {
         return err.message;
     }
 
-    const errMessage = toError(err).message;
+    err = toError(err);
+    const errMessage = err.message || String(err);
     return `An application error has occurred:\n\n${errMessage}\n\nPlease refresh the page and try again. If this error persists, ${VfOptions.unhandledErrorSupportText}.`;
 }
 
