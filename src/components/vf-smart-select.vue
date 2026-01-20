@@ -52,9 +52,9 @@
 
 <script lang="ts" setup generic="T, V = T">
 import { debounce, groupBy, isEqual, uniq } from 'lodash';
-import Mark from 'mark.js';
-import { computed, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+import { highlight } from '@/helpers/highlight';
 import { isNotNullOrUndefined } from '@/helpers';
 
 import type { VfSmartSelectOptionDescriptor } from './vf-smart-select.types';
@@ -172,55 +172,52 @@ const allOptions = computed(() => [...effectivePrependOptions.value, ...loadedOp
 const isGrouped = computed(() => !!(props.groupField || props.groupFormatter));
 
 const optionsDescriptors = computed(() => {
-    return allOptions.value.map((option, index) => {
-        const group = effectiveGroupFormatter.value?.(option);
+    const descriptors = allOptions.value.map((option, index) => {
         const title = effectiveFormatter.value(option);
         const subtitle = props.subtitleFormatter?.(option);
-        const strippedTitle = title ? title.trim().toLowerCase() : '';
-        const strippedSubtitle = subtitle ? subtitle.trim().toLowerCase() : '';
-
-        const searchContent = [];
-        if (props.searchFields) {
-            props.searchFields.forEach(field => {
-                if (option[field]) {
-                    searchContent.push(
-                        String(option[field])
-                            .toLowerCase()
-                            .replace(/^[a-z0-9 ]+$/i, '')
-                    );
-                }
-            });
-        } else {
-            searchContent.push(strippedTitle);
-            if (strippedSubtitle) {
-                searchContent.push(strippedSubtitle);
-            }
-        }
-
         return {
             key: effectiveKeyExtractor.value?.(option) ?? String(index),
-            group,
+            group: effectiveGroupFormatter.value?.(option),
             title,
             subtitle,
-            searchContent: searchContent.join(''),
             ref: option
         } as VfSmartSelectOptionDescriptor<T>;
     });
+
+    if (isSearching.value) {
+        const strippedSearchText = searchText.value.trim().toLowerCase();
+        if (strippedSearchText.length) {
+            return descriptors.filter(option => {
+                let content = (option.title + ' ' + (option.subtitle ?? '')).toLowerCase();
+                if (props.searchFields) {
+                    content = props.searchFields.map(field => option.ref![field]).join(' ');
+                }
+                return content.includes(strippedSearchText);
+            });
+        }
+    }
+
+    return descriptors;
 });
 
 const effectiveOptions = computed(() => {
-    let options = [...optionsDescriptors.value];
+    let options = optionsDescriptors.value.map(o => ({ ...o }));
 
     if (isSearching.value) {
-        const strippedSearchText = searchText.value
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9 ]+$/i, '');
-
+        const strippedSearchText = searchText.value.trim();
         if (strippedSearchText.length) {
-            options = options.filter(option => option.searchContent!.includes(strippedSearchText));
+            options.forEach(o => {
+                o.title = highlight(o.title, strippedSearchText);
+                if (o.subtitle) o.subtitle = highlight(o.subtitle, strippedSearchText);
+            });
+
             if (shouldShowCreateOption.value) {
-                const hasExactMatch = options.find(option => option.searchContent === strippedSearchText) !== undefined;
+                const hasExactMatch =
+                    options.find(
+                        option =>
+                            option.title.replace(/<[^>]+>/g, '').toLowerCase() === strippedSearchText.toLowerCase() ||
+                            option.subtitle?.replace(/<[^>]+>/g, '').toLowerCase() === strippedSearchText.toLowerCase()
+                    ) !== undefined;
                 if (!hasExactMatch) {
                     options.push({
                         key: CreateSymbol,
@@ -600,23 +597,6 @@ function focusNextInput() {
     if (nextInput) setTimeout(() => nextInput.focus(), 0);
 }
 
-onUpdated(() => {
-    if (!shouldDisplayOptions.value || !isSearching.value || !searchText.value) return;
-    const terms = searchText.value
-        .trim()
-        .replace(/[^a-z0-9 -]/gi, '')
-        .split(' ');
-    optionsContainer.value?.querySelectorAll('.option').forEach(el => {
-        const mark = new Mark(el as HTMLElement);
-        mark.unmark();
-        mark.mark(terms, {
-            done: () => {
-                // fix spaces around marks getting stripped
-                el.innerHTML = el.innerHTML.replace(/ <mark /g, '&nbsp;<mark ').replace(/<\/mark> /g, '</mark>&nbsp;');
-            }
-        });
-    });
-});
 </script>
 
 <style lang="scss">
