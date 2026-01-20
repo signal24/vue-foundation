@@ -12,6 +12,8 @@ interface ContextMenuConfig {
 }
 
 export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
+    window.getSelection()?.removeAllRanges();
+
     const wrapperEl = document.createElement('div');
     wrapperEl.classList.add('vf-overlay');
     wrapperEl.addEventListener('click', closeMenu);
@@ -23,7 +25,6 @@ export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
     wrapperEl.appendChild(menuEl);
 
     const target = e.currentTarget as HTMLElement;
-    target.style.userSelect = 'none';
     target.classList.add('context-menu-active');
 
     if (config.targetClass) {
@@ -44,7 +45,6 @@ export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
 
         const itemEl = document.createElement('div');
         itemEl.classList.add('item');
-        itemEl.style.userSelect = 'none';
         itemEl.innerText = item.title;
         menuEl.appendChild(itemEl);
 
@@ -80,7 +80,6 @@ export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
         }
 
         target.classList.remove('context-menu-active');
-        target.style.userSelect = '';
 
         wrapperEl.remove();
     }
@@ -104,5 +103,3 @@ export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
         e.stopPropagation();
     }
 }
-
-// TODO: actually de-select text rather than just using CSS to hide its selection
