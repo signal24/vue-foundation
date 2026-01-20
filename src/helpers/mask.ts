@@ -31,7 +31,7 @@ export function maskEl(el: MaskElement, message?: string) {
         el[MaskState] = { maskEl };
     }
 
-    el[MaskState].maskEl.innerText = message ?? '';
+    el[MaskState].maskEl.textContent = message ?? '';
 
     // todo: add inner HTML to config
 
@@ -69,7 +69,7 @@ export function maskForm(formOrCmp: Element | AnyComponentPublicInstance, button
     if (buttonEl) {
         originalButtonHtml = buttonEl.tagName === 'INPUT' ? (buttonEl as HTMLInputElement).value : buttonEl.innerHTML;
         buttonEl.setAttribute('disabled', 'disabled');
-        buttonEl.innerText = buttonText ?? 'Please wait...';
+        buttonEl.textContent = buttonText ?? 'Please wait...';
     }
 
     const inputsQR = form.querySelectorAll('input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])');

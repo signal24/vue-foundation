@@ -123,7 +123,7 @@ class VfTooltip {
                 this.tipEl.appendChild(this.titleEl);
             }
 
-            this.titleEl.innerText = this.config.title;
+            this.titleEl.textContent = this.config.title;
         } else if (this.titleEl) {
             this.titleEl.remove();
         }
@@ -134,7 +134,7 @@ class VfTooltip {
             this.tipEl.appendChild(this.contentEl);
         }
 
-        this.contentEl[this.config.html ? 'innerHTML' : 'innerText'] = this.config.content;
+        this.contentEl[this.config.html ? 'innerHTML' : 'textContent'] = this.config.content;
 
         if (this.checkInterval) {
             this.checkInterval = setInterval(() => this.checkMoveEvent(), 250);

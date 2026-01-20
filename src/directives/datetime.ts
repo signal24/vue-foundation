@@ -11,7 +11,7 @@ export const vDatetime: ObjectDirective<HTMLElement, string> = {
 
 function applyDateTime(el: HTMLElement, binding: DirectiveBinding<string>) {
     if (binding.value == binding.oldValue && el.innerHTML.length) return;
-    el.innerText = getDateTimeValue(el, binding);
+    el.textContent = getDateTimeValue(el, binding);
 }
 
 function getDateTimeValue(el: HTMLElement, binding: DirectiveBinding<string>) {

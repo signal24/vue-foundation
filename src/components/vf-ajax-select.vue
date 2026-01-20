@@ -38,7 +38,7 @@ const renderOptions = computed(() => {
         const typedOption = option as T;
         if (props.preprocesor) return props.preprocesor(typedOption);
         if (props.displayKey) return typedOption[props.displayKey];
-        return '';
+        return String(typedOption);
     });
 
     return result;

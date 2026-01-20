@@ -1,7 +1,8 @@
 <template>
-    <div class="vf-toast" :class="[className, { top: position === 'top', bottom: position !== 'top' }]" @click.stop="handleClick">
+    <div class="vf-toast" :class="[className, type, { top: position === 'top', bottom: position !== 'top' }]" @click.stop="handleClick">
         <div class="content">
-            <div class="message">{{ message }}</div>
+            <div v-if="html" class="message" v-html="message"></div>
+            <div v-else class="message">{{ message }}</div>
             <div v-if="!disableClose" class="close" @click.stop="close">x</div>
         </div>
         <div v-if="durationSecs !== null" class="progress-bar">
@@ -17,6 +18,9 @@ export interface IToastOptions {
     position?: 'top' | 'bottom';
     message: string;
     className?: string;
+    type?: string;
+    html?: boolean;
+    autoClose?: number;
     durationSecs?: number | null;
     disableClose?: boolean;
     onClick?: () => void;

@@ -47,7 +47,7 @@ function applyDuration(el: DurationElement, binding: DirectiveBinding<number>) {
 function updateDuration(el: DurationElement) {
     const state = el[DurationState]!;
     const diff = Math.round((Date.now() - state.startTs) / 1000);
-    el.innerText = secondsToString(diff, state.includeSeconds);
+    el.textContent = secondsToString(diff, !state.includeSeconds);
 }
 
 function removeDuration(el: DurationElement) {
@@ -56,7 +56,7 @@ function removeDuration(el: DurationElement) {
         delete el[DurationState];
     }
 
-    el.innerText = '-';
+    el.textContent = '-';
 }
 
 function secondsToString(seconds: number, shouldSkipSeconds?: boolean) {
