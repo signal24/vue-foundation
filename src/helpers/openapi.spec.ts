@@ -42,8 +42,10 @@ describe('openapi helper', () => {
         const wrappedOnError = (configureOpenApiClient as any).mock.calls[0][1].onError;
 
         // Test error handling logic
-        const err = new OpenApiError({ status: 422 }, { error: 'Validation Error' });
-        const result = wrappedOnError(err, {});
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const err = new OpenApiError({ status: 422 } as any, { error: 'Validation Error' } as any, null as any, null as any);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const result = wrappedOnError(err, {} as any);
 
         // It should convert to UserError if 422 and body has error string
         // But wrappedOnError calls options.onError, which we mocked.

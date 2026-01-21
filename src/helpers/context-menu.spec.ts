@@ -30,7 +30,7 @@ describe('context-menu helper', () => {
 
         const item = menu?.querySelector('.item') as HTMLElement;
         expect(item).not.toBeNull();
-        // @ts-expect-error innerText exists on HTMLElement in JSDOM but might be missing in some types or behaves differently
+        // @ts-ignore innerText exists on HTMLElement in JSDOM but might be missing in some types or behaves differently
         expect(item.innerText).toContain('Item 1');
 
         item.click();
