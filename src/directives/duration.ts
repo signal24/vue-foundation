@@ -19,7 +19,7 @@ const durationEls: DurationElement[] = [];
 function updateDurations() {
     durationEls.forEach(updateDuration);
 }
-setInterval(updateDurations, 1000);
+let durationInterval: ReturnType<typeof setInterval> | undefined;
 
 function applyDuration(el: DurationElement, binding: DirectiveBinding<number>) {
     if (binding.value == binding.oldValue) return;
@@ -34,6 +34,9 @@ function applyDuration(el: DurationElement, binding: DirectiveBinding<number>) {
 
     if (!el[DurationState]) {
         durationEls.push(el);
+        if (!durationInterval) {
+            durationInterval = setInterval(updateDurations, 1000);
+        }
     }
 
     el[DurationState] = {
@@ -54,6 +57,10 @@ function removeDuration(el: DurationElement) {
     if (el[DurationState]) {
         remove(durationEls, el);
         delete el[DurationState];
+        if (!durationEls.length && durationInterval) {
+            clearInterval(durationInterval);
+            durationInterval = undefined;
+        }
     }
 
     el.innerText = '-';
