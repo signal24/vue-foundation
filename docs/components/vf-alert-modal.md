@@ -24,6 +24,15 @@ await showAlert({
 });
 ```
 
+<DemoContainer>
+  <DemoShowAlert />
+  <template #source>
+
+<<< @/demos/components/DemoShowAlert.vue
+
+  </template>
+</DemoContainer>
+
 ## `showConfirm(message)` / `showConfirm(title, message)` / `showConfirm(options)`
 
 Shows a confirm dialog with Confirm/Cancel buttons. Returns `true` or `false`.
@@ -33,6 +42,15 @@ const ok = await showConfirm('Are you sure?');
 const ok = await showConfirm('Delete Item', 'This cannot be undone.');
 ```
 
+<DemoContainer>
+  <DemoShowConfirm />
+  <template #source>
+
+<<< @/demos/components/DemoShowConfirm.vue
+
+  </template>
+</DemoContainer>
+
 ## `showConfirmDestroy(message)` / `showConfirmDestroy(title, message)` / `showConfirmDestroy(options)`
 
 Same as `showConfirm` but with destructive styling (red Confirm button).
@@ -40,6 +58,15 @@ Same as `showConfirm` but with destructive styling (red Confirm button).
 ```typescript
 const ok = await showConfirmDestroy('Delete this record permanently?');
 ```
+
+<DemoContainer>
+  <DemoShowConfirmDestroy />
+  <template #source>
+
+<<< @/demos/components/DemoShowConfirmDestroy.vue
+
+  </template>
+</DemoContainer>
 
 ## `showWait(message)` / `showWait(title, message)` / `showWait(options)`
 
@@ -50,6 +77,15 @@ const dismiss = showWait('Processing...');
 await longOperation();
 dismiss();
 ```
+
+<DemoContainer>
+  <DemoShowWait />
+  <template #source>
+
+<<< @/demos/components/DemoShowWait.vue
+
+  </template>
+</DemoContainer>
 
 ## `showMutableWait(message)` / `showMutableWait(title, message)` / `showMutableWait(options)`
 
@@ -63,17 +99,19 @@ wait.update('Finishing...');
 wait.dismiss();
 ```
 
-## Demo
-
 <DemoContainer>
-  <DemoAlertHelpers />
+  <DemoShowMutableWait />
   <template #source>
 
-<<< @/demos/components/DemoAlertHelpers.vue
+<<< @/demos/components/DemoShowMutableWait.vue
 
   </template>
 </DemoContainer>
 
 <script setup>
-import DemoAlertHelpers from '../demos/components/DemoAlertHelpers.vue';
+import DemoShowAlert from '../demos/components/DemoShowAlert.vue';
+import DemoShowConfirm from '../demos/components/DemoShowConfirm.vue';
+import DemoShowConfirmDestroy from '../demos/components/DemoShowConfirmDestroy.vue';
+import DemoShowWait from '../demos/components/DemoShowWait.vue';
+import DemoShowMutableWait from '../demos/components/DemoShowMutableWait.vue';
 </script>

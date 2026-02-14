@@ -23,7 +23,6 @@
         "dev": "vite",
         "build": "rm -rf dist && vite build && tsc -p tsconfig.vite-plugins.json && find dist -name '*.tsbuildinfo' -delete && vue-tsc -p tsconfig.app.json",
         "build:watch": "fswatch -o src | xargs -n1 -I{} yarn build",
-        "demo": "vite -c ./demo/vite.config.ts ./demo",
         "test:types": "vue-tsc -p tsconfig.vitest.json",
         "test:unit": "vitest",
         "test:coverage": "vitest run --coverage",

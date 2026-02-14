@@ -4,8 +4,7 @@ const screenshotDir = 'e2e/screenshots';
 
 test.describe('Confirm Modal', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('/');
-        await page.selectOption('select', 'VfAlertModal');
+        await page.goto('e2e/alerts');
         await page.waitForSelector('#demo-vf-alert-modal');
     });
 

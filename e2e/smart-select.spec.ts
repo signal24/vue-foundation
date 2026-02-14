@@ -4,8 +4,7 @@ const screenshotDir = 'e2e/screenshots';
 
 test.describe('Smart Select', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('/');
-        await page.selectOption('select', 'VfSmartSelect');
+        await page.goto('e2e/smart-select');
         await page.waitForSelector('#demo-vf-smart-select');
     });
 

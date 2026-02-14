@@ -12,8 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { showAlert, showConfirm, showConfirmDestroy, showMutableWait, showToast, showWait } from '@/components';
-import { sleepSecs } from '@/helpers';
+import { showAlert, showConfirm, showConfirmDestroy, showMutableWait, showToast, showWait } from '@signal24/vue-foundation';
 
 function setResult(text: string) {
     document.getElementById('last-result')!.textContent = text;
@@ -45,7 +44,7 @@ async function showConfirmDestroyDemo() {
 
 async function showWaitDemo() {
     const dismiss = showWait('Wait Demo', 'Waiting 1 second...');
-    await sleepSecs(1);
+    await new Promise(resolve => setTimeout(resolve, 1000));
     dismiss();
 }
 
@@ -53,9 +52,9 @@ async function showMutableWaitDemo() {
     const wait = showMutableWait({
         message: 'Waiting 1 second...'
     });
-    await sleepSecs(1);
+    await new Promise(resolve => setTimeout(resolve, 1000));
     wait.update('Another second...');
-    await sleepSecs(1);
+    await new Promise(resolve => setTimeout(resolve, 1000));
     wait.dismiss();
 }
 

@@ -11,7 +11,7 @@ export default defineConfig({
     reporter: process.env.CI ? 'github' : 'html',
 
     use: {
-        baseURL: `http://localhost:${PORT}`,
+        baseURL: `http://localhost:${PORT}/vue-foundation/`,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure'
     },
@@ -24,8 +24,8 @@ export default defineConfig({
     ],
 
     webServer: {
-        command: `yarn demo --port ${PORT}`,
-        url: `http://localhost:${PORT}`,
+        command: `yarn docs:dev --port ${PORT}`,
+        url: `http://localhost:${PORT}/vue-foundation/`,
         reuseExistingServer: !process.env.CI,
         timeout: 120000
     }
