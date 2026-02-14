@@ -3,7 +3,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import VfSmartSelect from './vf-smart-select.vue';
 
-const options = [
+interface Option {
+    value: number;
+    label: string;
+}
+
+const options: Option[] = [
     { value: 1, label: 'Apple' },
     { value: 2, label: 'Banana' },
     { value: 3, label: 'Cherry' },
@@ -26,8 +31,8 @@ describe('VfSmartSelect', () => {
             attachTo: document.body,
             props: {
                 options,
-                labelField: 'label',
-                valueField: 'value',
+                labelField: 'label' as unknown as undefined,
+                valueField: 'value' as unknown as undefined,
                 modelValue: null
             }
         });
@@ -53,8 +58,8 @@ describe('VfSmartSelect', () => {
             attachTo: document.body,
             props: {
                 options,
-                labelField: 'label',
-                valueField: 'value',
+                labelField: 'label' as unknown as undefined,
+                valueField: 'value' as unknown as undefined,
                 modelValue: null
             }
         });
@@ -77,7 +82,7 @@ describe('VfSmartSelect', () => {
         const optionEls = optionsContainer.querySelectorAll('.option');
 
         expect(optionEls.length).toBe(1);
-        expect(optionEls[0].textContent).toContain('Banana');
+        expect(optionEls[0]?.textContent).toContain('Banana');
         vi.useRealTimers();
     });
 });
