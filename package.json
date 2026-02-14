@@ -1,7 +1,7 @@
 {
     "name": "@signal24/vue-foundation",
     "type": "module",
-    "version": "4.30.11",
+    "version": "4.31.0",
     "description": "Common components, directives, and helpers for Vue 3 apps",
     "module": "./dist/vue-foundation.es.js",
     "exports": {
@@ -28,7 +28,10 @@
         "test:unit": "vitest",
         "test:e2e:dev:remote": "DISPLAY=:0 yarn test:e2e:dev",
         "lint": "oxlint --fix .",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "docs:dev": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:preview": "vitepress preview docs"
     },
     "license": "MIT",
     "repository": {
@@ -58,6 +61,7 @@
         "@vue/tsconfig": "^0.8.1",
         "date-fns": "^4.1.0",
         "jsdom": "^28.0.0",
+        "lefthook": "^2.1.1",
         "lodash": "^4.17.23",
         "oxlint": "^1.47.0",
         "prettier": "^3.8.1",
@@ -68,6 +72,7 @@
         "vite": "^7.3.1",
         "vite-plugin-oxlint": "^1.6.0",
         "vite-plugin-vue-tailwind-auto-reference": "^2.0.1",
+        "vitepress": "^1.6.4",
         "vitest": "^4.0.18",
         "vue": "^3.5.28",
         "vue-tsc": "^3.2.4"

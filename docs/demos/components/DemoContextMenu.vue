@@ -1,0 +1,44 @@
+<template>
+    <div>
+        <div
+            style="
+                border: 1px dashed var(--vp-c-divider);
+                border-radius: 8px;
+                padding: 40px;
+                text-align: center;
+                max-width: 400px;
+                user-select: none;
+                cursor: context-menu;
+            "
+            @contextmenu="onContextMenu"
+        >
+            Right-click here to open the context menu
+        </div>
+        <p v-if="lastAction" style="margin-top: 12px; color: var(--vp-c-text-2)">Last action: {{ lastAction }}</p>
+    </div>
+</template>
+
+<script lang="ts" setup>
+import { ref } from 'vue';
+
+import { showContextMenu } from '@signal24/vue-foundation';
+
+const lastAction = ref('');
+
+function onContextMenu(e: MouseEvent) {
+    e.preventDefault();
+    showContextMenu(e, {
+        items: [
+            { title: 'Edit', handler: () => (lastAction.value = 'Edit clicked') },
+            { title: 'Duplicate', handler: () => (lastAction.value = 'Duplicate clicked') },
+            '-',
+            {
+                title: 'Delete',
+                handler: () => (lastAction.value = 'Delete confirmed'),
+                class: 'danger',
+                shouldConfirm: true
+            }
+        ]
+    });
+}
+</script>

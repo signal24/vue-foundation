@@ -17,8 +17,15 @@ interface ITooltipState {
 type TooltipElement = HTMLElement & ITooltipState;
 
 function createTip(el: TooltipElement, binding: DirectiveBinding<TooltipValue>) {
-    let tipText = el.attributes.getNamedItem('tip')?.value ?? binding.value;
-    if (!binding.value) tipText = null;
+    const tipAttr = el.attributes.getNamedItem('tip')?.value;
+    let tipText: string | null | false | undefined;
+    if (binding.value === null || binding.value === false) {
+        tipText = null;
+    } else if (typeof binding.value === 'string') {
+        tipText = binding.value;
+    } else {
+        tipText = tipAttr ?? null;
+    }
 
     if (tipText) {
         const config: ITooltipOptions = {

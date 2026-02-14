@@ -13,8 +13,6 @@
 <script setup lang="ts" generic="T">
 import { computed, onMounted, ref, watch } from 'vue';
 
-// todo: make type safe when Vue alpha is released
-
 const props = defineProps<{
     modelValue: T;
     loadFn: () => Promise<T[]>;
@@ -38,7 +36,7 @@ const renderOptions = computed(() => {
         const typedOption = option as T;
         if (props.preprocesor) return props.preprocesor(typedOption);
         if (props.displayKey) return typedOption[props.displayKey];
-        return '';
+        return String(typedOption);
     });
 
     return result;

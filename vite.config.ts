@@ -1,13 +1,13 @@
 import { fileURLToPath, URL } from 'node:url';
 
-import eslintPlugin from '@nabla/vite-plugin-eslint';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
 import { defineConfig } from 'vite';
+import oxlintPlugin from 'vite-plugin-oxlint';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [vue(), eslintPlugin()],
+    plugins: [vue(), oxlintPlugin()],
     css: {
         preprocessorOptions: {
             scss: {

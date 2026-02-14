@@ -3,7 +3,8 @@
     "include": ["vite.config.*", "vitest.config.*", "cypress.config.*", "playwright.config.*"],
     "compilerOptions": {
         "composite": true,
-        "module": "Node16",
+        "module": "Preserve",
+        "moduleResolution": "Bundler",
         "types": ["node"],
         "noImplicitAny": true
     }
