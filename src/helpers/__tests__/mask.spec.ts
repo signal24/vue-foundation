@@ -64,20 +64,20 @@ describe('unmaskEl', () => {
     });
 });
 
-describe('maskForm', () => {
-    function createForm() {
-        const form = document.createElement('form');
-        form.innerHTML = `
-            <input type="text" name="name" />
-            <textarea name="notes"></textarea>
-            <select name="type"><option>A</option></select>
-            <button type="submit">Save</button>
-            <button type="button">Cancel</button>
-        `;
-        document.body.appendChild(form);
-        return form;
-    }
+function createForm() {
+    const form = document.createElement('form');
+    form.innerHTML = `
+        <input type="text" name="name" />
+        <textarea name="notes"></textarea>
+        <select name="type"><option>A</option></select>
+        <button type="submit">Save</button>
+        <button type="button">Cancel</button>
+    `;
+    document.body.appendChild(form);
+    return form;
+}
 
+describe('maskForm', () => {
     it('adds vf-masked class to form', () => {
         const form = createForm();
         maskForm(form);

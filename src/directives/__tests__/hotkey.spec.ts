@@ -25,7 +25,7 @@ describe('v-hotkey', () => {
         const onClick = vi.fn();
         mountHotkey('a', onClick);
 
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
+        globalThis.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
         expect(onClick).toHaveBeenCalledOnce();
     });
 
@@ -33,7 +33,7 @@ describe('v-hotkey', () => {
         const onClick = vi.fn();
         mountHotkey('B', onClick);
 
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b' }));
+        globalThis.dispatchEvent(new KeyboardEvent('keydown', { key: 'b' }));
         expect(onClick).toHaveBeenCalledOnce();
     });
 
@@ -41,7 +41,7 @@ describe('v-hotkey', () => {
         const onClick = vi.fn();
         mountHotkey('a', onClick);
 
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'x' }));
+        globalThis.dispatchEvent(new KeyboardEvent('keydown', { key: 'x' }));
         expect(onClick).not.toHaveBeenCalled();
     });
 
@@ -50,7 +50,7 @@ describe('v-hotkey', () => {
         const wrapper = mountHotkey('a', onClick);
 
         wrapper.unmount();
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
+        globalThis.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
         expect(onClick).not.toHaveBeenCalled();
     });
 
@@ -60,7 +60,7 @@ describe('v-hotkey', () => {
         mountHotkey('a', first);
         mountHotkey('a', second);
 
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
+        globalThis.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
         expect(second).toHaveBeenCalledOnce();
         expect(first).not.toHaveBeenCalled();
     });

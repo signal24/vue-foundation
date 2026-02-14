@@ -12,7 +12,10 @@ class MockResizeObserver {
     observe = mockObserve;
     unobserve = mockUnobserve;
     disconnect = vi.fn();
-    constructor(_callback: ResizeObserverCallback) {}
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    constructor(_callback: ResizeObserverCallback) {
+        // callback stored internally by the real ResizeObserver
+    }
 }
 
 vi.stubGlobal('ResizeObserver', MockResizeObserver);

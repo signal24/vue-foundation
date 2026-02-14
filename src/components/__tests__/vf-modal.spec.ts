@@ -99,14 +99,14 @@ describe('VfModal', () => {
     it('closes on Escape key when closeOnMaskClick is true', async () => {
         const onClose = vi.fn();
         mountModal({ closeOnMaskClick: true, onClose });
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        globalThis.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
         expect(onClose).toHaveBeenCalledOnce();
     });
 
     it('does not close on Escape when closeOnMaskClick is false', () => {
         const onClose = vi.fn();
         mountModal({ onClose });
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        globalThis.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
         expect(onClose).not.toHaveBeenCalled();
     });
 
