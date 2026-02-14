@@ -82,39 +82,44 @@ const COPIED_STYLES = [
     'text-rendering'
 ] as const;
 
-const props = defineProps<{
-    modelValue: V | null;
-    loadingText?: string;
-    loadOptions?: (searchText: string | null) => Promise<T[]>;
-    options?: T[];
-    prependOptions?: T[];
-    appendOptions?: T[];
-    onCreateItem?: (searchText: string) => void;
-    preload?: boolean;
-    remoteSearch?: boolean;
-    searchFields?: (keyof T)[];
-    placeholder?: string;
-    keyField?: keyof T;
-    keyExtractor?: (option: T) => string | symbol;
-    valueField?: keyof T;
-    valueExtractor?: (option: T) => V;
-    labelField?: keyof T;
-    groupField?: keyof T;
-    groupFormatter?: (option: T) => string;
-    formatter?: (option: T) => string;
-    subtitleFormatter?: (option: T) => string;
-    classForOption?: (option: T) => string;
-    selectionFormatter?: (option: T) => string;
-    nullTitle?: string;
-    noResultsText?: string;
-    disabled?: boolean;
-    optionsListId?: string;
-    debug?: boolean;
-    required?: boolean;
-    showCreateTextOnNewItem?: boolean;
-    autoNext?: boolean;
-    name?: string;
-}>();
+const props = withDefaults(
+    defineProps<{
+        modelValue: V | null;
+        loadingText?: string;
+        loadOptions?: (searchText: string | null) => Promise<T[]>;
+        options?: T[];
+        prependOptions?: T[];
+        appendOptions?: T[];
+        onCreateItem?: (searchText: string) => void;
+        preload?: boolean;
+        remoteSearch?: boolean;
+        searchFields?: (keyof T)[];
+        placeholder?: string;
+        keyField?: keyof T;
+        keyExtractor?: (option: T) => string | symbol;
+        valueField?: keyof T;
+        valueExtractor?: (option: T) => V;
+        labelField?: keyof T;
+        groupField?: keyof T;
+        groupFormatter?: (option: T) => string;
+        formatter?: (option: T) => string;
+        subtitleFormatter?: (option: T) => string;
+        classForOption?: (option: T) => string;
+        selectionFormatter?: (option: T) => string;
+        nullTitle?: string;
+        noResultsText?: string;
+        disabled?: boolean;
+        optionsListId?: string;
+        debug?: boolean;
+        required?: boolean;
+        showCreateTextOnNewItem?: boolean;
+        autoNext?: boolean;
+        name?: string;
+    }>(),
+    {
+        showCreateTextOnNewItem: true
+    }
+);
 
 const emit = defineEmits<{
     optionsLoaded: [T[]];
@@ -139,7 +144,7 @@ const selectedOptionTitle = ref<string | null>(null);
 const shouldDisplayOptions = ref(false);
 const highlightedOptionKey = ref<string | symbol | null>(null);
 const shouldShowCreateOption = ref(false);
-const shouldShowCreateTextOnNewItem = computed(() => props.showCreateTextOnNewItem ?? true);
+const shouldShowCreateTextOnNewItem = computed(() => props.showCreateTextOnNewItem);
 
 const isLoaded = computed(() => !!(props.options || remoteOptions.value));
 const loadedOptions = computed(() => props.options ?? remoteOptions.value ?? []);
