@@ -25,10 +25,6 @@ const mockMutationObserve = vi.fn();
 const mockMutationDisconnect = vi.fn();
 
 class MockMutationObserver {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    constructor(_callback: MutationCallback) {
-        // callback stored internally by the real MutationObserver
-    }
     observe = mockMutationObserve;
     disconnect = mockMutationDisconnect;
     takeRecords = vi.fn().mockReturnValue([]);

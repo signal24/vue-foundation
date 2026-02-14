@@ -1,7 +1,7 @@
 <template>
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px">
         <div>
-            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600">With preload</label>
+            <span style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600">With preload</span>
             <VfSmartSelect
                 v-model="preloadValue"
                 :load-options="loadOptions"
@@ -14,7 +14,7 @@
         </div>
 
         <div>
-            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600">Lazy (no preload)</label>
+            <span style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600">Lazy (no preload)</span>
             <VfSmartSelect
                 v-model="lazyValue"
                 :load-options="loadOptions"

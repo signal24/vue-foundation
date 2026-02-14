@@ -22,7 +22,7 @@ const mockedConfigure = vi.mocked(configureOpenApiClient);
 
 function getWrappedOnError() {
     const lastCall = mockedConfigure.mock.calls.at(-1)!;
-    return lastCall[1].onError! as (err: unknown, options: unknown) => unknown;
+    return lastCall[1].onError! as (error: unknown, options: unknown) => unknown;
 }
 
 describe('configureVfOpenApiClient', () => {

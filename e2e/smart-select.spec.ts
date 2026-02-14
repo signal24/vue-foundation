@@ -171,10 +171,11 @@ test.describe('Smart Select', () => {
         });
 
         test('shows options after delay', async ({ page }) => {
-            // Wait for delayed options to load (1.5s)
-            await page.waitForTimeout(2000);
+            // Wait for delayed options to load (1.5s) by polling for placeholder change
+            const input = selectInput(page, 'delayed');
+            await expect(input).not.toHaveAttribute('placeholder', 'Loading options...', { timeout: 5000 });
 
-            await selectInput(page, 'delayed').click();
+            await input.click();
             await page.waitForSelector('.vf-smart-select-options');
 
             await expect(page.locator('.vf-smart-select-options .option:has-text("Apple")')).toBeVisible();
@@ -187,8 +188,8 @@ test.describe('Smart Select', () => {
             // Initially shows loading text
             await expect(input).toHaveAttribute('placeholder', 'Fetching...');
 
-            // Wait for async load (800ms)
-            await page.waitForTimeout(1200);
+            // Wait for async load (800ms) by polling for placeholder change
+            await expect(input).not.toHaveAttribute('placeholder', 'Fetching...', { timeout: 5000 });
 
             await input.click();
             await page.waitForSelector('.vf-smart-select-options');
@@ -262,8 +263,8 @@ test.describe('Smart Select', () => {
         });
 
         test('does not open dropdown when clicked', async ({ page }) => {
-            await selectInput(page, 'disabled').click({ force: true });
-            await page.waitForTimeout(200);
+            await selectInput(page, 'disabled').dispatchEvent('click');
+            // Verify no dropdown appeared
             await expect(page.locator('.vf-smart-select-options')).toHaveCount(0);
         });
     });

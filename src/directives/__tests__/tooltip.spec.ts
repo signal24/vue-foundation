@@ -19,6 +19,14 @@ function mountTooltip(template: string, data: () => Record<string, unknown> = ()
     );
 }
 
+async function showTooltip() {
+    const wrapper = mountTooltip('<span v-tooltip="tip">Hover me</span>', () => ({ tip: 'Hello' }));
+    await wrapper.find('span').trigger('mouseenter');
+    vi.runAllTimers();
+    expect(document.querySelector('.vf-tooltip')).toBeTruthy();
+    return wrapper;
+}
+
 describe('v-tooltip', () => {
     beforeEach(() => {
         vi.useFakeTimers();
@@ -37,10 +45,7 @@ describe('v-tooltip', () => {
     });
 
     it('removes tooltip on mouseleave', async () => {
-        const wrapper = mountTooltip('<span v-tooltip="tip">Hover me</span>', () => ({ tip: 'Hello' }));
-        await wrapper.find('span').trigger('mouseenter');
-        vi.runAllTimers();
-        expect(document.querySelector('.vf-tooltip')).toBeTruthy();
+        const wrapper = await showTooltip();
 
         await wrapper.find('span').trigger('mouseleave');
         expect(document.querySelector('.vf-tooltip')).toBeFalsy();
@@ -76,20 +81,14 @@ describe('v-tooltip', () => {
     });
 
     it('removes tooltip on click', async () => {
-        const wrapper = mountTooltip('<span v-tooltip="tip">Hover me</span>', () => ({ tip: 'Hello' }));
-        await wrapper.find('span').trigger('mouseenter');
-        vi.runAllTimers();
-        expect(document.querySelector('.vf-tooltip')).toBeTruthy();
+        const wrapper = await showTooltip();
 
         await wrapper.find('span').trigger('click');
         expect(document.querySelector('.vf-tooltip')).toBeFalsy();
     });
 
     it('cleans up on unmount', async () => {
-        const wrapper = mountTooltip('<span v-tooltip="tip">Hover me</span>', () => ({ tip: 'Hello' }));
-        await wrapper.find('span').trigger('mouseenter');
-        vi.runAllTimers();
-        expect(document.querySelector('.vf-tooltip')).toBeTruthy();
+        const wrapper = await showTooltip();
 
         wrapper.unmount();
         expect(document.querySelector('.vf-tooltip')).toBeFalsy();

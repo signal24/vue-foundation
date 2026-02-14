@@ -1,12 +1,9 @@
 import { expect, test } from '@playwright/test';
 
-const screenshotDir = 'e2e/screenshots';
+import { screenshotDir, setupAlertTests } from './helpers';
 
 test.describe('Toast', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('e2e/alerts');
-        await page.waitForSelector('#demo-vf-alert-modal');
-    });
+    setupAlertTests();
 
     test('shows toast notification', async ({ page }) => {
         await page.click('button:has-text("Show Toast")');

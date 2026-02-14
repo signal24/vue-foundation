@@ -157,7 +157,8 @@ Use `formatter` and `value-extractor` functions instead of field names for full 
 
 ### Delayed options (loading state)
 
-When `options` is initially undefined, the select shows `loading-text` until options are provided.
+When `options` is initially undefined, the select shows
+`loading-text` until options are provided.
 
 <DemoContainer>
   <DemoSmartSelectDelayed />
@@ -170,7 +171,8 @@ When `options` is initially undefined, the select shows `loading-text` until opt
 
 ### Async loadOptions
 
-Use `load-options` for async data fetching. With `preload`, options load on mount. Without it, they load on first open.
+Use `load-options` for async data fetching. With `preload`,
+options load on mount. Without it, they load on first open.
 
 <DemoContainer>
   <DemoSmartSelectAsync />

@@ -40,6 +40,15 @@ function mountOverlayContainer() {
     return mount(OverlayContainer, { attachTo: document.body });
 }
 
+function makeCallbackComp(className: string, text: string) {
+    return defineComponent({
+        props: { callback: { type: Function, default: undefined } },
+        setup() {
+            return () => h('div', { class: className }, text);
+        }
+    });
+}
+
 afterEach(() => {
     for (const injection of trackedInjections) {
         removeOverlayInjection(injection);
@@ -300,18 +309,8 @@ describe('OverlayContainer component', () => {
     });
 
     it('renders multiple overlays', async () => {
-        const Comp1 = defineComponent({
-            props: { callback: { type: Function, default: undefined } },
-            setup() {
-                return () => h('div', { class: 'multi-a' }, 'A');
-            }
-        });
-        const Comp2 = defineComponent({
-            props: { callback: { type: Function, default: undefined } },
-            setup() {
-                return () => h('div', { class: 'multi-b' }, 'B');
-            }
-        });
+        const Comp1 = makeCallbackComp('multi-a', 'A');
+        const Comp2 = makeCallbackComp('multi-b', 'B');
 
         mountOverlayContainer();
         tracked(Comp1, {} as any);
@@ -324,18 +323,8 @@ describe('OverlayContainer component', () => {
     });
 
     it('updates when injection is removed', async () => {
-        const Comp1 = defineComponent({
-            props: { callback: { type: Function, default: undefined } },
-            setup() {
-                return () => h('div', { class: 'remove-a' }, 'A');
-            }
-        });
-        const Comp2 = defineComponent({
-            props: { callback: { type: Function, default: undefined } },
-            setup() {
-                return () => h('div', { class: 'remove-b' }, 'B');
-            }
-        });
+        const Comp1 = makeCallbackComp('remove-a', 'A');
+        const Comp2 = makeCallbackComp('remove-b', 'B');
 
         mountOverlayContainer();
         const injection1 = tracked(Comp1, {} as any);
