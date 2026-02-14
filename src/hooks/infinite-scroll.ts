@@ -76,34 +76,86 @@ function discoverScrollableAncestorEl(el: Element): Element | null {
     return discoverScrollableAncestorEl(parent);
 }
 
-// TODO: switch to intersection observer
 export class InfiniteScrollHandler {
-    isTripped = false;
+    private observer: IntersectionObserver | null = null;
+    private mutationObserver: MutationObserver | null = null;
+    private sentinel: HTMLElement | null = null;
+    private container: Element | HTMLElement;
 
     constructor(
         private el: Element,
         private handler: (e: Event) => void
     ) {
+        if (this.el === (window as unknown as Element)) {
+            this.container = document.body;
+        } else {
+            this.container = this.el;
+        }
         this.install();
     }
 
     install() {
-        this.el.addEventListener('scroll', this.onScrollWithContext);
+        if (this.observer) return;
+
+        // Create sentinel
+        this.sentinel = document.createElement('div');
+        Object.assign(this.sentinel.style, {
+            opacity: '0',
+            pointerEvents: 'none',
+            width: '1px',
+            height: '1px'
+        });
+
+        this.container.appendChild(this.sentinel);
+
+        // Intersection Observer
+        this.observer = new IntersectionObserver(
+            entries => {
+                const entry = entries[0];
+                if (entry.isIntersecting) {
+                    this.handler(new CustomEvent('scroll-bottom'));
+                }
+            },
+            {
+                root: this.el === (window as unknown as Element) ? null : this.el,
+                // Trigger when sentinel is fully visible (or at least 1px)
+                threshold: 0.1
+            }
+        );
+
+        this.observer.observe(this.sentinel);
+
+        // Mutation Observer to keep sentinel at bottom
+        this.mutationObserver = new MutationObserver(() => {
+            if (!this.sentinel) return;
+
+            // Check if sentinel is the last child
+            if (this.container.lastElementChild !== this.sentinel) {
+                // Determine if we should move it.
+                // If we append it, it moves to the end.
+                // Note: appending an element that is already in DOM moves it.
+                this.container.appendChild(this.sentinel);
+            }
+        });
+
+        this.mutationObserver.observe(this.container, {
+            childList: true,
+            // We only care about direct children for now, unless the list is deeper?
+            // Usually infinite scroll list is direct children.
+            subtree: false
+        });
     }
 
     uninstall() {
-        this.el.removeEventListener('scroll', this.onScrollWithContext);
-    }
+        this.observer?.disconnect();
+        this.observer = null;
 
-    onScrollWithContext = this.onScroll.bind(this);
-    onScroll(e: Event) {
-        if (Math.ceil(this.el.scrollTop + this.el.clientHeight + 5) >= this.el.scrollHeight) {
-            if (!this.isTripped) {
-                this.handler(e);
-                this.isTripped = true;
-            }
-        } else if (this.isTripped) {
-            this.isTripped = false;
+        this.mutationObserver?.disconnect();
+        this.mutationObserver = null;
+
+        if (this.sentinel && this.sentinel.parentNode) {
+            this.sentinel.parentNode.removeChild(this.sentinel);
         }
+        this.sentinel = null;
     }
 }
