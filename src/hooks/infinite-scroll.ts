@@ -112,7 +112,7 @@ export class InfiniteScrollHandler {
         this.observer = new IntersectionObserver(
             entries => {
                 const entry = entries[0];
-                if (entry.isIntersecting) {
+                if (entry && entry.isIntersecting) {
                     this.handler(new CustomEvent('scroll-bottom'));
                 }
             },
