@@ -30,7 +30,7 @@ function applyDuration(el: DurationElement, binding: DirectiveBinding<number>) {
     const baseTime = el.attributes.getNamedItem('base-time')?.value;
     const startTs = bindingDate.getTime() - (baseTime ? new Date(baseTime).getTime() - binding.value * 1000 : 0);
 
-    const includeSeconds = el.getAttribute('no-seconds') === null;
+    const includeSeconds = el.getAttribute('no-seconds') !== null;
 
     if (!el[DurationState]) {
         durationEls.push(el);

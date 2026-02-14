@@ -10,3 +10,6 @@ dist
 !.yarn/sdks
 !.yarn/versions
 .serena
+docs/.vitepress/dist
+docs/.vitepress/cache
+.claude/settings.local.json

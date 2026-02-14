@@ -1,0 +1,220 @@
+/* Base styles for vue-foundation CSS classes in docs demos */
+
+.vf-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+}
+
+.vf-modal-wrap {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+.vf-modal {
+    background: var(--vp-c-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.vf-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--vp-c-divider);
+    font-weight: 600;
+}
+
+.vf-modal-content {
+    padding: 20px;
+}
+
+.vf-modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--vp-c-divider);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.vf-alert {
+    min-width: 300px;
+}
+
+.vf-alert .vf-modal-footer button {
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--vp-c-divider);
+    background: var(--vp-c-brand-1);
+    color: var(--vp-c-white);
+    font-weight: 500;
+}
+
+.vf-alert .vf-modal-footer button:hover {
+    opacity: 0.9;
+}
+
+.vf-alert .vf-modal-footer button.vf-alert-cancel {
+    background: var(--vp-c-bg-soft);
+    color: var(--vp-c-text-1);
+}
+
+.vf-alert .vf-modal-footer button.vf-alert-destroy {
+    background: var(--vp-c-danger-1, #e53e3e);
+}
+
+.vf-toast {
+    position: fixed;
+    z-index: 1002;
+    padding: 12px 16px;
+    border-radius: 6px;
+    background: var(--vp-c-bg-soft);
+    color: var(--vp-c-text-1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.vf-toast .content {
+    gap: 12px;
+}
+
+.vf-toast .close {
+    cursor: pointer;
+    opacity: 0.5;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+.vf-toast .close:hover {
+    opacity: 1;
+}
+
+.vf-tooltip {
+    position: fixed;
+    z-index: 1003;
+    background: var(--vp-c-bg-soft);
+    color: var(--vp-c-text-1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+}
+
+.vf-smart-select {
+    position: relative;
+}
+
+.vf-smart-select input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--vp-c-divider);
+    border-radius: 4px;
+    background: var(--vp-c-bg);
+    color: var(--vp-c-text-1);
+    font-size: 14px;
+}
+
+.vf-smart-select-options {
+    background: var(--vp-c-bg);
+    border: 1px solid var(--vp-c-divider);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.vf-smart-select-options .group-header {
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vp-c-text-2);
+    text-transform: uppercase;
+}
+
+.vf-smart-select-options .option {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.vf-smart-select-options .option:hover,
+.vf-smart-select-options .option.highlighted {
+    background: var(--vp-c-bg-soft);
+}
+
+.vf-smart-select-options .option.selected {
+    color: var(--vp-c-brand-1);
+    font-weight: 500;
+}
+
+.vf-context-menu {
+    position: fixed;
+    z-index: 1003;
+    background: var(--vp-c-bg);
+    border: 1px solid var(--vp-c-divider);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    min-width: 160px;
+    padding: 4px 0;
+}
+
+.vf-context-menu .item {
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.vf-context-menu .item:hover {
+    background: var(--vp-c-bg-soft);
+}
+
+.vf-context-menu .separator {
+    border-top: 1px solid var(--vp-c-divider);
+    margin: 4px 0;
+}
+
+.vf-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.vf-overlay-anchor {
+    position: absolute;
+    z-index: 1001;
+}
+
+/* Demo-specific button and input styling */
+.demo-preview button {
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--vp-c-divider);
+    background: var(--vp-c-bg-soft);
+    color: var(--vp-c-text-1);
+    font-size: 14px;
+}
+
+.demo-preview button:hover {
+    background: var(--vp-c-bg-mute);
+}
+
+.demo-preview input,
+.demo-preview select {
+    padding: 6px 10px;
+    border: 1px solid var(--vp-c-divider);
+    border-radius: 4px;
+    background: var(--vp-c-bg);
+    color: var(--vp-c-text-1);
+    font-size: 14px;
+}

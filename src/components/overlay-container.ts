@@ -95,7 +95,6 @@ export function createOverlayInjection<C extends Component, R extends ComponentR
     const vnode = h(rawComponent, props);
     const wrapperVnode = options?.anchor ? h(OverlayAnchor, { overlayId, anchor: options.anchor }, () => [vnode]) : undefined;
 
-    // todo: dunno what's going on with types here
     const injection: OverlayInjection<C> = {
         id: overlayId,
         component: rawComponent,
