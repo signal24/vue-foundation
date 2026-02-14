@@ -70,7 +70,7 @@ describe('discoverScrollableAncestorEl Performance', () => {
         expect(ancestor2).toBe(container); // Stale result proves caching is active
 
         // Wait for next tick to invalidate cache
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise(resolve => setTimeout(resolve, 0));
 
         // Check again
         const ancestor3 = discoverScrollableAncestorEl(items[0]!);
