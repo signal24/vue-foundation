@@ -17,6 +17,7 @@ jobs:
           node-version: 24.x
       - run: yarn install --immutable
       - run: yarn test:types
+      - run: yarn test:unit
       - run: yarn format
       - run: yarn lint
       - run: git diff --exit-code
