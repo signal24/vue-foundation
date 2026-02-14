@@ -94,7 +94,9 @@ selectRef.value.addRemoteOption(newOption); // Add option to remote options list
 - Option list teleported to body for proper z-index stacking
 - Automatic scroll management for highlighted options
 
-## Demo
+## Demos
+
+### Basic (label-field + value-field)
 
 <DemoContainer>
   <DemoVfSmartSelect />
@@ -105,6 +107,112 @@ selectRef.value.addRemoteOption(newOption); // Add option to remote options list
   </template>
 </DemoContainer>
 
+### Grouped with null-title (deselect)
+
+<DemoContainer>
+  <DemoSmartSelectGrouped />
+  <template #source>
+
+<<< @/demos/components/DemoSmartSelectGrouped.vue
+
+  </template>
+</DemoContainer>
+
+### Full object value (no value-field)
+
+When `value-field` is omitted, the entire option object is emitted as the model value.
+
+<DemoContainer>
+  <DemoSmartSelectObject />
+  <template #source>
+
+<<< @/demos/components/DemoSmartSelectObject.vue
+
+  </template>
+</DemoContainer>
+
+### Custom formatter + value-extractor
+
+Use `formatter` and `value-extractor` functions instead of field names for full control.
+
+<DemoContainer>
+  <DemoSmartSelectFormatter />
+  <template #source>
+
+<<< @/demos/components/DemoSmartSelectFormatter.vue
+
+  </template>
+</DemoContainer>
+
+### Preselected value
+
+<DemoContainer>
+  <DemoSmartSelectPreselected />
+  <template #source>
+
+<<< @/demos/components/DemoSmartSelectPreselected.vue
+
+  </template>
+</DemoContainer>
+
+### Delayed options (loading state)
+
+When `options` is initially undefined, the select shows `loading-text` until options are provided.
+
+<DemoContainer>
+  <DemoSmartSelectDelayed />
+  <template #source>
+
+<<< @/demos/components/DemoSmartSelectDelayed.vue
+
+  </template>
+</DemoContainer>
+
+### Async loadOptions
+
+Use `load-options` for async data fetching. With `preload`, options load on mount. Without it, they load on first open.
+
+<DemoContainer>
+  <DemoSmartSelectAsync />
+  <template #source>
+
+<<< @/demos/components/DemoSmartSelectAsync.vue
+
+  </template>
+</DemoContainer>
+
+### Create item
+
+Pass `on-create-item` to allow creating new options when no search match is found.
+
+<DemoContainer>
+  <DemoSmartSelectCreate />
+  <template #source>
+
+<<< @/demos/components/DemoSmartSelectCreate.vue
+
+  </template>
+</DemoContainer>
+
+### Disabled
+
+<DemoContainer>
+  <DemoSmartSelectDisabled />
+  <template #source>
+
+<<< @/demos/components/DemoSmartSelectDisabled.vue
+
+  </template>
+</DemoContainer>
+
 <script setup>
 import DemoVfSmartSelect from '../demos/components/DemoVfSmartSelect.vue';
+import DemoSmartSelectGrouped from '../demos/components/DemoSmartSelectGrouped.vue';
+import DemoSmartSelectObject from '../demos/components/DemoSmartSelectObject.vue';
+import DemoSmartSelectFormatter from '../demos/components/DemoSmartSelectFormatter.vue';
+import DemoSmartSelectPreselected from '../demos/components/DemoSmartSelectPreselected.vue';
+import DemoSmartSelectDelayed from '../demos/components/DemoSmartSelectDelayed.vue';
+import DemoSmartSelectAsync from '../demos/components/DemoSmartSelectAsync.vue';
+import DemoSmartSelectCreate from '../demos/components/DemoSmartSelectCreate.vue';
+import DemoSmartSelectDisabled from '../demos/components/DemoSmartSelectDisabled.vue';
 </script>

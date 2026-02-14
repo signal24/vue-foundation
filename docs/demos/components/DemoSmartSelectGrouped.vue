@@ -1,6 +1,13 @@
 <template>
     <div style="max-width: 320px">
-        <VfSmartSelect v-model="value" :options="options" :label-field="'label'" :value-field="'value'" placeholder="Pick a fruit or vegetable..." />
+        <VfSmartSelect
+            v-model="value"
+            :options="options"
+            :label-field="'label'"
+            :value-field="'value'"
+            :group-field="'group'"
+            null-title="Clear selection"
+        />
         <span style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ?? 'none' }}</span>
     </div>
 </template>
