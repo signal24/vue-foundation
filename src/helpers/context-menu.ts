@@ -12,7 +12,7 @@ interface ContextMenuConfig {
 }
 
 export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
-    window.getSelection()?.removeAllRanges();
+    globalThis.getSelection()?.removeAllRanges();
 
     const wrapperEl = document.createElement('div');
     wrapperEl.classList.add('vf-overlay');

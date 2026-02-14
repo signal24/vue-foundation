@@ -12,8 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { showAlert, showConfirm, showConfirmDestroy, showMutableWait, showWait } from '@/components';
-import { showToast } from '@/components';
+import { showAlert, showConfirm, showConfirmDestroy, showMutableWait, showToast, showWait } from '@/components';
 import { sleepSecs } from '@/helpers';
 
 function setResult(text: string) {

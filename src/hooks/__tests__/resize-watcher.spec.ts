@@ -5,7 +5,7 @@ import { useResizeWatcher } from '../resize-watcher';
 
 describe('useResizeWatcher', () => {
     it('adds resize listener on mount', () => {
-        const addSpy = vi.spyOn(window, 'addEventListener');
+        const addSpy = vi.spyOn(globalThis, 'addEventListener');
         const fn = vi.fn();
 
         withSetup(() => useResizeWatcher(fn));
@@ -15,7 +15,7 @@ describe('useResizeWatcher', () => {
     });
 
     it('removes resize listener on unmount', () => {
-        const removeSpy = vi.spyOn(window, 'removeEventListener');
+        const removeSpy = vi.spyOn(globalThis, 'removeEventListener');
         const fn = vi.fn();
 
         const { app } = withSetup(() => useResizeWatcher(fn));
@@ -31,9 +31,9 @@ describe('useResizeWatcher', () => {
 
         withSetup(() => useResizeWatcher(fn));
 
-        window.dispatchEvent(new Event('resize'));
-        window.dispatchEvent(new Event('resize'));
-        window.dispatchEvent(new Event('resize'));
+        globalThis.dispatchEvent(new Event('resize'));
+        globalThis.dispatchEvent(new Event('resize'));
+        globalThis.dispatchEvent(new Event('resize'));
 
         // throttle fires on the leading edge
         expect(fn).toHaveBeenCalledOnce();

@@ -25,10 +25,17 @@ const mockMutationObserve = vi.fn();
 const mockMutationDisconnect = vi.fn();
 
 class MockMutationObserver {
-    constructor(_callback: MutationCallback) {}
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    constructor(_callback: MutationCallback) {
+        // callback stored internally by the real MutationObserver
+    }
     observe = mockMutationObserve;
     disconnect = mockMutationDisconnect;
     takeRecords = vi.fn().mockReturnValue([]);
+}
+
+function triggerIntersection(isIntersecting: boolean) {
+    intersectionCallback([{ isIntersecting } as IntersectionObserverEntry], {} as IntersectionObserver);
 }
 
 describe('InfiniteScrollHandler', () => {
@@ -41,42 +48,44 @@ describe('InfiniteScrollHandler', () => {
         vi.restoreAllMocks();
     });
 
-    function triggerIntersection(isIntersecting: boolean) {
-        intersectionCallback([{ isIntersecting } as IntersectionObserverEntry], {} as IntersectionObserver);
-    }
-
     it('fires handler when sentinel becomes visible', () => {
         const handler = vi.fn();
         const el = document.createElement('div');
-        new InfiniteScrollHandler(el, handler);
+        const scrollHandler = new InfiniteScrollHandler(el, handler);
 
         triggerIntersection(true);
         expect(handler).toHaveBeenCalledOnce();
+
+        scrollHandler.uninstall();
     });
 
     it('does not fire when sentinel is not visible', () => {
         const handler = vi.fn();
         const el = document.createElement('div');
-        new InfiniteScrollHandler(el, handler);
+        const scrollHandler = new InfiniteScrollHandler(el, handler);
 
         triggerIntersection(false);
         expect(handler).not.toHaveBeenCalled();
+
+        scrollHandler.uninstall();
     });
 
     it('does not fire twice while sentinel stays visible (trip flag)', () => {
         const handler = vi.fn();
         const el = document.createElement('div');
-        new InfiniteScrollHandler(el, handler);
+        const scrollHandler = new InfiniteScrollHandler(el, handler);
 
         triggerIntersection(true);
         triggerIntersection(true);
         expect(handler).toHaveBeenCalledOnce();
+
+        scrollHandler.uninstall();
     });
 
     it('resets trip flag when sentinel leaves viewport', () => {
         const handler = vi.fn();
         const el = document.createElement('div');
-        new InfiniteScrollHandler(el, handler);
+        const scrollHandler = new InfiniteScrollHandler(el, handler);
 
         triggerIntersection(true);
         expect(handler).toHaveBeenCalledOnce();
@@ -87,6 +96,8 @@ describe('InfiniteScrollHandler', () => {
         // Sentinel re-enters viewport
         triggerIntersection(true);
         expect(handler).toHaveBeenCalledTimes(2);
+
+        scrollHandler.uninstall();
     });
 
     it('uninstall disconnects observers and removes sentinel', () => {
@@ -111,5 +122,7 @@ describe('InfiniteScrollHandler', () => {
 
         triggerIntersection(true);
         expect(handler).toHaveBeenCalledOnce();
+
+        scrollHandler.uninstall();
     });
 });

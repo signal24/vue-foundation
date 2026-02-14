@@ -39,7 +39,7 @@ export function installScrollHook(cmp: InfiniteScrollComponent, options: IInfini
     }
 
     if (options.windowScrolledToBottom) {
-        hookState.window = new InfiniteScrollHandler(window as unknown as Element, options.windowScrolledToBottom);
+        hookState.window = new InfiniteScrollHandler(globalThis as unknown as Element, options.windowScrolledToBottom);
     }
 
     cmp[HookState] = hookState;
@@ -91,7 +91,7 @@ export function discoverScrollableAncestorEl(el: Element): Element | null {
 
     let isParentScrollable = isScrollableCache.get(parent);
     if (isParentScrollable === undefined) {
-        const computedStyle = window.getComputedStyle(parent);
+        const computedStyle = globalThis.getComputedStyle(parent);
         isParentScrollable =
             ScrollableOverflowValues.includes(computedStyle.overflow) ||
             ScrollableOverflowValues.includes(computedStyle.overflowX) ||
@@ -113,14 +113,14 @@ export class InfiniteScrollHandler {
     private observer: IntersectionObserver | null = null;
     private mutationObserver: MutationObserver | null = null;
     private sentinel: HTMLElement | null = null;
-    private container: Element | HTMLElement;
+    private readonly container: Element | HTMLElement;
     private isTripped = false;
 
     constructor(
         private el: Element,
         private handler: (e: Event) => void
     ) {
-        this.container = this.el === (window as unknown as Element) ? document.body : this.el;
+        this.container = this.el === (globalThis as unknown as Element) ? document.body : this.el;
         this.install();
     }
 
@@ -140,7 +140,7 @@ export class InfiniteScrollHandler {
         this.observer = new IntersectionObserver(
             entries => {
                 const entry = entries[0];
-                if (entry && entry.isIntersecting) {
+                if (entry?.isIntersecting) {
                     if (!this.isTripped) {
                         this.handler(new CustomEvent('scroll-bottom'));
                         this.isTripped = true;
@@ -150,7 +150,7 @@ export class InfiniteScrollHandler {
                 }
             },
             {
-                root: this.el === (window as unknown as Element) ? null : this.el,
+                root: this.el === (globalThis as unknown as Element) ? null : this.el,
                 threshold: 0.1
             }
         );
@@ -173,9 +173,7 @@ export class InfiniteScrollHandler {
         this.mutationObserver?.disconnect();
         this.mutationObserver = null;
 
-        if (this.sentinel?.parentNode) {
-            this.sentinel.parentNode.removeChild(this.sentinel);
-        }
+        this.sentinel?.remove();
         this.sentinel = null;
     }
 }
