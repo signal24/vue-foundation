@@ -13,3 +13,8 @@ dist
 docs/.vitepress/dist
 docs/.vitepress/cache
 .claude/settings.local.json
+coverage
+e2e/screenshots
+test-results
+playwright-report
+playwright/.cache

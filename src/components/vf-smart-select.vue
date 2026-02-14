@@ -64,39 +64,62 @@ const CreateSymbol = Symbol('create');
 
 const VALID_KEYS = `\`1234567890-=[]\\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM`;
 
-const props = defineProps<{
-    modelValue: V | null;
-    loadingText?: string;
-    loadOptions?: (searchText: string | null) => Promise<T[]>;
-    options?: T[];
-    prependOptions?: T[];
-    appendOptions?: T[];
-    onCreateItem?: (searchText: string) => void;
-    preload?: boolean;
-    remoteSearch?: boolean;
-    searchFields?: (keyof T)[];
-    placeholder?: string;
-    keyField?: keyof T;
-    keyExtractor?: (option: T) => string | symbol;
-    valueField?: keyof T;
-    valueExtractor?: (option: T) => V;
-    labelField?: keyof T;
-    groupField?: keyof T;
-    groupFormatter?: (option: T) => string;
-    formatter?: (option: T) => string;
-    subtitleFormatter?: (option: T) => string;
-    classForOption?: (option: T) => string;
-    selectionFormatter?: (option: T) => string;
-    nullTitle?: string;
-    noResultsText?: string;
-    disabled?: boolean;
-    optionsListId?: string;
-    debug?: boolean;
-    required?: boolean;
-    showCreateTextOnNewItem?: boolean;
-    autoNext?: boolean;
-    name?: string;
-}>();
+const COPIED_STYLES = [
+    'font-family',
+    'font-size',
+    'font-weight',
+    'font-style',
+    'font-variant',
+    'letter-spacing',
+    'word-spacing',
+    'line-height',
+    'text-align',
+    'text-transform',
+    'text-decoration',
+    'text-indent',
+    'text-shadow',
+    'text-overflow',
+    'text-rendering'
+] as const;
+
+const props = withDefaults(
+    defineProps<{
+        modelValue: V | null;
+        loadingText?: string;
+        loadOptions?: (searchText: string | null) => Promise<T[]>;
+        options?: T[];
+        prependOptions?: T[];
+        appendOptions?: T[];
+        onCreateItem?: (searchText: string) => void;
+        preload?: boolean;
+        remoteSearch?: boolean;
+        searchFields?: (keyof T)[];
+        placeholder?: string;
+        keyField?: keyof T;
+        keyExtractor?: (option: T) => string | symbol;
+        valueField?: keyof T;
+        valueExtractor?: (option: T) => V;
+        labelField?: keyof T;
+        groupField?: keyof T;
+        groupFormatter?: (option: T) => string;
+        formatter?: (option: T) => string;
+        subtitleFormatter?: (option: T) => string;
+        classForOption?: (option: T) => string;
+        selectionFormatter?: (option: T) => string;
+        nullTitle?: string;
+        noResultsText?: string;
+        disabled?: boolean;
+        optionsListId?: string;
+        debug?: boolean;
+        required?: boolean;
+        showCreateTextOnNewItem?: boolean;
+        autoNext?: boolean;
+        name?: string;
+    }>(),
+    {
+        showCreateTextOnNewItem: true
+    }
+);
 
 const emit = defineEmits<{
     optionsLoaded: [T[]];
@@ -115,12 +138,13 @@ const isLoading = ref(false);
 const remoteOptions = ref<T[]>();
 const isSearching = ref(false);
 const searchText = ref('');
+const filteringSearchText = ref('');
 const selectedOption = ref<T | null>(null);
 const selectedOptionTitle = ref<string | null>(null);
 const shouldDisplayOptions = ref(false);
 const highlightedOptionKey = ref<string | symbol | null>(null);
 const shouldShowCreateOption = ref(false);
-const shouldShowCreateTextOnNewItem = computed(() => props.showCreateTextOnNewItem ?? true);
+const shouldShowCreateTextOnNewItem = computed(() => props.showCreateTextOnNewItem);
 
 const isLoaded = computed(() => !!(props.options || remoteOptions.value));
 const loadedOptions = computed(() => props.options ?? remoteOptions.value ?? []);
@@ -212,7 +236,7 @@ const effectiveOptions = computed(() => {
     let options = [...optionsDescriptors.value];
 
     if (isSearching.value) {
-        const strippedSearchText = searchText.value
+        const strippedSearchText = filteringSearchText.value
             .trim()
             .toLowerCase()
             .replace(/[^a-z0-9 ]+$/i, '');
@@ -270,11 +294,17 @@ watch(optionsDescriptors, () => {
     }
 });
 
+const updateFilteringSearchText = debounce(() => {
+    filteringSearchText.value = searchText.value;
+}, 150);
+
 watch(searchText, () => {
     // don't disable searching here if it's remote search, as that will need to be done after the fetch
     if (isSearching.value && !props.remoteSearch && !searchText.value.trim().length) {
         isSearching.value = false;
     }
+
+    updateFilteringSearchText();
 });
 
 watch(shouldDisplayOptions, () => {
@@ -336,6 +366,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
     optionsContainer.value?.remove();
+    updateFilteringSearchText.cancel();
 });
 
 async function loadInitialRemoteOptions() {
@@ -477,15 +508,14 @@ function handleOptionsDisplayed() {
 
 function teleportOptionsContainer() {
     const elRect = el.value!.getBoundingClientRect();
-    const targetTop = elRect.y + elRect.height + 2;
-    const targetLeft = elRect.x;
+    const targetTop = elRect.y + elRect.height + 2 + window.scrollY;
+    const targetLeft = elRect.x + window.scrollX;
 
     const optionsEl = optionsContainer.value!;
     const styles = window.getComputedStyle(el.value!);
 
-    for (let key in styles) {
-        if (!/^(font|text)/.test(key)) continue;
-        optionsEl.style[key] = styles[key]!;
+    for (const key of COPIED_STYLES) {
+        optionsEl.style.setProperty(key, styles.getPropertyValue(key));
     }
 
     optionsEl.style.top = targetTop + 'px';
@@ -493,7 +523,7 @@ function teleportOptionsContainer() {
     optionsEl.style.minWidth = elRect.width + 'px';
 
     if (!styles.maxHeight || styles.maxHeight == 'none') {
-        const maxHeight = window.innerHeight - targetTop - 12;
+        const maxHeight = window.innerHeight - elRect.bottom - 12;
         optionsEl.style.maxHeight = maxHeight + 'px';
     }
 

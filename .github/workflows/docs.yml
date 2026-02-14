@@ -27,6 +27,7 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: yarn install --immutable
+      - run: yarn build
       - run: yarn docs:build
       - uses: actions/upload-pages-artifact@v3
         with:

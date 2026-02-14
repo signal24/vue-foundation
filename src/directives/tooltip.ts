@@ -58,11 +58,8 @@ interface ITooltipOptions {
     alertOnTap?: boolean;
 }
 
-// todo: improve with mutation observer to see removal of node
-
 class VfTooltip {
-    private lastMoveEvt?: MouseEvent;
-    private checkInterval?: ReturnType<typeof setInterval>;
+    private observer?: MutationObserver;
     private shouldShow = false;
     private tipEl?: HTMLElement;
     private titleEl?: HTMLElement;
@@ -143,8 +140,13 @@ class VfTooltip {
 
         this.contentEl[this.config.html ? 'innerHTML' : 'innerText'] = this.config.content;
 
-        if (this.checkInterval) {
-            this.checkInterval = setInterval(() => this.checkMoveEvent(), 250);
+        if (!this.observer) {
+            this.observer = new MutationObserver(() => {
+                if (!this.el.isConnected) {
+                    this.destroy();
+                }
+            });
+            this.observer.observe(this.el.parentElement ?? document.body, { childList: true, subtree: true });
         }
 
         if (!this.mouseMoveBound) {
@@ -167,9 +169,9 @@ class VfTooltip {
         this.titleEl = undefined;
         this.contentEl = undefined;
 
-        if (this.checkInterval) {
-            clearInterval(this.checkInterval);
-            this.checkInterval = undefined;
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = undefined;
         }
 
         window.removeEventListener('mousemove', this.handleMouseMoveWithContext);
@@ -191,18 +193,6 @@ class VfTooltip {
 
         this.tipEl!.style.left = tipX + 'px';
         this.tipEl!.style.top = tipY + 'px';
-
-        this.lastMoveEvt = e;
-    }
-
-    checkMoveEvent() {
-        if (!this.lastMoveEvt) return;
-
-        if (this.tipEl !== this.lastMoveEvt.target) {
-            if (!this.tipEl?.contains(this.lastMoveEvt.target as Node)) {
-                this.handleTargetMouseLeave();
-            }
-        }
     }
 
     destroy() {

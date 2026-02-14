@@ -11,7 +11,7 @@ This file provides guidance to Claude Code when working with this repository.
 ```bash
 yarn build          # Clean dist, Vite build, generate types
 yarn build:watch    # Rebuild on file changes
-yarn demo           # Run demo app for testing components
+yarn docs:dev       # Run docs site for testing components
 yarn dev            # Vite dev server
 yarn test:unit      # Run unit tests (Vitest)
 yarn test:types     # Type checking (vue-tsc)
