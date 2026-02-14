@@ -18,7 +18,7 @@ describe('InfiniteScrollHandler', () => {
         Object.defineProperty(el, 'clientHeight', { value: 100 });
         Object.defineProperty(el, 'scrollHeight', { value: 1000 });
 
-        new InfiniteScrollHandler(el, handler);
+        const handlerInstance = new InfiniteScrollHandler(el, handler);
 
         // Simulate 100 scroll events rapidly
         for (let i = 0; i < 100; i++) {
@@ -27,5 +27,8 @@ describe('InfiniteScrollHandler', () => {
 
         // With throttling (200ms), synchronous execution of 100 events should result in very few calls (likely 1)
         expect(scrollTopAccessCount).toBeLessThan(5);
+
+        // Verify uninstall works without error (and calls cancel)
+        handlerInstance.uninstall();
     });
 });

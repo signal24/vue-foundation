@@ -94,6 +94,7 @@ export class InfiniteScrollHandler {
 
     uninstall() {
         this.el.removeEventListener('scroll', this.onScrollWithContext);
+        this.onScrollWithContext.cancel();
     }
 
     onScrollWithContext = throttle(this.onScroll.bind(this), 200);
