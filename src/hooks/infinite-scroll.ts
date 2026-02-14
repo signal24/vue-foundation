@@ -60,20 +60,54 @@ export function uninstallScrollHook(cmp: InfiniteScrollComponent) {
 }
 
 const ScrollableOverflowValues = ['auto', 'scroll'];
-function discoverScrollableAncestorEl(el: Element): Element | null {
-    const parent = el.parentElement;
-    if (!parent) return null;
 
-    const computedStyle = window.getComputedStyle(parent);
-    if (
-        ScrollableOverflowValues.includes(computedStyle.overflow) ||
-        ScrollableOverflowValues.includes(computedStyle.overflowX) ||
-        ScrollableOverflowValues.includes(computedStyle.overflowY)
-    ) {
+let scrollableAncestorCache = new WeakMap<Element, Element | null>();
+let isScrollableCache = new WeakMap<Element, boolean>();
+let cacheInvalidationScheduled = false;
+
+function ensureCache() {
+    if (!cacheInvalidationScheduled) {
+        // Schedule invalidation on the next tick
+        setTimeout(() => {
+            scrollableAncestorCache = new WeakMap();
+            isScrollableCache = new WeakMap();
+            cacheInvalidationScheduled = false;
+        }, 0);
+        cacheInvalidationScheduled = true;
+    }
+}
+
+export function discoverScrollableAncestorEl(el: Element): Element | null {
+    ensureCache();
+
+    if (scrollableAncestorCache.has(el)) {
+        return scrollableAncestorCache.get(el) ?? null;
+    }
+
+    const parent = el.parentElement;
+    if (!parent) {
+        scrollableAncestorCache.set(el, null);
+        return null;
+    }
+
+    let isParentScrollable = isScrollableCache.get(parent);
+    if (isParentScrollable === undefined) {
+        const computedStyle = window.getComputedStyle(parent);
+        isParentScrollable =
+            ScrollableOverflowValues.includes(computedStyle.overflow) ||
+            ScrollableOverflowValues.includes(computedStyle.overflowX) ||
+            ScrollableOverflowValues.includes(computedStyle.overflowY);
+        isScrollableCache.set(parent, isParentScrollable);
+    }
+
+    if (isParentScrollable) {
+        scrollableAncestorCache.set(el, parent);
         return parent;
     }
 
-    return discoverScrollableAncestorEl(parent);
+    const ancestor = discoverScrollableAncestorEl(parent);
+    scrollableAncestorCache.set(el, ancestor);
+    return ancestor;
 }
 
 // TODO: switch to intersection observer
