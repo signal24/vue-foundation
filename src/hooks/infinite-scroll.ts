@@ -1,3 +1,4 @@
+import { throttle } from 'lodash';
 import { type ComponentInternalInstance, getCurrentInstance, onActivated, onBeforeUnmount, onDeactivated, onMounted } from 'vue';
 
 const HookState = Symbol('HookState');
@@ -95,7 +96,7 @@ export class InfiniteScrollHandler {
         this.el.removeEventListener('scroll', this.onScrollWithContext);
     }
 
-    onScrollWithContext = this.onScroll.bind(this);
+    onScrollWithContext = throttle(this.onScroll.bind(this), 200);
     onScroll(e: Event) {
         if (Math.ceil(this.el.scrollTop + this.el.clientHeight + 5) >= this.el.scrollHeight) {
             if (!this.isTripped) {
