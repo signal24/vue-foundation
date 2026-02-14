@@ -26,6 +26,9 @@
         "demo": "vite -c ./demo/vite.config.ts ./demo",
         "test:types": "vue-tsc -p tsconfig.vitest.json",
         "test:unit": "vitest",
+        "test:coverage": "vitest run --coverage",
+        "test:e2e": "playwright test",
+        "test:e2e:dev": "playwright test --ui",
         "test:e2e:dev:remote": "DISPLAY=:0 yarn test:e2e:dev",
         "lint": "oxlint --fix .",
         "format": "prettier --write .",
@@ -49,6 +52,7 @@
         "vue": "^3.4.0"
     },
     "devDependencies": {
+        "@playwright/test": "^1.58.2",
         "@signal24/openapi-client-codegen": "^2.6.2",
         "@tsconfig/node22": "^22.0.5",
         "@types/jsdom": "^27.0.0",
@@ -57,6 +61,7 @@
         "@types/node": "^25.2.3",
         "@types/uuid": "^11.0.0",
         "@vitejs/plugin-vue": "^6.0.4",
+        "@vitest/coverage-v8": "^4.0.18",
         "@vue/test-utils": "^2.4.6",
         "@vue/tsconfig": "^0.8.1",
         "date-fns": "^4.1.0",

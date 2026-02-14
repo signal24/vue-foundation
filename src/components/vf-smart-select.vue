@@ -64,6 +64,24 @@ const CreateSymbol = Symbol('create');
 
 const VALID_KEYS = `\`1234567890-=[]\\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM`;
 
+const COPIED_STYLES = [
+    'font-family',
+    'font-size',
+    'font-weight',
+    'font-style',
+    'font-variant',
+    'letter-spacing',
+    'word-spacing',
+    'line-height',
+    'text-align',
+    'text-transform',
+    'text-decoration',
+    'text-indent',
+    'text-shadow',
+    'text-overflow',
+    'text-rendering'
+] as const;
+
 const props = defineProps<{
     modelValue: V | null;
     loadingText?: string;
@@ -115,6 +133,7 @@ const isLoading = ref(false);
 const remoteOptions = ref<T[]>();
 const isSearching = ref(false);
 const searchText = ref('');
+const filteringSearchText = ref('');
 const selectedOption = ref<T | null>(null);
 const selectedOptionTitle = ref<string | null>(null);
 const shouldDisplayOptions = ref(false);
@@ -212,7 +231,7 @@ const effectiveOptions = computed(() => {
     let options = [...optionsDescriptors.value];
 
     if (isSearching.value) {
-        const strippedSearchText = searchText.value
+        const strippedSearchText = filteringSearchText.value
             .trim()
             .toLowerCase()
             .replace(/[^a-z0-9 ]+$/i, '');
@@ -270,11 +289,17 @@ watch(optionsDescriptors, () => {
     }
 });
 
+const updateFilteringSearchText = debounce(() => {
+    filteringSearchText.value = searchText.value;
+}, 150);
+
 watch(searchText, () => {
     // don't disable searching here if it's remote search, as that will need to be done after the fetch
     if (isSearching.value && !props.remoteSearch && !searchText.value.trim().length) {
         isSearching.value = false;
     }
+
+    updateFilteringSearchText();
 });
 
 watch(shouldDisplayOptions, () => {
@@ -336,6 +361,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
     optionsContainer.value?.remove();
+    updateFilteringSearchText.cancel();
 });
 
 async function loadInitialRemoteOptions() {
@@ -483,9 +509,8 @@ function teleportOptionsContainer() {
     const optionsEl = optionsContainer.value!;
     const styles = window.getComputedStyle(el.value!);
 
-    for (let key in styles) {
-        if (!/^(font|text)/.test(key)) continue;
-        optionsEl.style[key] = styles[key]!;
+    for (const key of COPIED_STYLES) {
+        optionsEl.style.setProperty(key, styles.getPropertyValue(key));
     }
 
     optionsEl.style.top = targetTop + 'px';

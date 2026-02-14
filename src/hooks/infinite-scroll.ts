@@ -60,50 +60,122 @@ export function uninstallScrollHook(cmp: InfiniteScrollComponent) {
 }
 
 const ScrollableOverflowValues = ['auto', 'scroll'];
-function discoverScrollableAncestorEl(el: Element): Element | null {
-    const parent = el.parentElement;
-    if (!parent) return null;
 
-    const computedStyle = window.getComputedStyle(parent);
-    if (
-        ScrollableOverflowValues.includes(computedStyle.overflow) ||
-        ScrollableOverflowValues.includes(computedStyle.overflowX) ||
-        ScrollableOverflowValues.includes(computedStyle.overflowY)
-    ) {
+let scrollableAncestorCache = new WeakMap<Element, Element | null>();
+let isScrollableCache = new WeakMap<Element, boolean>();
+let cacheInvalidationScheduled = false;
+
+function ensureCache() {
+    if (!cacheInvalidationScheduled) {
+        setTimeout(() => {
+            scrollableAncestorCache = new WeakMap();
+            isScrollableCache = new WeakMap();
+            cacheInvalidationScheduled = false;
+        }, 0);
+        cacheInvalidationScheduled = true;
+    }
+}
+
+export function discoverScrollableAncestorEl(el: Element): Element | null {
+    ensureCache();
+
+    if (scrollableAncestorCache.has(el)) {
+        return scrollableAncestorCache.get(el) ?? null;
+    }
+
+    const parent = el.parentElement;
+    if (!parent) {
+        scrollableAncestorCache.set(el, null);
+        return null;
+    }
+
+    let isParentScrollable = isScrollableCache.get(parent);
+    if (isParentScrollable === undefined) {
+        const computedStyle = window.getComputedStyle(parent);
+        isParentScrollable =
+            ScrollableOverflowValues.includes(computedStyle.overflow) ||
+            ScrollableOverflowValues.includes(computedStyle.overflowX) ||
+            ScrollableOverflowValues.includes(computedStyle.overflowY);
+        isScrollableCache.set(parent, isParentScrollable);
+    }
+
+    if (isParentScrollable) {
+        scrollableAncestorCache.set(el, parent);
         return parent;
     }
 
-    return discoverScrollableAncestorEl(parent);
+    const ancestor = discoverScrollableAncestorEl(parent);
+    scrollableAncestorCache.set(el, ancestor);
+    return ancestor;
 }
 
-// TODO: switch to intersection observer
 export class InfiniteScrollHandler {
-    isTripped = false;
+    private observer: IntersectionObserver | null = null;
+    private mutationObserver: MutationObserver | null = null;
+    private sentinel: HTMLElement | null = null;
+    private container: Element | HTMLElement;
+    private isTripped = false;
 
     constructor(
         private el: Element,
         private handler: (e: Event) => void
     ) {
+        this.container = this.el === (window as unknown as Element) ? document.body : this.el;
         this.install();
     }
 
     install() {
-        this.el.addEventListener('scroll', this.onScrollWithContext);
+        if (this.observer) return;
+
+        this.sentinel = document.createElement('div');
+        Object.assign(this.sentinel.style, {
+            height: '1px',
+            width: '100%',
+            pointerEvents: 'none',
+            visibility: 'hidden'
+        });
+
+        this.container.appendChild(this.sentinel);
+
+        this.observer = new IntersectionObserver(
+            entries => {
+                const entry = entries[0];
+                if (entry && entry.isIntersecting) {
+                    if (!this.isTripped) {
+                        this.handler(new CustomEvent('scroll-bottom'));
+                        this.isTripped = true;
+                    }
+                } else {
+                    this.isTripped = false;
+                }
+            },
+            {
+                root: this.el === (window as unknown as Element) ? null : this.el,
+                threshold: 0.1
+            }
+        );
+
+        this.observer.observe(this.sentinel);
+
+        this.mutationObserver = new MutationObserver(() => {
+            if (this.sentinel && this.container.lastElementChild !== this.sentinel) {
+                this.container.appendChild(this.sentinel);
+            }
+        });
+
+        this.mutationObserver.observe(this.container, { childList: true });
     }
 
     uninstall() {
-        this.el.removeEventListener('scroll', this.onScrollWithContext);
-    }
+        this.observer?.disconnect();
+        this.observer = null;
 
-    onScrollWithContext = this.onScroll.bind(this);
-    onScroll(e: Event) {
-        if (Math.ceil(this.el.scrollTop + this.el.clientHeight + 5) >= this.el.scrollHeight) {
-            if (!this.isTripped) {
-                this.handler(e);
-                this.isTripped = true;
-            }
-        } else if (this.isTripped) {
-            this.isTripped = false;
+        this.mutationObserver?.disconnect();
+        this.mutationObserver = null;
+
+        if (this.sentinel?.parentNode) {
+            this.sentinel.parentNode.removeChild(this.sentinel);
         }
+        this.sentinel = null;
     }
 }

@@ -40,10 +40,13 @@ const overlay = ref<HTMLElement>();
 const form = ref<HTMLFormElement>();
 
 const isHidden = ref(false);
+const isCovered = ref(false);
 
 const classList = computed(() => {
-    return compact([...(Array.isArray(props.class) ? props.class : [props.class]), isHidden.value && 'hidden']);
+    return compact([...(Array.isArray(props.class) ? props.class : [props.class]), isHidden.value && 'hidden', isCovered.value && 'is-covered']);
 });
+
+let observer: MutationObserver | undefined;
 
 onMounted(() => {
     document.body.classList.add('vf-modal-open');
@@ -52,6 +55,15 @@ onMounted(() => {
         window.addEventListener('keydown', handleEscapeKey);
         overlay.value?.addEventListener('click', handleOverlayClick);
     }
+
+    const parent = overlay.value?.parentElement;
+    if (parent) {
+        checkIfCovered();
+        observer = new MutationObserver(() => {
+            checkIfCovered();
+        });
+        observer.observe(parent, { childList: true });
+    }
 });
 
 onBeforeUnmount(() => {
@@ -59,7 +71,26 @@ onBeforeUnmount(() => {
 
     const areOtherModalsOpen = document.body.querySelectorAll('.vf-modal').length > 0;
     if (!areOtherModalsOpen) document.body.classList.remove('vf-modal-open');
+
+    observer?.disconnect();
 });
+
+function checkIfCovered() {
+    if (!overlay.value || !overlay.value.parentElement) return;
+
+    const siblings = Array.from(overlay.value.parentElement.children);
+    const myIndex = siblings.indexOf(overlay.value);
+
+    let covered = false;
+    for (let i = myIndex + 1; i < siblings.length; i++) {
+        const sibling = siblings[i];
+        if (sibling && sibling.classList.contains('vf-modal-wrap') && !sibling.classList.contains('hidden')) {
+            covered = true;
+            break;
+        }
+    }
+    isCovered.value = covered;
+}
 
 function handleOverlayClick(e: MouseEvent) {
     if (e.target == overlay.value) {
@@ -123,13 +154,11 @@ function unhide() {
     display: flex;
     justify-content: center;
     align-items: center;
-}
 
-// TODO: make modal backgrounds not stack, except don't make the top-most modal transparent if there's
-// a context menu or dropdown on top of it
-// .vf-modal-wrap:not(:last-child) {
-//     background: transparent;
-// }
+    &.is-covered {
+        background: transparent;
+    }
+}
 
 .vf-modal {
     background: white;

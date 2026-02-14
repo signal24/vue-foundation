@@ -10,7 +10,7 @@ describe('useResizeWatcher', () => {
 
         withSetup(() => useResizeWatcher(fn));
 
-        expect(addSpy).toHaveBeenCalledWith('resize', fn);
+        expect(addSpy).toHaveBeenCalledWith('resize', expect.any(Function));
         addSpy.mockRestore();
     });
 
@@ -21,7 +21,28 @@ describe('useResizeWatcher', () => {
         const { app } = withSetup(() => useResizeWatcher(fn));
         app.unmount();
 
-        expect(removeSpy).toHaveBeenCalledWith('resize', fn);
+        expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function));
         removeSpy.mockRestore();
+    });
+
+    it('throttles the callback', async () => {
+        vi.useFakeTimers();
+        const fn = vi.fn();
+
+        withSetup(() => useResizeWatcher(fn));
+
+        window.dispatchEvent(new Event('resize'));
+        window.dispatchEvent(new Event('resize'));
+        window.dispatchEvent(new Event('resize'));
+
+        // throttle fires on the leading edge
+        expect(fn).toHaveBeenCalledOnce();
+
+        vi.advanceTimersByTime(200);
+
+        // trailing call fires after throttle period
+        expect(fn).toHaveBeenCalledTimes(2);
+
+        vi.useRealTimers();
     });
 });
