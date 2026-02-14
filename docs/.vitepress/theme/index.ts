@@ -5,6 +5,7 @@ import { configureVf, installVf } from '@signal24/vue-foundation';
 
 import DemoContainer from './DemoContainer.vue';
 import VfSetup from './VfSetup.vue';
+import '../../../dist/vue-foundation.css';
 import './style.css';
 
 export default {
