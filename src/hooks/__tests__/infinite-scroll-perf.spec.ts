@@ -36,7 +36,7 @@ describe('discoverScrollableAncestorEl Performance', () => {
     });
 
     it('should find the scrollable ancestor correctly', () => {
-        const ancestor = discoverScrollableAncestorEl(items[0]);
+        const ancestor = discoverScrollableAncestorEl(items[0]!);
         expect(ancestor).toBe(container);
     });
 
@@ -59,21 +59,21 @@ describe('discoverScrollableAncestorEl Performance', () => {
 
     it('should invalidate cache on next tick', async () => {
         // First check
-        const ancestor1 = discoverScrollableAncestorEl(items[0]);
+        const ancestor1 = discoverScrollableAncestorEl(items[0]!);
         expect(ancestor1).toBe(container);
 
         // Change structure: make List scrollable
         list.style.overflow = 'auto';
 
         // Immediate check (should be cached and return OLD ancestor)
-        const ancestor2 = discoverScrollableAncestorEl(items[0]);
+        const ancestor2 = discoverScrollableAncestorEl(items[0]!);
         expect(ancestor2).toBe(container); // Stale result proves caching is active
 
         // Wait for next tick to invalidate cache
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
         // Check again
-        const ancestor3 = discoverScrollableAncestorEl(items[0]);
+        const ancestor3 = discoverScrollableAncestorEl(items[0]!);
         // Now it should be 'list' because cache was cleared and it re-evaluated
         expect(ancestor3).toBe(list);
     });
