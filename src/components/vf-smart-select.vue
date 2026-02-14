@@ -64,6 +64,22 @@ const CreateSymbol = Symbol('create');
 
 const VALID_KEYS = `\`1234567890-=[]\\;',./~!@#$%^&*()_+{}|:"<>?qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM`;
 
+const COPIED_STYLES = [
+    'font-family',
+    'font-size',
+    'font-weight',
+    'font-style',
+    'font-variant',
+    'line-height',
+    'text-align',
+    'text-transform',
+    'text-decoration',
+    'text-indent',
+    'text-shadow',
+    'text-overflow',
+    'text-rendering'
+] as const;
+
 const props = defineProps<{
     modelValue: V | null;
     loadingText?: string;
@@ -483,9 +499,8 @@ function teleportOptionsContainer() {
     const optionsEl = optionsContainer.value!;
     const styles = window.getComputedStyle(el.value!);
 
-    for (let key in styles) {
-        if (!/^(font|text)/.test(key)) continue;
-        optionsEl.style[key] = styles[key]!;
+    for (const key of COPIED_STYLES) {
+        optionsEl.style.setProperty(key, styles.getPropertyValue(key));
     }
 
     optionsEl.style.top = targetTop + 'px';
