@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div data-testid="demo-confirm-destroy">
         <button @click="handleConfirmDestroy">Show Confirm Destroy</button>
-        <span v-if="result" style="margin-left: 12px; font-size: 13px; color: var(--vp-c-text-2)">{{ result }}</span>
+        <span v-if="result" class="result" style="margin-left: 12px; font-size: 13px; color: var(--vp-c-text-2)">{{ result }}</span>
     </div>
 </template>
 

@@ -1,9 +1,9 @@
 <template>
-    <div style="display: flex; flex-wrap: wrap; gap: 8px">
-        <button @click="showBottomToast">Toast (bottom)</button>
-        <button @click="showTopToast">Toast (top)</button>
-        <button @click="showPersistentToast">Persistent toast</button>
-        <button @click="showClickableToast">Clickable toast</button>
+    <div data-testid="demo-toast" style="display: flex; flex-wrap: wrap; gap: 8px">
+        <button data-testid="toast-bottom" @click="showBottomToast">Toast (bottom)</button>
+        <button data-testid="toast-top" @click="showTopToast">Toast (top)</button>
+        <button data-testid="toast-persistent" @click="showPersistentToast">Persistent toast</button>
+        <button data-testid="toast-clickable" @click="showClickableToast">Clickable toast</button>
     </div>
 </template>
 

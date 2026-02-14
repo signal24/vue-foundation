@@ -1,7 +1,7 @@
 <template>
-    <div style="max-width: 320px">
+    <div data-testid="demo-ss-object" style="max-width: 320px">
         <VfSmartSelect v-model="value" :options="options" :label-field="'label'" placeholder="Select an option..." />
-        <span style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ? value.label : 'none' }}</span>
+        <span class="result" style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ? value.label : 'none' }}</span>
     </div>
 </template>
 

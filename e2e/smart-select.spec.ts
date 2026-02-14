@@ -1,35 +1,29 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-const screenshotDir = 'e2e/screenshots';
-
-/** Helper: get a section by data-testid */
-function section(page: Page, testid: string): Locator {
-    return page.locator(`[data-testid="${testid}"]`);
-}
+import { demoSection, gotoDocsPage, screenshotDir } from './helpers';
 
 /** Helper: get the smart-select input within a section */
 function selectInput(page: Page, testid: string): Locator {
-    return section(page, testid).locator('.vf-smart-select input');
+    return demoSection(page, testid).locator('.vf-smart-select input');
 }
 
 /** Helper: get the result text within a section */
 function result(page: Page, testid: string): Locator {
-    return section(page, testid).locator('.result');
+    return demoSection(page, testid).locator('.result');
 }
 
 test.describe('Smart Select', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('e2e/smart-select');
-        await page.waitForSelector('#demo-vf-smart-select');
+        await gotoDocsPage(page, 'components/vf-smart-select');
     });
 
     test.describe('Basic (label-field + value-field)', () => {
         test('opens dropdown and shows options', async ({ page }) => {
-            await selectInput(page, 'basic').click();
+            await selectInput(page, 'demo-ss-basic').click();
             await page.waitForSelector('.vf-smart-select-options');
 
             const options = page.locator('.vf-smart-select-options .option');
-            await expect(options).toHaveCount(3);
+            await expect(options).toHaveCount(6);
             await expect(options.nth(0)).toContainText('Apple');
             await expect(options.nth(1)).toContainText('Banana');
             await expect(options.nth(2)).toContainText('Cherry');
@@ -38,21 +32,23 @@ test.describe('Smart Select', () => {
         });
 
         test('selects option and emits value-field value', async ({ page }) => {
-            await selectInput(page, 'basic').click();
+            await selectInput(page, 'demo-ss-basic').click();
             await page.waitForSelector('.vf-smart-select-options');
 
             await page.locator('.vf-smart-select-options .option:has-text("Banana")').click();
             await expect(page.locator('.vf-smart-select-options')).toHaveCount(0);
-            await expect(selectInput(page, 'basic')).toHaveValue('Banana');
-            await expect(result(page, 'basic')).toHaveText('2');
+            await expect(selectInput(page, 'demo-ss-basic')).toHaveValue('Banana');
+            await expect(result(page, 'demo-ss-basic')).toContainText('2');
+
+            await page.screenshot({ path: `${screenshotDir}/smart-select-selected.png` });
         });
 
         test('filters options when typing', async ({ page }) => {
-            const input = selectInput(page, 'basic');
+            const input = selectInput(page, 'demo-ss-basic');
             await input.click();
             await page.waitForSelector('.vf-smart-select-options');
 
-            await input.pressSequentially('ch');
+            await input.pressSequentially('cher');
 
             const options = page.locator('.vf-smart-select-options .option');
             await expect(options).toHaveCount(1);
@@ -62,7 +58,7 @@ test.describe('Smart Select', () => {
         });
 
         test('navigates with arrow keys and selects with Enter', async ({ page }) => {
-            const input = selectInput(page, 'basic');
+            const input = selectInput(page, 'demo-ss-basic');
             await input.click();
             await page.waitForSelector('.vf-smart-select-options');
 
@@ -76,7 +72,7 @@ test.describe('Smart Select', () => {
         });
 
         test('closes dropdown on Escape', async ({ page }) => {
-            await selectInput(page, 'basic').click();
+            await selectInput(page, 'demo-ss-basic').click();
             await page.waitForSelector('.vf-smart-select-options');
 
             await page.keyboard.press('Escape');
@@ -86,77 +82,79 @@ test.describe('Smart Select', () => {
 
     test.describe('Grouped + null-title', () => {
         test('shows group headers', async ({ page }) => {
-            await selectInput(page, 'grouped').click();
+            await selectInput(page, 'demo-ss-grouped').click();
             await page.waitForSelector('.vf-smart-select-options');
 
             // The null-title option creates a group with empty title (no .group-title rendered)
             // so we check .group-title elements for the real group headers
             const groupTitles = page.locator('.vf-smart-select-options .group-title');
             await expect(groupTitles).toHaveCount(2);
-            await expect(groupTitles.nth(0)).toContainText('Set 1');
-            await expect(groupTitles.nth(1)).toContainText('Set 2');
+            await expect(groupTitles.nth(0)).toContainText('Fruits');
+            await expect(groupTitles.nth(1)).toContainText('Vegetables');
 
             await page.screenshot({ path: `${screenshotDir}/smart-select-grouped.png` });
         });
 
         test('shows null-title option for deselect', async ({ page }) => {
-            await selectInput(page, 'grouped').click();
+            await selectInput(page, 'demo-ss-grouped').click();
             await page.waitForSelector('.vf-smart-select-options');
 
             const nullOption = page.locator('.vf-smart-select-options .option:has-text("Clear selection")');
             await expect(nullOption).toBeVisible();
+
+            await page.screenshot({ path: `${screenshotDir}/smart-select-null-title.png` });
         });
 
         test('deselects via null-title option', async ({ page }) => {
             // First select something
-            await selectInput(page, 'grouped').click();
+            await selectInput(page, 'demo-ss-grouped').click();
             await page.waitForSelector('.vf-smart-select-options');
-            await page.locator('.vf-smart-select-options .option:has-text("Option 3")').click();
-            await expect(result(page, 'grouped')).toHaveText('3');
+            await page.locator('.vf-smart-select-options .option:has-text("Cherry")').click();
+            await expect(result(page, 'demo-ss-grouped')).toContainText('3');
 
             // Now deselect via null-title option
-            await selectInput(page, 'grouped').click();
+            await selectInput(page, 'demo-ss-grouped').click();
             await page.waitForSelector('.vf-smart-select-options');
             await page.locator('.vf-smart-select-options .option:has-text("Clear selection")').click();
-            await expect(result(page, 'grouped')).toHaveText('none');
+            await expect(result(page, 'demo-ss-grouped')).toContainText('none');
         });
     });
 
     test.describe('Object value (no value-field)', () => {
         test('emits full object when no value-field', async ({ page }) => {
-            await selectInput(page, 'object').click();
+            await selectInput(page, 'demo-ss-object').click();
             await page.waitForSelector('.vf-smart-select-options');
 
             await page.locator('.vf-smart-select-options .option:has-text("Cherry")').click();
-            await expect(result(page, 'object')).toHaveText('Cherry');
-            await expect(selectInput(page, 'object')).toHaveValue('Cherry');
+            await expect(result(page, 'demo-ss-object')).toContainText('Cherry');
+            await expect(selectInput(page, 'demo-ss-object')).toHaveValue('Cherry');
         });
     });
 
     test.describe('Formatter + value-extractor', () => {
         test('displays formatted option text', async ({ page }) => {
-            await selectInput(page, 'formatter').click();
+            await selectInput(page, 'demo-ss-formatter').click();
             await page.waitForSelector('.vf-smart-select-options');
 
             const firstOption = page.locator('.vf-smart-select-options .option').first();
-            await expect(firstOption).toContainText('Option 1 (Set 1)');
+            await expect(firstOption).toContainText('Apple (Fruits)');
 
             await page.screenshot({ path: `${screenshotDir}/smart-select-formatter.png` });
         });
 
         test('selects and emits extracted value', async ({ page }) => {
-            await selectInput(page, 'formatter').click();
+            await selectInput(page, 'demo-ss-formatter').click();
             await page.waitForSelector('.vf-smart-select-options');
 
             await page.locator('.vf-smart-select-options .option').first().click();
-            await expect(result(page, 'formatter')).toHaveText('1');
+            await expect(result(page, 'demo-ss-formatter')).toContainText('1');
         });
     });
 
     test.describe('Preselected value', () => {
         test('shows preselected value in input on mount', async ({ page }) => {
-            await expect(selectInput(page, 'preselected')).toHaveValue('Banana');
-            await expect(result(page, 'preselected')).toHaveText('2');
+            await expect(selectInput(page, 'demo-ss-preselected')).toHaveValue('Banana');
+            await expect(result(page, 'demo-ss-preselected')).toContainText('2');
 
             await page.screenshot({ path: `${screenshotDir}/smart-select-preselected.png` });
         });
@@ -164,7 +162,7 @@ test.describe('Smart Select', () => {
 
     test.describe('Delayed options (loading state)', () => {
         test('shows loading text before options arrive', async ({ page }) => {
-            const input = selectInput(page, 'delayed');
+            const input = selectInput(page, 'demo-ss-delayed');
             await expect(input).toHaveAttribute('placeholder', 'Loading options...');
 
             await page.screenshot({ path: `${screenshotDir}/smart-select-loading.png` });
@@ -172,7 +170,7 @@ test.describe('Smart Select', () => {
 
         test('shows options after delay', async ({ page }) => {
             // Wait for delayed options to load (1.5s) by polling for placeholder change
-            const input = selectInput(page, 'delayed');
+            const input = selectInput(page, 'demo-ss-delayed');
             await expect(input).not.toHaveAttribute('placeholder', 'Loading options...', { timeout: 5000 });
 
             await input.click();
@@ -221,7 +219,7 @@ test.describe('Smart Select', () => {
 
     test.describe('Create item', () => {
         test('shows create option when no match', async ({ page }) => {
-            const input = selectInput(page, 'create');
+            const input = selectInput(page, 'demo-ss-create');
             await input.click();
             await page.waitForSelector('.vf-smart-select-options');
 
@@ -237,7 +235,7 @@ test.describe('Smart Select', () => {
         });
 
         test('creates item and selects it', async ({ page }) => {
-            const input = selectInput(page, 'create');
+            const input = selectInput(page, 'demo-ss-create');
             await input.click();
             await page.waitForSelector('.vf-smart-select-options');
 
@@ -248,22 +246,22 @@ test.describe('Smart Select', () => {
             await expect(createOption).toBeVisible();
             await createOption.click();
 
-            await expect(result(page, 'create')).toHaveText('new');
+            await expect(result(page, 'demo-ss-create')).toContainText('new');
         });
     });
 
     test.describe('Disabled', () => {
         test('shows preselected value but input is disabled', async ({ page }) => {
-            const input = selectInput(page, 'disabled');
+            const input = selectInput(page, 'demo-ss-disabled');
             await expect(input).toBeDisabled();
             await expect(input).toHaveValue('Banana');
-            await expect(result(page, 'disabled')).toHaveText('2');
+            await expect(result(page, 'demo-ss-disabled')).toContainText('2');
 
             await page.screenshot({ path: `${screenshotDir}/smart-select-disabled.png` });
         });
 
         test('does not open dropdown when clicked', async ({ page }) => {
-            await selectInput(page, 'disabled').dispatchEvent('click');
+            await selectInput(page, 'demo-ss-disabled').dispatchEvent('click');
             // Verify no dropdown appeared
             await expect(page.locator('.vf-smart-select-options')).toHaveCount(0);
         });

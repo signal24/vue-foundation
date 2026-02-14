@@ -108,10 +108,24 @@ wait.dismiss();
   </template>
 </DemoContainer>
 
+## Stacked Overlays
+
+Overlays can be sequenced by awaiting each call.
+
+<DemoContainer>
+  <DemoOverlayStacking />
+  <template #source>
+
+<<< @/demos/components/DemoOverlayStacking.vue
+
+  </template>
+</DemoContainer>
+
 <script setup>
 import DemoShowAlert from '../demos/components/DemoShowAlert.vue';
 import DemoShowConfirm from '../demos/components/DemoShowConfirm.vue';
 import DemoShowConfirmDestroy from '../demos/components/DemoShowConfirmDestroy.vue';
 import DemoShowWait from '../demos/components/DemoShowWait.vue';
 import DemoShowMutableWait from '../demos/components/DemoShowMutableWait.vue';
+import DemoOverlayStacking from '../demos/components/DemoOverlayStacking.vue';
 </script>

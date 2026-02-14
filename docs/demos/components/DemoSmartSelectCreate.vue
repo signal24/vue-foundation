@@ -1,5 +1,5 @@
 <template>
-    <div style="max-width: 320px">
+    <div data-testid="demo-ss-create" style="max-width: 320px">
         <VfSmartSelect
             v-model="value"
             :options="effectiveOptions"
@@ -8,7 +8,7 @@
             :on-create-item="handleCreate"
             placeholder="Search or type to create..."
         />
-        <span style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ?? 'none' }}</span>
+        <span class="result" style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ?? 'none' }}</span>
     </div>
 </template>
 

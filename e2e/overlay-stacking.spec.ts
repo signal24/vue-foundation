@@ -1,12 +1,14 @@
 import { expect, test } from '@playwright/test';
 
-import { screenshotDir, setupAlertTests } from './helpers';
+import { demoResult, demoSection, gotoDocsPage, screenshotDir } from './helpers';
 
 test.describe('Overlay Stacking', () => {
-    setupAlertTests();
+    test.beforeEach(async ({ page }) => {
+        await gotoDocsPage(page, 'components/vf-alert-modal');
+    });
 
     test('stacked overlays open sequentially', async ({ page }) => {
-        await page.click('button:has-text("Show Stacked Overlays")');
+        await demoSection(page, 'demo-stacking').locator('button').click();
         await page.waitForSelector('.vf-alert');
 
         // First overlay
@@ -24,35 +26,35 @@ test.describe('Overlay Stacking', () => {
         // Close second overlay
         await page.click('.vf-alert button:has-text("OK")');
         await expect(page.locator('.vf-alert')).toHaveCount(0);
-        await expect(page.locator('#last-result')).toHaveText('Stacked closed');
+        await expect(demoResult(page, 'demo-stacking')).toHaveText('Stacked overlays completed');
     });
 
     test('wait modal shows and auto-dismisses', async ({ page }) => {
-        await page.click('button:has-text("Show Wait Modal")');
+        await demoSection(page, 'demo-wait').locator('button').click();
         await page.waitForSelector('.wait');
 
-        await expect(page.locator('.wait')).toContainText('Waiting 1 second...');
+        await expect(page.locator('.wait')).toContainText('Processing, please wait...');
 
         // Wait modal should have no buttons
         await expect(page.locator('.wait .vf-modal-footer')).toHaveCount(0);
         await page.screenshot({ path: `${screenshotDir}/wait-modal.png` });
 
-        // Auto-dismiss after ~1 second
-        await page.waitForSelector('.wait', { state: 'detached', timeout: 3000 });
+        // Auto-dismiss after ~2 seconds
+        await page.waitForSelector('.wait', { state: 'detached', timeout: 5000 });
     });
 
     test('mutable wait updates message', async ({ page }) => {
-        await page.click('button:has-text("Show Mutable Wait Modal")');
+        await demoSection(page, 'demo-mutable-wait').locator('button').click();
         await page.waitForSelector('.wait');
 
-        await expect(page.locator('.wait')).toContainText('Waiting 1 second...');
+        await expect(page.locator('.wait')).toContainText('Starting...');
         await page.screenshot({ path: `${screenshotDir}/mutable-wait-initial.png` });
 
-        // Wait for message update
-        await expect(page.locator('.wait')).toContainText('Another second...', { timeout: 3000 });
+        // Wait for message update (first update at 800ms)
+        await expect(page.locator('.wait')).toContainText('Step 1 of 3...', { timeout: 3000 });
         await page.screenshot({ path: `${screenshotDir}/mutable-wait-updated.png` });
 
-        // Wait for dismiss
-        await page.waitForSelector('.wait', { state: 'detached', timeout: 3000 });
+        // Wait for dismiss (at 3200ms)
+        await page.waitForSelector('.wait', { state: 'detached', timeout: 5000 });
     });
 });

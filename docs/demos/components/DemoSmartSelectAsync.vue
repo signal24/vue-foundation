@@ -1,6 +1,6 @@
 <template>
-    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px">
-        <div>
+    <div data-testid="demo-ss-async" style="display: flex; flex-direction: column; gap: 16px; max-width: 320px">
+        <div data-testid="async-preload">
             <span style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600">With preload</span>
             <VfSmartSelect
                 v-model="preloadValue"
@@ -10,10 +10,10 @@
                 preload
                 loading-text="Fetching..."
             />
-            <span style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ preloadValue ?? 'none' }}</span>
+            <span class="result" style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ preloadValue ?? 'none' }}</span>
         </div>
 
-        <div>
+        <div data-testid="async-lazy">
             <span style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600">Lazy (no preload)</span>
             <VfSmartSelect
                 v-model="lazyValue"
@@ -22,7 +22,7 @@
                 :value-field="'value'"
                 placeholder="Click to load..."
             />
-            <span style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ lazyValue ?? 'none' }} (loads on first open)</span>
+            <span class="result" style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ lazyValue ?? 'none' }} (loads on first open)</span>
         </div>
     </div>
 </template>

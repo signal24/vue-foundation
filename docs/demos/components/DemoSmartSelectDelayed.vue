@@ -1,5 +1,5 @@
 <template>
-    <div style="max-width: 320px">
+    <div data-testid="demo-ss-delayed" style="max-width: 320px">
         <VfSmartSelect
             v-model="value"
             :options="delayedOptions"
@@ -8,7 +8,7 @@
             loading-text="Loading options..."
             null-title="No selection"
         />
-        <span style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ?? 'none' }} (options load after 1.5s)</span>
+        <span class="result" style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ?? 'none' }} (options load after 1.5s)</span>
     </div>
 </template>
 

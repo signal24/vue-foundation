@@ -1,5 +1,5 @@
 <template>
-    <div style="max-width: 320px">
+    <div data-testid="demo-ss-formatter" style="max-width: 320px">
         <VfSmartSelect
             v-model="value"
             :options="options"
@@ -7,7 +7,7 @@
             :value-extractor="o => o.value"
             placeholder="Select..."
         />
-        <span style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ?? 'none' }}</span>
+        <span class="result" style="font-size: 13px; color: var(--vp-c-text-2)">Selected: {{ value ?? 'none' }}</span>
     </div>
 </template>
 
