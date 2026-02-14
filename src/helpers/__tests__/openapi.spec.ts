@@ -32,10 +32,10 @@ describe('configureVfOpenApiClient', () => {
 
     it('passes options through to configureOpenApiClient', () => {
         const client = {} as never;
-        const options = { baseUrl: 'http://test', onError: vi.fn() };
+        const options = { baseUrl: 'https://test', onError: vi.fn() };
         configureVfOpenApiClient(client, options as never);
 
-        expect(mockedConfigure).toHaveBeenCalledWith(client, expect.objectContaining({ baseUrl: 'http://test' }));
+        expect(mockedConfigure).toHaveBeenCalledWith(client, expect.objectContaining({ baseUrl: 'https://test' }));
     });
 
     it('converts 422 errors with string body.error to UserError', () => {

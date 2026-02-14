@@ -503,8 +503,8 @@ function handleOptionsDisplayed() {
 
 function teleportOptionsContainer() {
     const elRect = el.value!.getBoundingClientRect();
-    const targetTop = elRect.y + elRect.height + 2;
-    const targetLeft = elRect.x;
+    const targetTop = elRect.y + elRect.height + 2 + window.scrollY;
+    const targetLeft = elRect.x + window.scrollX;
 
     const optionsEl = optionsContainer.value!;
     const styles = window.getComputedStyle(el.value!);
@@ -518,7 +518,7 @@ function teleportOptionsContainer() {
     optionsEl.style.minWidth = elRect.width + 'px';
 
     if (!styles.maxHeight || styles.maxHeight == 'none') {
-        const maxHeight = window.innerHeight - targetTop - 12;
+        const maxHeight = window.innerHeight - elRect.bottom - 12;
         optionsEl.style.maxHeight = maxHeight + 'px';
     }
 
