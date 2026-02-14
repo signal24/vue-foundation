@@ -115,6 +115,7 @@ const isLoading = ref(false);
 const remoteOptions = ref<T[]>();
 const isSearching = ref(false);
 const searchText = ref('');
+const filteringSearchText = ref('');
 const selectedOption = ref<T | null>(null);
 const selectedOptionTitle = ref<string | null>(null);
 const shouldDisplayOptions = ref(false);
@@ -212,7 +213,7 @@ const effectiveOptions = computed(() => {
     let options = [...optionsDescriptors.value];
 
     if (isSearching.value) {
-        const strippedSearchText = searchText.value
+        const strippedSearchText = filteringSearchText.value
             .trim()
             .toLowerCase()
             .replace(/[^a-z0-9 ]+$/i, '');
@@ -270,11 +271,17 @@ watch(optionsDescriptors, () => {
     }
 });
 
+const updateFilteringSearchText = debounce(() => {
+    filteringSearchText.value = searchText.value;
+}, 300);
+
 watch(searchText, () => {
     // don't disable searching here if it's remote search, as that will need to be done after the fetch
     if (isSearching.value && !props.remoteSearch && !searchText.value.trim().length) {
         isSearching.value = false;
     }
+
+    updateFilteringSearchText();
 });
 
 watch(shouldDisplayOptions, () => {
@@ -336,6 +343,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
     optionsContainer.value?.remove();
+    updateFilteringSearchText.cancel();
 });
 
 async function loadInitialRemoteOptions() {
