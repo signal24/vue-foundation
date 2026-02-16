@@ -5,7 +5,7 @@ Overlay and form masking utilities for disabling UI during async operations.
 ## Import
 
 ```typescript
-import { maskComponent, unmaskComponent, maskEl, unmaskEl, maskForm, unmaskForm } from '@signal24/vue-foundation';
+import { maskComponent, unmaskComponent, maskEl, unmaskEl, maskForm, unmaskForm } from '@zyno-io/vue-foundation';
 ```
 
 ## Component / Element Masking

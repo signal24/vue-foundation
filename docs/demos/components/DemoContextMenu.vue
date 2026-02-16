@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import { showContextMenu } from '@signal24/vue-foundation';
+import { showContextMenu } from '@zyno-io/vue-foundation';
 
 const lastAction = ref('');
 

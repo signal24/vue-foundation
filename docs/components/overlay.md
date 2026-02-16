@@ -12,7 +12,7 @@ import {
     updateOverlayProps,
     dismissOverlayInjectionById,
     dismissOverlayInjectionByInstance
-} from '@signal24/vue-foundation';
+} from '@zyno-io/vue-foundation';
 ```
 
 ## `presentOverlay(component, props, options?)`

@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { showConfirmDestroy } from '@signal24/vue-foundation';
+import { showConfirmDestroy } from '@zyno-io/vue-foundation';
 
 const result = ref('');
 

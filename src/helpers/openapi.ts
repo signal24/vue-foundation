@@ -1,4 +1,4 @@
-import { configureOpenApiClient, type OpenApiClient, type OpenApiClientOptions, OpenApiError } from '@signal24/openapi-client-codegen';
+import { configureOpenApiClient, type OpenApiClient, type OpenApiClientOptions, OpenApiError } from '@zyno-io/openapi-client-codegen';
 
 import { UserError } from '.';
 

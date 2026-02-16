@@ -5,7 +5,7 @@ TypeScript utility types exported by the library for nominal typing (branded typ
 ## Import
 
 ```typescript
-import type { Branded, BrandOf, Debrand, PickRequired, PickOptional, WithoutNever, UnwrapBrand } from '@signal24/vue-foundation';
+import type { Branded, BrandOf, Debrand, PickRequired, PickOptional, WithoutNever, UnwrapBrand } from '@zyno-io/vue-foundation';
 ```
 
 ## Branded Types

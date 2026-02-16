@@ -14,7 +14,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { VfSmartSelect } from '@signal24/vue-foundation';
+import { VfSmartSelect } from '@zyno-io/vue-foundation';
 
 interface IOption {
     label: string;

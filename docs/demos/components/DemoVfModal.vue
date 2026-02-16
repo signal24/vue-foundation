@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { VfModal, showAlert } from '@signal24/vue-foundation';
+import { VfModal, showAlert } from '@zyno-io/vue-foundation';
 
 const showModal = ref(false);
 

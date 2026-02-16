@@ -5,7 +5,7 @@ Advanced searchable select component with filtering, keyboard navigation, groupi
 ## Import
 
 ```typescript
-import { VfSmartSelect } from '@signal24/vue-foundation';
+import { VfSmartSelect } from '@zyno-io/vue-foundation';
 ```
 
 ## Basic Usage

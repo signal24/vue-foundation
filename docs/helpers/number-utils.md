@@ -3,7 +3,7 @@
 ## Import
 
 ```typescript
-import { formatNumber } from '@signal24/vue-foundation';
+import { formatNumber } from '@zyno-io/vue-foundation';
 ```
 
 ## `formatNumber(value)`

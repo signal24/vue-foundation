@@ -5,7 +5,7 @@ Utilities for classifying, formatting, and handling errors. The convention is th
 ## Import
 
 ```typescript
-import { UserError, formatError, toError, isError, handleErrorAndAlert, handleError } from '@signal24/vue-foundation';
+import { UserError, formatError, toError, isError, handleErrorAndAlert, handleError } from '@zyno-io/vue-foundation';
 ```
 
 ## `UserError`

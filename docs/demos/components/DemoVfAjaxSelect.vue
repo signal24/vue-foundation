@@ -8,7 +8,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { VfAjaxSelect } from '@signal24/vue-foundation';
+import { VfAjaxSelect } from '@zyno-io/vue-foundation';
 
 interface IColor {
     id: number;

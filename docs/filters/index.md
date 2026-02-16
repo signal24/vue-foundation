@@ -5,7 +5,7 @@ Display formatting functions for use in templates. Created via a factory functio
 ## Import
 
 ```typescript
-import { createFilters } from '@signal24/vue-foundation';
+import { createFilters } from '@zyno-io/vue-foundation';
 ```
 
 ## `createFilters(factory?)`

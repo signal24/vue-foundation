@@ -5,7 +5,7 @@ Promise-based delay utilities.
 ## Import
 
 ```typescript
-import { sleep, sleepSecs } from '@signal24/vue-foundation';
+import { sleep, sleepSecs } from '@zyno-io/vue-foundation';
 ```
 
 ## `sleep(ms)`

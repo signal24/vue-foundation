@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import { UserError, formatError, handleErrorAndAlert } from '@signal24/vue-foundation';
+import { UserError, formatError, handleErrorAndAlert } from '@zyno-io/vue-foundation';
 
 const userErrorOutput = ref('');
 const systemErrorOutput = ref('');

@@ -7,7 +7,7 @@
 
 <script setup>
 import DefaultTheme from 'vitepress/theme';
-import { OverlayContainer } from '@signal24/vue-foundation';
+import { OverlayContainer } from '@zyno-io/vue-foundation';
 
 const DefaultLayout = DefaultTheme.Layout;
 </script>

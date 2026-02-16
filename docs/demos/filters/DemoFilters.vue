@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { createFilters } from '@signal24/vue-foundation';
+import { createFilters } from '@zyno-io/vue-foundation';
 
 const $f = createFilters(() => ({}));
 

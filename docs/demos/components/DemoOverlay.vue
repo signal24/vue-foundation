@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { ref, defineComponent, h } from 'vue';
-import { presentOverlay, VfModal } from '@signal24/vue-foundation';
+import { presentOverlay, VfModal } from '@zyno-io/vue-foundation';
 
 const overlayResult = ref('');
 

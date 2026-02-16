@@ -5,7 +5,7 @@ Pure utility functions for common string formatting operations.
 ## Import
 
 ```typescript
-import { escapeHtml, nl2br, desnakeCase, formatPhone, formatUSCurrency, uuid } from '@signal24/vue-foundation';
+import { escapeHtml, nl2br, desnakeCase, formatPhone, formatUSCurrency, uuid } from '@zyno-io/vue-foundation';
 ```
 
 ## `escapeHtml(value)`

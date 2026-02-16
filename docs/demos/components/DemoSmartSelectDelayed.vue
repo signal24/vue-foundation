@@ -14,7 +14,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { VfSmartSelect } from '@signal24/vue-foundation';
+import { VfSmartSelect } from '@zyno-io/vue-foundation';
 
 const options = [
     { value: '1', label: 'Apple' },

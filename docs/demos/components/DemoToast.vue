@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { showToast, showAlert } from '@signal24/vue-foundation';
+import { showToast, showAlert } from '@zyno-io/vue-foundation';
 
 function showBottomToast() {
     showToast({

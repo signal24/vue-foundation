@@ -5,13 +5,13 @@ Composition API hook for detecting when a scrollable element has been scrolled t
 ## Import
 
 ```typescript
-import { useInfiniteScroll } from '@signal24/vue-foundation';
+import { useInfiniteScroll } from '@zyno-io/vue-foundation';
 ```
 
 ## Usage
 
 ```typescript
-import { useInfiniteScroll } from '@signal24/vue-foundation';
+import { useInfiniteScroll } from '@zyno-io/vue-foundation';
 
 useInfiniteScroll({
     elScrolledToBottom: () => loadMore(),
@@ -51,7 +51,7 @@ All options are optional. Provide only the ones you need.
 
 <script setup>
 import { ref } from 'vue';
-import { useInfiniteScroll } from '@signal24/vue-foundation';
+import { useInfiniteScroll } from '@zyno-io/vue-foundation';
 
 const items = ref([]);
 const loading = ref(false);

@@ -5,7 +5,7 @@ Simple select component that loads options from an async function.
 ## Import
 
 ```typescript
-import { VfAjaxSelect } from '@signal24/vue-foundation';
+import { VfAjaxSelect } from '@zyno-io/vue-foundation';
 ```
 
 ## Basic Usage

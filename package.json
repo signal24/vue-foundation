@@ -1,7 +1,7 @@
 {
-    "name": "@signal24/vue-foundation",
+    "name": "@zyno-io/vue-foundation",
     "type": "module",
-    "version": "4.32.0",
+    "version": "4.33.0",
     "description": "Common components, directives, and helpers for Vue 3 apps",
     "module": "./dist/vue-foundation.es.js",
     "exports": {
@@ -36,8 +36,13 @@
         "docs:preview": "vitepress preview docs"
     },
     "license": "MIT",
+    "author": {
+        "name": "Zyno Consulting",
+        "email": "support@zyno.io",
+        "url": "https://zyno.io"
+    },
     "repository": {
-        "url": "https://github.com/signal24/vue-foundation"
+        "url": "https://github.com/zyno-io/vue-foundation"
     },
     "dependencies": {
         "currency.js": "^2.0.4",
@@ -45,14 +50,13 @@
         "uuid": "^13.0.0"
     },
     "peerDependencies": {
-        "@signal24/openapi-client-codegen": "^2.1.1",
+        "@zyno-io/openapi-client-codegen": "^2.7.0",
         "date-fns": "^3.0.6",
         "lodash": "^4.17.21",
         "vue": "^3.4.0"
     },
     "devDependencies": {
         "@playwright/test": "^1.58.2",
-        "@signal24/openapi-client-codegen": "^2.6.2",
         "@tsconfig/node22": "^22.0.5",
         "@types/jsdom": "^27.0.0",
         "@types/lodash": "^4.17.23",
@@ -63,9 +67,10 @@
         "@vitest/coverage-v8": "^4.0.18",
         "@vue/test-utils": "^2.4.6",
         "@vue/tsconfig": "^0.8.1",
+        "@zyno-io/openapi-client-codegen": "^2.7.0",
         "date-fns": "^4.1.0",
         "happy-dom": "^20.6.1",
-        "jsdom": "^28.0.0",
+        "jsdom": "^28.1.0",
         "lefthook": "^2.1.1",
         "lodash": "^4.17.23",
         "oxlint": "^1.47.0",

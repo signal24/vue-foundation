@@ -25,7 +25,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { VfEzSmartSelect } from '@signal24/vue-foundation';
+import { VfEzSmartSelect } from '@zyno-io/vue-foundation';
 
 const statusValue = ref<string | null>(null);
 const roleValue = ref<string | null>(null);

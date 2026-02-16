@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import { useInfiniteScroll } from '@signal24/vue-foundation';
+import { useInfiniteScroll } from '@zyno-io/vue-foundation';
 
 const items = ref<number[]>([]);
 const loading = ref(false);

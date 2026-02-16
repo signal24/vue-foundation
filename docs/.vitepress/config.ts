@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-    title: '@signal24/vue-foundation',
+    title: '@zyno-io/vue-foundation',
     description: 'Vue 3 component library — components, directives, helpers, hooks',
     base: '/vue-foundation/',
 
@@ -88,19 +88,19 @@ export default defineConfig({
             }
         ],
 
-        socialLinks: [{ icon: 'github', link: 'https://github.com/signal24/vue-foundation' }],
+        socialLinks: [{ icon: 'github', link: 'https://github.com/zyno-io/vue-foundation' }],
 
         search: { provider: 'local' },
 
         editLink: {
-            pattern: 'https://github.com/signal24/vue-foundation/edit/develop/docs/:path'
+            pattern: 'https://github.com/zyno-io/vue-foundation/edit/develop/docs/:path'
         }
     },
 
     vite: {
         resolve: {
             alias: {
-                '@signal24/vue-foundation': fileURLToPath(new URL('../../src', import.meta.url)),
+                '@zyno-io/vue-foundation': fileURLToPath(new URL('../../src', import.meta.url)),
                 '@': fileURLToPath(new URL('../../src', import.meta.url))
             }
         },

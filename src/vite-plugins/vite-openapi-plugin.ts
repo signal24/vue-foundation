@@ -1,4 +1,4 @@
-import { createWatchfulOpenapiClientGenerators } from '@signal24/openapi-client-codegen/generator';
+import { createWatchfulOpenapiClientGenerators } from '@zyno-io/openapi-client-codegen/generator';
 
 export function openapiClientGeneratorPlugin(): {
     name: string;

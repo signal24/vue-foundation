@@ -5,7 +5,7 @@ Pre-built alert and confirm dialogs built on top of the overlay system.
 ## Import
 
 ```typescript
-import { showAlert, showConfirm, showConfirmDestroy, showWait, showMutableWait } from '@signal24/vue-foundation';
+import { showAlert, showConfirm, showConfirmDestroy, showWait, showMutableWait } from '@zyno-io/vue-foundation';
 ```
 
 ## `showAlert(message)` / `showAlert(title, message)` / `showAlert(options)`

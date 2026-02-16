@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-`@signal24/vue-foundation` is a Vue 3 component library (components, directives, helpers, hooks) distributed as an ES module with TypeScript types. See `README.md` for full API documentation.
+`@zyno-io/vue-foundation` is a Vue 3 component library (components, directives, helpers, hooks) distributed as an ES module with TypeScript types. See `README.md` for full API documentation.
 
 ## Commands
 
@@ -58,7 +58,7 @@ src/
 ## Build Details
 
 - Vite library mode, ES format only
-- External deps: `vue`, `@vue/shared`, `date-fns`, `lodash`, `@signal24/openapi-client-codegen`
+- External deps: `vue`, `@vue/shared`, `date-fns`, `lodash`, `@zyno-io/openapi-client-codegen`
 - SCSS with `api: 'modern-compiler'`
 - Vite-plugins have separate tsconfig (`tsconfig.vite-plugins.json`)
 - Main branch is `develop`

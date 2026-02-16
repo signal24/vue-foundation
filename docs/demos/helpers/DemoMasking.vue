@@ -11,7 +11,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import { maskEl, sleep } from '@signal24/vue-foundation';
+import { maskEl, sleep } from '@zyno-io/vue-foundation';
 
 const maskTarget = ref<HTMLElement>();
 

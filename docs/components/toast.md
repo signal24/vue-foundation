@@ -5,7 +5,7 @@ Display toast notifications using the `showToast` helper function.
 ## Import
 
 ```typescript
-import { showToast } from '@signal24/vue-foundation';
+import { showToast } from '@zyno-io/vue-foundation';
 ```
 
 ## `showToast(options)`

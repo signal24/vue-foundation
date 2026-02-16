@@ -16,7 +16,7 @@ import {
     extractUpdates,
     patchObject,
     extractKV
-} from '@signal24/vue-foundation';
+} from '@zyno-io/vue-foundation';
 ```
 
 ## `cloneProp(prop, fallback)`

@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 
-import { useResizeWatcher } from '@signal24/vue-foundation';
+import { useResizeWatcher } from '@zyno-io/vue-foundation';
 
 const width = ref(0);
 const height = ref(0);

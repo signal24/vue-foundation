@@ -1,19 +1,19 @@
 # OpenAPI Client Configuration
 
-Integrates `@signal24/openapi-client-codegen` with the vue-foundation error handling system.
+Integrates `@zyno-io/openapi-client-codegen` with the vue-foundation error handling system.
 
 ## Import
 
 ```typescript
-import { configureVfOpenApiClient } from '@signal24/vue-foundation';
+import { configureVfOpenApiClient } from '@zyno-io/vue-foundation';
 ```
 
 ## `configureVfOpenApiClient(client, options)`
 
-Wraps `configureOpenApiClient` from `@signal24/openapi-client-codegen` with automatic error conversion. HTTP 422 responses that contain a JSON body with an `error` string property are automatically converted to `UserError` instances, so they flow through the standard error handling pipeline as user-facing messages.
+Wraps `configureOpenApiClient` from `@zyno-io/openapi-client-codegen` with automatic error conversion. HTTP 422 responses that contain a JSON body with an `error` string property are automatically converted to `UserError` instances, so they flow through the standard error handling pipeline as user-facing messages.
 
 ```typescript
-import { configureVfOpenApiClient } from '@signal24/vue-foundation';
+import { configureVfOpenApiClient } from '@zyno-io/vue-foundation';
 import { apiClient } from './api-client';
 
 configureVfOpenApiClient(apiClient, {
@@ -33,16 +33,16 @@ configureVfOpenApiClient(apiClient, {
 
 ## Prerequisites
 
-This helper requires the `@signal24/openapi-client-codegen` package:
+This helper requires the `@zyno-io/openapi-client-codegen` package:
 
 ```bash
-yarn add @signal24/openapi-client-codegen
+yarn add @zyno-io/openapi-client-codegen
 ```
 
 ## Example: Full Setup
 
 ```typescript
-import { configureVfOpenApiClient, handleErrorAndAlert } from '@signal24/vue-foundation';
+import { configureVfOpenApiClient, handleErrorAndAlert } from '@zyno-io/vue-foundation';
 import { apiClient } from './api-client';
 
 configureVfOpenApiClient(apiClient, {

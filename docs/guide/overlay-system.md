@@ -7,7 +7,7 @@ The core function is `presentOverlay()`, which shows a component as an overlay a
 ## `presentOverlay(component, props, options?)`
 
 ```typescript
-import { presentOverlay } from '@signal24/vue-foundation';
+import { presentOverlay } from '@zyno-io/vue-foundation';
 
 const result = await presentOverlay(MyModal, {
     title: 'Edit User',
@@ -41,7 +41,7 @@ interface OverlayOptions {
 </template>
 
 <script setup>
-import { VfModal } from '@signal24/vue-foundation';
+import { VfModal } from '@zyno-io/vue-foundation';
 
 defineProps<{
     title: string;
@@ -98,7 +98,7 @@ import {
     updateOverlayProps,
     dismissOverlayInjectionById,
     dismissOverlayInjectionByInstance
-} from '@signal24/vue-foundation';
+} from '@zyno-io/vue-foundation';
 
 // Low-level: create without Promise wrapping
 const injection = createOverlayInjection(MyComponent, props);

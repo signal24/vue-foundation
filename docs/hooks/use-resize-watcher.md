@@ -5,13 +5,13 @@ Composition API hook that calls a function on every window resize event. Handles
 ## Import
 
 ```typescript
-import { useResizeWatcher } from '@signal24/vue-foundation';
+import { useResizeWatcher } from '@zyno-io/vue-foundation';
 ```
 
 ## Usage
 
 ```typescript
-import { useResizeWatcher } from '@signal24/vue-foundation';
+import { useResizeWatcher } from '@zyno-io/vue-foundation';
 
 useResizeWatcher(() => {
     recalculateLayout();
@@ -34,7 +34,7 @@ Call `useResizeWatcher` inside a component's `setup` function. The callback is r
 ```vue
 <script setup>
 import { ref } from 'vue';
-import { useResizeWatcher } from '@signal24/vue-foundation';
+import { useResizeWatcher } from '@zyno-io/vue-foundation';
 
 const columns = ref(3);
 

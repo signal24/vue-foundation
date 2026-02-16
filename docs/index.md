@@ -1,7 +1,7 @@
 ---
 layout: home
 hero:
-    name: '@signal24/vue-foundation'
+    name: '@zyno-io/vue-foundation'
     text: Vue 3 Component Library
     tagline: Components, directives, helpers, and hooks for building Vue applications.
     actions:
@@ -10,7 +10,7 @@ hero:
           link: /guide/getting-started
         - theme: alt
           text: View on GitHub
-          link: https://github.com/signal24/vue-foundation
+          link: https://github.com/zyno-io/vue-foundation
 
 features:
     - title: Components

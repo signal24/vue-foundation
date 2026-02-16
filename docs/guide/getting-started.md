@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-yarn add @signal24/vue-foundation
+yarn add @zyno-io/vue-foundation
 ```
 
 ### Peer Dependencies
@@ -11,7 +11,7 @@ yarn add @signal24/vue-foundation
 ```bash
 yarn add vue date-fns lodash
 # Optional, for OpenAPI integration:
-yarn add @signal24/openapi-client-codegen
+yarn add @zyno-io/openapi-client-codegen
 ```
 
 ## Setup
@@ -20,8 +20,8 @@ Register directives and import styles in your app entry:
 
 ```typescript
 import { createApp } from 'vue';
-import { installVf, configureVf, OverlayContainer } from '@signal24/vue-foundation';
-import '@signal24/vue-foundation/dist/vue-foundation.css';
+import { installVf, configureVf, OverlayContainer } from '@zyno-io/vue-foundation';
+import '@zyno-io/vue-foundation/dist/vue-foundation.css';
 
 import App from './App.vue';
 
@@ -51,7 +51,7 @@ Add the `OverlayContainer` component to your root `App.vue` to enable modals, to
 </template>
 
 <script setup>
-import { OverlayContainer } from '@signal24/vue-foundation';
+import { OverlayContainer } from '@zyno-io/vue-foundation';
 </script>
 ```
 

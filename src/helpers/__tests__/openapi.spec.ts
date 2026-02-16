@@ -1,10 +1,10 @@
-import { configureOpenApiClient, OpenApiError } from '@signal24/openapi-client-codegen';
+import { configureOpenApiClient, OpenApiError } from '@zyno-io/openapi-client-codegen';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UserError } from '../error';
 import { configureVfOpenApiClient } from '../openapi';
 
-vi.mock('@signal24/openapi-client-codegen', () => ({
+vi.mock('@zyno-io/openapi-client-codegen', () => ({
     configureOpenApiClient: vi.fn(),
     OpenApiError: class MockOpenApiError extends Error {
         response: { status: number };

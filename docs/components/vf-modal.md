@@ -5,7 +5,7 @@ Base modal shell providing backdrop, layout, and slot structure.
 ## Import
 
 ```typescript
-import { VfModal, vfModalRef } from '@signal24/vue-foundation';
+import { VfModal, vfModalRef } from '@zyno-io/vue-foundation';
 ```
 
 ## Basic Usage
@@ -64,7 +64,7 @@ unhide();
 Use the `vfModalRef()` helper to create a properly typed ref:
 
 ```typescript
-import { vfModalRef } from '@signal24/vue-foundation';
+import { vfModalRef } from '@zyno-io/vue-foundation';
 
 const modal = vfModalRef();
 // <VfModal ref="modal" ...>

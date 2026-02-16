@@ -5,7 +5,7 @@ Simplified wrapper around VfSmartSelect for string enum or key-value options.
 ## Import
 
 ```typescript
-import { VfEzSmartSelect } from '@signal24/vue-foundation';
+import { VfEzSmartSelect } from '@zyno-io/vue-foundation';
 ```
 
 ## Basic Usage

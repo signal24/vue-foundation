@@ -5,7 +5,7 @@ A vanilla JS context menu with separator and confirmation support.
 ## Import
 
 ```typescript
-import { showContextMenu } from '@signal24/vue-foundation';
+import { showContextMenu } from '@zyno-io/vue-foundation';
 ```
 
 ## `showContextMenu(event, config)`

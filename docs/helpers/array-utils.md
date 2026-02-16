@@ -3,7 +3,7 @@
 ## Import
 
 ```typescript
-import { replaceElement } from '@signal24/vue-foundation';
+import { replaceElement } from '@zyno-io/vue-foundation';
 ```
 
 ## `replaceElement(array, oldElement, newElement)`
