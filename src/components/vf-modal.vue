@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import { compact } from 'lodash';
-import { computed, getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, getCurrentInstance, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import { maskForm, unmaskForm } from '../helpers/mask';
 import { dismissOverlayInjectionByInternalInstance } from './overlay-container';
@@ -31,6 +31,8 @@ const props = defineProps<{
     closeX?: boolean;
     class?: string | string[];
     onClose?: () => void;
+    masked?: boolean;
+    hidden?: boolean;
 }>();
 
 defineEmits(['formSubmit']);
@@ -39,8 +41,24 @@ defineExpose({ mask, unmask, hide, unhide });
 const overlay = ref<HTMLElement>();
 const form = ref<HTMLFormElement>();
 
-const isHidden = ref(false);
+const isHidden = ref(props.hidden ?? false);
 const isCovered = ref(false);
+
+watch(
+    () => props.masked,
+    value => {
+        if (value) mask();
+        else unmask();
+    }
+);
+
+watch(
+    () => props.hidden,
+    value => {
+        if (value) hide();
+        else unhide();
+    }
+);
 
 const classList = computed(() => {
     return compact([...(Array.isArray(props.class) ? props.class : [props.class]), isHidden.value && 'hidden', isCovered.value && 'is-covered']);
@@ -55,6 +73,8 @@ onMounted(() => {
         window.addEventListener('keydown', handleEscapeKey);
         overlay.value?.addEventListener('click', handleOverlayClick);
     }
+
+    if (props.masked) mask();
 
     const parent = overlay.value?.parentElement;
     if (parent) {
