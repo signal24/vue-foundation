@@ -1,24 +1,33 @@
 {
     "name": "@zyno-io/vue-foundation",
-    "type": "module",
-    "version": "4.33.1",
+    "version": "4.33.2",
     "description": "Common components, directives, and helpers for Vue 3 apps",
+    "license": "MIT",
+    "author": {
+        "name": "Zyno Consulting",
+        "email": "support@zyno.io",
+        "url": "https://zyno.io"
+    },
+    "repository": {
+        "url": "https://github.com/zyno-io/vue-foundation"
+    },
+    "type": "module",
     "module": "./dist/vue-foundation.es.js",
+    "typings": "./dist/src/index.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/vue-foundation.es.js",
-            "types": "./dist/src/index.d.ts"
+            "types": "./dist/src/index.d.ts",
+            "import": "./dist/vue-foundation.es.js"
         },
         "./dist/vue-foundation.css": {
             "import": "./dist/vue-foundation.css",
             "require": "./dist/vue-foundation.css"
         },
         "./vite-plugins": {
-            "import": "./dist/src/vite-plugins/index.js",
-            "types": "./dist/src/vite-plugins/index.d.ts"
+            "types": "./dist/src/vite-plugins/index.d.ts",
+            "import": "./dist/src/vite-plugins/index.js"
         }
     },
-    "typings": "./dist/src/index.d.ts",
     "scripts": {
         "dev": "vite",
         "build": "rm -rf dist && vite build && tsc -p tsconfig.vite-plugins.json && find dist -name '*.tsbuildinfo' -delete && vue-tsc -p tsconfig.app.json",
@@ -30,30 +39,15 @@
         "test:e2e:dev": "playwright test --ui",
         "test:e2e:dev:remote": "DISPLAY=:0 yarn test:e2e:dev",
         "lint": "oxlint --fix .",
-        "format": "prettier --write .",
+        "format": "oxfmt",
         "docs:dev": "vitepress dev docs",
         "docs:build": "vitepress build docs",
         "docs:preview": "vitepress preview docs"
-    },
-    "license": "MIT",
-    "author": {
-        "name": "Zyno Consulting",
-        "email": "support@zyno.io",
-        "url": "https://zyno.io"
-    },
-    "repository": {
-        "url": "https://github.com/zyno-io/vue-foundation"
     },
     "dependencies": {
         "currency.js": "^2.0.4",
         "mark.js": "^8.11.1",
         "uuid": "^13.0.0"
-    },
-    "peerDependencies": {
-        "@zyno-io/openapi-client-codegen": "^2.7.0",
-        "date-fns": "^3.0.6",
-        "lodash": "^4.17.21",
-        "vue": "^3.4.0"
     },
     "devDependencies": {
         "@playwright/test": "^1.58.2",
@@ -73,8 +67,8 @@
         "jsdom": "^28.1.0",
         "lefthook": "^2.1.1",
         "lodash": "^4.17.23",
+        "oxfmt": "^0.36.0",
         "oxlint": "^1.47.0",
-        "prettier": "^3.8.1",
         "sass": "^1.97.3",
         "start-server-and-test": "^2.1.3",
         "type-fest": "^5.4.4",
@@ -86,6 +80,12 @@
         "vitest": "^4.0.18",
         "vue": "^3.5.28",
         "vue-tsc": "^3.2.4"
+    },
+    "peerDependencies": {
+        "@zyno-io/openapi-client-codegen": "^2.7.0",
+        "date-fns": "^3.0.6",
+        "lodash": "^4.17.21",
+        "vue": "^3.4.0"
     },
     "packageManager": "yarn@4.9.2"
 }
