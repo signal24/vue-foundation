@@ -321,7 +321,7 @@ watch(shouldDisplayOptions, () => {
 });
 
 watch(effectiveOptions, () => {
-    if (props.modelValue !== null && selectedOption.value === null) {
+    if (props.modelValue !== null && !isNotNullOrUndefined(selectedOption.value)) {
         handleValueChanged();
     }
 

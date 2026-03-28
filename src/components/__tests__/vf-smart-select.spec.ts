@@ -148,4 +148,28 @@ describe('VfSmartSelect', () => {
         const wrapper = mountSmartSelect({ name: 'fruit' });
         expect(wrapper.find('input').attributes('name')).toBe('fruit');
     });
+
+    it('displays selected value when options arrive after modelValue is set', async () => {
+        const wrapper = mount(VfSmartSelect, {
+            props: {
+                modelValue: 2,
+                options: [] as TestOption[],
+                formatter: (o: TestOption) => o.name,
+                keyField: 'id' as keyof TestOption,
+                valueField: 'id' as keyof TestOption
+            },
+            attachTo: document.body
+        });
+        await wrapper.vm.$nextTick();
+
+        // Input should be blank since no options matched
+        expect(wrapper.find('input').element.value).toBe('');
+
+        // Simulate options arriving asynchronously
+        await wrapper.setProps({ options });
+        await wrapper.vm.$nextTick();
+
+        // Now the selected value should be displayed
+        expect(wrapper.find('input').element.value).toBe('Banana');
+    });
 });
