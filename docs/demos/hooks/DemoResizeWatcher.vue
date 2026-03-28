@@ -8,9 +8,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-
 import { useResizeWatcher } from '@zyno-io/vue-foundation';
+import { onMounted, ref } from 'vue';
 
 const width = ref(0);
 const height = ref(0);

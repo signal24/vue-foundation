@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
 import { VfSmartSelect } from '@zyno-io/vue-foundation';
+import { onMounted, ref } from 'vue';
 
 const options = [
     { value: '1', label: 'Apple' },

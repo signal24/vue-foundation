@@ -1,5 +1,6 @@
-import { last } from 'lodash';
 import type { DirectiveBinding, ObjectDirective } from 'vue';
+
+import { last } from 'lodash';
 
 export const vHotkey: ObjectDirective<HTMLButtonElement, string> = {
     mounted: setup,

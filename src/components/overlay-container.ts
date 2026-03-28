@@ -18,8 +18,9 @@ import {
 
 import { VfOptions } from '@/config';
 
-import OverlayAnchor from './overlay-anchor.vue';
 import type { OverlayAnchorOptions } from './overlay-types';
+
+import OverlayAnchor from './overlay-anchor.vue';
 
 interface OverlayOptions<C extends Component, R extends ComponentReturn<C>> {
     anchor?: OverlayAnchorOptions;

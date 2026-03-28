@@ -1,5 +1,6 @@
-import { format } from 'date-fns';
 import type { ObjectDirective } from 'vue';
+
+import { format } from 'date-fns';
 
 export const vDateInput: ObjectDirective<HTMLInputElement, void> = {
     beforeMount: fn

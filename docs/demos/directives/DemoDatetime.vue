@@ -67,9 +67,9 @@
 </template>
 
 <script lang="ts" setup>
+import { configureVf } from '@zyno-io/vue-foundation';
 import { format } from 'date-fns';
 import { computed, onBeforeUnmount, ref } from 'vue';
-import { configureVf } from '@zyno-io/vue-foundation';
 
 const defaultDate = new Date(Date.now() - (3 * 60 + 25) * 60 * 1000);
 const toLocalISOString = (d: Date) => {

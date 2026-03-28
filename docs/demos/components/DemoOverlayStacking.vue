@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
 import { showAlert } from '@zyno-io/vue-foundation';
+import { ref } from 'vue';
 
 const result = ref('');
 

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { format } from 'date-fns';
-import { defineComponent } from 'vue';
 import { describe, expect, it } from 'vitest';
+import { defineComponent } from 'vue';
 
 import { VfOptions } from '../../config';
 import { vDatetime } from '../datetime';

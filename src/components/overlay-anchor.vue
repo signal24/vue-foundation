@@ -6,10 +6,12 @@
 
 <script lang="ts" setup>
 import type { CSSProperties } from 'vue';
+
 import { getCurrentInstance, onMounted, ref } from 'vue';
 
-import { dismissOverlayInjectionById } from '.';
 import type { OverlayAnchorOptions, OverlayAnchorOptionsObject } from './overlay-types';
+
+import { dismissOverlayInjectionById } from '.';
 
 const props = defineProps<{
     overlayId: string;

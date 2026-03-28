@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import { defineComponent } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { defineComponent } from 'vue';
 
 import { vHotkey } from '../hotkey';
 

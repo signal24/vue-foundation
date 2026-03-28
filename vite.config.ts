@@ -1,7 +1,5 @@
-import { fileURLToPath, URL } from 'node:url';
-
 import vue from '@vitejs/plugin-vue';
-import path from 'path';
+import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import oxlintPlugin from 'vite-plugin-oxlint';
 
@@ -16,26 +14,17 @@ export default defineConfig({
         }
     },
     build: {
-        cssCodeSplit: true,
+        cssCodeSplit: false,
         lib: {
-            // Could also be a dictionary or array of multiple entry points
             entry: 'src/index.ts',
-            name: 'VueFoundatation',
+            name: 'VueFoundation',
             formats: ['es'],
-            fileName: format => `vue-foundation.${format}.js`
+            fileName: format => `vue-foundation.${format}.js`,
+            cssFileName: 'vue-foundation'
         },
         rollupOptions: {
-            // make sure to externalize deps that should not be bundled
-            // into your library
-            input: {
-                main: path.resolve(__dirname, 'src/index.ts')
-            },
             external: ['date-fns', 'lodash', 'vue', '@vue/shared', '@zyno-io/openapi-client-codegen'],
             output: {
-                assetFileNames: assetInfo => {
-                    if (assetInfo.name === 'main.css') return 'vue-foundation.css';
-                    return assetInfo.name!;
-                },
                 exports: 'named',
                 globals: {
                     vue: 'Vue'

@@ -1,5 +1,6 @@
-import { remove } from 'lodash';
 import type { DirectiveBinding, ObjectDirective } from 'vue';
+
+import { remove } from 'lodash';
 
 export const vDuration: ObjectDirective<HTMLElement, number> = {
     beforeMount: applyDuration,

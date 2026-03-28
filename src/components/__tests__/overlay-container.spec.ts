@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { mount } from '@vue/test-utils';
-import { defineComponent, h, nextTick } from 'vue';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { defineComponent, h, nextTick } from 'vue';
 
 import { VfOptions } from '../../config';
 import {
@@ -253,6 +253,7 @@ describe('dismissOverlayInjectionById', () => {
 });
 
 describe('dismissOverlayInjectionByInstance', () => {
+    // oxlint-disable-next-line jest/expect-expect
     it('does nothing when instance has no $ property', () => {
         dismissOverlayInjectionByInstance({} as any);
     });
@@ -277,6 +278,7 @@ describe('removeOverlayInjection', () => {
         expect(callback).not.toHaveBeenCalled();
     });
 
+    // oxlint-disable-next-line jest/expect-expect
     it('handles injection not in array', () => {
         const fakeInjection = { id: 'fake', component: TestComponent, props: {}, options: {}, vnode: h('div') } as any;
         removeOverlayInjection(fakeInjection);
@@ -370,6 +372,7 @@ describe('onOverlaysChanged callback', () => {
         expect(onChanged.mock.calls.length).toBeGreaterThan(callCountAfterAdd);
     });
 
+    // oxlint-disable-next-line jest/expect-expect
     it('does not throw when callback is not set', async () => {
         VfOptions.onOverlaysChanged = undefined;
         tracked(TestComponent, { message: 'test' } as any);

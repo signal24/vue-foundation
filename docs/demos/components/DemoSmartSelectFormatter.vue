@@ -12,8 +12,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
 import { VfSmartSelect } from '@zyno-io/vue-foundation';
+import { ref } from 'vue';
 
 const options = [
     { value: '1', label: 'Apple', group: 'Fruits' },

@@ -6,8 +6,8 @@
 </template>
 
 <script setup>
-import DefaultTheme from 'vitepress/theme';
 import { OverlayContainer } from '@zyno-io/vue-foundation';
+import DefaultTheme from 'vitepress/theme';
 
 const DefaultLayout = DefaultTheme.Layout;
 </script>

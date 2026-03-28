@@ -19,9 +19,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 import { showContextMenu } from '@zyno-io/vue-foundation';
+import { ref } from 'vue';
 
 const lastAction = ref('');
 

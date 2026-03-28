@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
 import { VfSmartSelect } from '@zyno-io/vue-foundation';
+import { computed, ref } from 'vue';
 
 interface IOption {
     label: string;

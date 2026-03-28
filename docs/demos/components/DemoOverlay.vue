@@ -8,8 +8,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineComponent, h } from 'vue';
 import { presentOverlay, VfModal } from '@zyno-io/vue-foundation';
+import { ref, defineComponent, h } from 'vue';
 
 const overlayResult = ref('');
 

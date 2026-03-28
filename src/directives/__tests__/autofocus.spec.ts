@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import { defineComponent } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
+import { defineComponent } from 'vue';
 
 import { vAutofocus } from '../autofocus';
 

@@ -22,9 +22,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 import { UserError, formatError, handleErrorAndAlert } from '@zyno-io/vue-foundation';
+import { ref } from 'vue';
 
 const userErrorOutput = ref('');
 const systemErrorOutput = ref('');

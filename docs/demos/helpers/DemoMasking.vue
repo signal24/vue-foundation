@@ -9,9 +9,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 import { maskEl, sleep } from '@zyno-io/vue-foundation';
+import { ref } from 'vue';
 
 const maskTarget = ref<HTMLElement>();
 

@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import { defineComponent, type Directive } from 'vue';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { defineComponent, type Directive } from 'vue';
 
 // Use dynamic import to isolate module-level state (setInterval, durationEls array)
 async function importDuration() {

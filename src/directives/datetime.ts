@@ -1,6 +1,7 @@
+import type { DirectiveBinding, ObjectDirective } from 'vue';
+
 import { format } from 'date-fns';
 import { compact } from 'lodash';
-import type { DirectiveBinding, ObjectDirective } from 'vue';
 
 import { VfOptions } from '../config';
 
