@@ -139,6 +139,60 @@ describe('VfSmartSelect', () => {
         expect(optionEls[0]?.textContent).toContain('Apple');
     });
 
+    it('filters using searchFields values', async () => {
+        vi.useFakeTimers();
+        const wrapper = mountSmartSelect({
+            debug: true,
+            searchFields: ['name'] as (keyof TestOption)[]
+        });
+        await openDropdown(wrapper);
+
+        await wrapper.find('input').trigger('keydown', { key: 'a' });
+        await wrapper.find('input').setValue('ap');
+        vi.runAllTimers();
+        await wrapper.vm.$nextTick();
+        vi.runAllTimers();
+        await wrapper.vm.$nextTick();
+
+        const optionEls = document.querySelectorAll('.vf-smart-select-options .option');
+        expect(optionEls.length).toBe(1);
+        expect(optionEls[0]?.textContent).toContain('Apple');
+    });
+
+    it('updates create option text after pause and continued typing', async () => {
+        vi.useFakeTimers();
+        const wrapper = mountSmartSelect({
+            debug: true,
+            onCreateItem: vi.fn()
+        });
+        await openDropdown(wrapper);
+
+        await wrapper.find('input').trigger('keydown', { key: 'x' });
+        await wrapper.find('input').setValue('mang');
+        vi.runAllTimers();
+        await wrapper.vm.$nextTick();
+        vi.runAllTimers();
+        await wrapper.vm.$nextTick();
+
+        const firstCreateOption = Array.from(document.querySelectorAll('.vf-smart-select-options .option')).find(option =>
+            option.textContent?.includes('Create')
+        );
+        expect(firstCreateOption?.textContent).toContain('mang');
+
+        await wrapper.find('input').trigger('keydown', { key: 'o' });
+        await wrapper.find('input').setValue('mango');
+        expect(wrapper.find('input').element.value).toBe('mango');
+        vi.runAllTimers();
+        await wrapper.vm.$nextTick();
+        vi.runAllTimers();
+        await wrapper.vm.$nextTick();
+
+        const secondCreateOption = Array.from(document.querySelectorAll('.vf-smart-select-options .option')).find(option =>
+            option.textContent?.includes('Create')
+        );
+        expect(secondCreateOption?.textContent).toContain('mango');
+    });
+
     it('sets required attribute on input', () => {
         const wrapper = mountSmartSelect({ required: true });
         expect(wrapper.find('input').attributes('required')).toBeDefined();

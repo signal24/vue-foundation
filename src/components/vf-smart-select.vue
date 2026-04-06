@@ -30,7 +30,11 @@
                         v-for="option in group.options"
                         :key="option.key"
                         class="option"
-                        :class="[highlightedOptionKey === option.key && 'highlighted', option.ref && classForOption?.(option.ref)]"
+                        :class="[
+                            highlightedOptionKey === option.key && 'highlighted',
+                            option.ref && classForOption?.(option.ref),
+                            option.key === CreateSymbol && 'create-option'
+                        ]"
                         @mousemove="handleOptionHover(option)"
                         @mousedown="selectOption(option)"
                     >
@@ -81,6 +85,13 @@ const COPIED_STYLES = [
     'text-overflow',
     'text-rendering'
 ] as const;
+
+function normalizeSearchText(value: unknown): string {
+    return String(value ?? '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9 ]+/gi, '');
+}
 
 const props = withDefaults(
     defineProps<{
@@ -200,18 +211,14 @@ const optionsDescriptors = computed(() => {
         const group = effectiveGroupFormatter.value?.(option);
         const title = effectiveFormatter.value(option);
         const subtitle = props.subtitleFormatter?.(option);
-        const strippedTitle = title ? title.trim().toLowerCase() : '';
-        const strippedSubtitle = subtitle ? subtitle.trim().toLowerCase() : '';
+        const strippedTitle = normalizeSearchText(title);
+        const strippedSubtitle = normalizeSearchText(subtitle);
 
         const searchContent = [];
         if (props.searchFields) {
             props.searchFields.forEach(field => {
                 if (option[field]) {
-                    searchContent.push(
-                        String(option[field])
-                            .toLowerCase()
-                            .replace(/^[a-z0-9 ]+$/i, '')
-                    );
+                    searchContent.push(normalizeSearchText(option[field]));
                 }
             });
         } else {
@@ -226,7 +233,7 @@ const optionsDescriptors = computed(() => {
             group,
             title,
             subtitle,
-            searchContent: searchContent.join(''),
+            searchContent: searchContent.join(' '),
             ref: option
         } as VfSmartSelectOptionDescriptor<T>;
     });
@@ -236,10 +243,7 @@ const effectiveOptions = computed(() => {
     let options = [...optionsDescriptors.value];
 
     if (isSearching.value) {
-        const strippedSearchText = filteringSearchText.value
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9 ]+$/i, '');
+        const strippedSearchText = normalizeSearchText(filteringSearchText.value);
 
         if (strippedSearchText.length) {
             options = options.filter(option => option.searchContent!.includes(strippedSearchText));
@@ -462,7 +466,7 @@ function setHighlightedOptionKey(useFirstItemAsFallback?: boolean) {
 
 function getOptionKey(option: T): string | symbol {
     if (effectiveKeyExtractor.value) {
-        return effectiveKeyExtractor.value(selectedOption.value);
+        return effectiveKeyExtractor.value(option);
     }
 
     return getOptionDescriptor(option)?.key ?? '';
@@ -631,18 +635,21 @@ function focusNextInput() {
 }
 
 onUpdated(() => {
-    if (!shouldDisplayOptions.value || !isSearching.value || !searchText.value) return;
-    const terms = searchText.value
+    if (!shouldDisplayOptions.value || !isSearching.value || !filteringSearchText.value) return;
+    const terms = filteringSearchText.value
         .trim()
         .replace(/[^a-z0-9 -]/gi, '')
         .split(' ');
-    optionsContainer.value?.querySelectorAll('.option').forEach(el => {
+    optionsContainer.value?.querySelectorAll('.option:not(.create-option)').forEach(el => {
         const mark = new Mark(el as HTMLElement);
-        mark.unmark();
-        mark.mark(terms, {
+        mark.unmark({
             done: () => {
-                // fix spaces around marks getting stripped
-                el.innerHTML = el.innerHTML.replace(/ <mark /g, '&nbsp;<mark ').replace(/<\/mark> /g, '</mark>&nbsp;');
+                mark.mark(terms, {
+                    done: () => {
+                        // fix spaces around marks getting stripped
+                        el.innerHTML = el.innerHTML.replace(/ <mark /g, '&nbsp;<mark ').replace(/<\/mark> /g, '</mark>&nbsp;');
+                    }
+                });
             }
         });
     });
