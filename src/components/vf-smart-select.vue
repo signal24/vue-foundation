@@ -57,7 +57,7 @@
 <script lang="ts" setup generic="T, V = T">
 import { debounce, groupBy, isEqual, uniq } from 'lodash';
 import Mark from 'mark.js';
-import { computed, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue';
 
 import { isNotNullOrUndefined } from '@/helpers';
 
@@ -126,6 +126,7 @@ const props = withDefaults(
         showCreateTextOnNewItem?: boolean;
         autoNext?: boolean;
         name?: string;
+        autofocus?: boolean;
     }>(),
     {
         showCreateTextOnNewItem: true
@@ -365,6 +366,12 @@ onMounted(async () => {
 
     if (props.remoteSearch) {
         watch(searchText, debounce(reloadOptionsIfSearching, 250));
+    }
+
+    if (props.autofocus) {
+        nextTick(() => {
+            searchField.value?.focus();
+        });
     }
 });
 
