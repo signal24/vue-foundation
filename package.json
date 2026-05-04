@@ -47,7 +47,7 @@
     "dependencies": {
         "currency.js": "^2.0.4",
         "mark.js": "^8.11.1",
-        "uuid": "^13.0.0"
+        "uuid": "^14.0.0"
     },
     "devDependencies": {
         "@playwright/test": "^1.58.2",
