@@ -17,6 +17,7 @@ export function showContextMenu(e: MouseEvent, config: ContextMenuConfig) {
     const wrapperEl = document.createElement('div');
     wrapperEl.classList.add('vf-overlay');
     wrapperEl.addEventListener('click', closeMenu);
+    wrapperEl.addEventListener('contextmenu', e => e.preventDefault());
     document.body.appendChild(wrapperEl);
 
     const menuEl = document.createElement('div');

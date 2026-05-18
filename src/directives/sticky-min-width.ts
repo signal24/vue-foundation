@@ -2,7 +2,12 @@ import type { ObjectDirective } from 'vue';
 
 import { VfOptions } from '@/config';
 
-const ObserverMap = new WeakMap<HTMLElement, ResizeObserver>();
+interface StickyState {
+    observer: ResizeObserver;
+    onWindowResize: () => void;
+}
+
+const StateMap = new WeakMap<HTMLElement, StickyState>();
 
 export const vStickyMinWidth: ObjectDirective<HTMLElement, boolean | undefined> = {
     beforeMount(el, binding) {
@@ -32,14 +37,19 @@ function setup(el: HTMLElement) {
         if (el.clientWidth <= computedMinWidth) return;
         el.style.minWidth = `${el.clientWidth}px`;
     });
-    ObserverMap.set(el, observer);
+    const onWindowResize = () => {
+        el.style.minWidth = '';
+    };
+    StateMap.set(el, { observer, onWindowResize });
     observer.observe(el);
+    window.addEventListener('resize', onWindowResize);
 }
 
 function teardown(el: HTMLElement) {
-    const observer = ObserverMap.get(el);
-    if (observer) {
-        observer.unobserve(el);
-        ObserverMap.delete(el);
+    const state = StateMap.get(el);
+    if (state) {
+        state.observer.unobserve(el);
+        window.removeEventListener('resize', state.onWindowResize);
+        StateMap.delete(el);
     }
 }
