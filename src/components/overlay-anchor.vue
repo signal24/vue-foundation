@@ -1,13 +1,15 @@
 <template>
-    <div class="vf-overlay-anchor" :class="anchorClasses" :style="anchorStyles" @click.stop="removeOverlay">
-        <slot></slot>
+    <div class="vf-overlay vf-overlay-anchor-mask" @click.stop="removeOverlay" @contextmenu.prevent>
+        <div ref="anchorContentEl" class="vf-overlay-anchor" :class="anchorClasses" :style="anchorStyles">
+            <slot></slot>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import type { CSSProperties } from 'vue';
 
-import { getCurrentInstance, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import type { OverlayAnchorOptions, OverlayAnchorOptionsObject } from './overlay-types';
 
@@ -22,13 +24,13 @@ const anchorEl = props.anchor instanceof HTMLElement ? props.anchor : props.anch
 
 const anchorStyles = ref<CSSProperties>({ visibility: 'hidden', top: '0', left: '0' });
 const anchorClasses = ref<string[]>([]);
-const instance = getCurrentInstance();
+const anchorContentEl = ref<HTMLElement>();
 
 onMounted(updateAttributes);
 
 function updateAttributes() {
-    if (!instance) return;
-    const overlayEl = instance.vnode.el as HTMLElement;
+    const overlayEl = anchorContentEl.value;
+    if (!overlayEl) return;
     const { styles, classes } = computeAnchoredStyle(overlayEl, anchorEl);
     anchorStyles.value = styles;
     anchorClasses.value = classes;
@@ -88,18 +90,16 @@ function computeAnchoredStyle(
 }
 
 function removeOverlay() {
-    window.removeEventListener('click', removeOverlay);
     dismissOverlayInjectionById(props.overlayId);
 }
-
-onMounted(() => {
-    setTimeout(() => {
-        window.addEventListener('click', removeOverlay);
-    }, 10);
-});
 </script>
 
 <style lang="scss">
+.vf-overlay-anchor-mask {
+    // transparent mask covering the body; clicks anywhere on it dismiss the overlay
+    background: transparent;
+}
+
 .vf-overlay-anchor {
     position: absolute;
     z-index: 100;
