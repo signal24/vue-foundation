@@ -9,7 +9,8 @@ export function configureVfOpenApiClient(client: OpenApiClient, clientOptions: O
         onError(err, options) {
             if (
                 err instanceof OpenApiError &&
-                err.response.status === 422 &&
+                // even though it's typed OpenApiError, it might not have a response
+                err.response?.status === 422 &&
                 typeof err.body === 'object' &&
                 err.body &&
                 'error' in err.body &&
