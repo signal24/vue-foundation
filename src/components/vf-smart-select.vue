@@ -86,6 +86,13 @@ const COPIED_STYLES = [
     'text-rendering'
 ] as const;
 
+/** Space left between the field and the options list. */
+const OPTIONS_GAP = 2;
+/** Space the options list keeps clear of the viewport edge it opens towards. */
+const OPTIONS_VIEWPORT_MARGIN = 12;
+/** Never squash the list below this, even where neither side has the room -- an all-but-invisible list is worse than one that overhangs. */
+const OPTIONS_MIN_HEIGHT = 80;
+
 function normalizeSearchText(value: unknown): string {
     return String(value ?? '')
         .trim()
@@ -145,6 +152,9 @@ defineExpose({
 const el = ref<HTMLDivElement>();
 const searchField = ref<HTMLInputElement>();
 const optionsContainer = ref<HTMLDivElement>();
+
+/** Side the open list has committed to; null until it has had real content to measure. Deliberately not reactive -- it's written from onUpdated. */
+let optionsDisplayAbove: boolean | null = null;
 
 const isLoading = ref(false);
 const remoteOptions = ref<T[]>();
@@ -518,10 +528,6 @@ function handleOptionsDisplayed() {
 }
 
 function teleportOptionsContainer() {
-    const elRect = el.value!.getBoundingClientRect();
-    const targetTop = elRect.y + elRect.height + 2 + window.scrollY;
-    const targetLeft = elRect.x + window.scrollX;
-
     const optionsEl = optionsContainer.value!;
     const styles = window.getComputedStyle(el.value!);
 
@@ -529,20 +535,99 @@ function teleportOptionsContainer() {
         optionsEl.style.setProperty(key, styles.getPropertyValue(key));
     }
 
-    optionsEl.style.top = targetTop + 'px';
-    optionsEl.style.left = targetLeft + 'px';
-    optionsEl.style.minWidth = elRect.width + 'px';
+    // move it before measuring: shrink-to-fit resolves against the containing block, so the list
+    // is a different shape inside the field than it is on the body, and placement depends on it
+    document.body.appendChild(optionsEl);
 
-    if (!styles.maxHeight || styles.maxHeight == 'none') {
-        const maxHeight = window.innerHeight - elRect.bottom - 12;
-        optionsEl.style.maxHeight = maxHeight + 'px';
-    }
+    optionsDisplayAbove = null;
+    positionOptionsContainer();
 
     optionsEl.style.visibility = 'visible';
 
-    document.body.appendChild(optionsEl);
-
     setTimeout(highlightInitialOption, 0);
+}
+
+/**
+ * Anchors the teleported list to the field, opening it above instead of below when below would
+ * squash it -- a field near the bottom of the viewport (a modal footer, say) otherwise gets a
+ * sliver of a list clamped to whatever few pixels are left underneath it.
+ *
+ * Re-run on every update while open, so the list stays anchored as remote options arrive and as
+ * searching filters them; when it opens upwards its height is what holds it against the field.
+ */
+function positionOptionsContainer() {
+    const optionsEl = optionsContainer.value;
+    if (!optionsEl || optionsEl.parentElement !== document.body) return;
+
+    const elRect = el.value!.getBoundingClientRect();
+    const authoredMaxHeight = window.getComputedStyle(el.value!).maxHeight;
+    const hasAuthoredMaxHeight = !!authoredMaxHeight && authoredMaxHeight != 'none';
+
+    optionsEl.style.minWidth = elRect.width + 'px';
+
+    const spaceBelow = Math.max(0, window.innerHeight - elRect.bottom - OPTIONS_GAP - OPTIONS_VIEWPORT_MARGIN);
+    const spaceAbove = Math.max(0, elRect.top - OPTIONS_GAP - OPTIONS_VIEWPORT_MARGIN);
+
+    // scrollHeight is the content height whether or not a max-height clamp is already in effect,
+    // so this measurement doesn't inherit the clamp we applied on a previous pass
+    const naturalHeight = optionsEl.scrollHeight + (optionsEl.offsetHeight - optionsEl.clientHeight);
+
+    // a max-height authored on the field has always won over the viewport clamp
+    const applyMaxHeight = (side: boolean) => {
+        if (!hasAuthoredMaxHeight) {
+            optionsEl.style.maxHeight = Math.max(side ? spaceAbove : spaceBelow, OPTIONS_MIN_HEIGHT) + 'px';
+        }
+    };
+
+    let displayAbove = resolveDisplayAbove(naturalHeight, spaceAbove, spaceBelow);
+    applyMaxHeight(displayAbove);
+
+    // the clamp has a floor, and an authored max-height skips it altogether, so the list can still
+    // come out taller than the room above it. opening there anyway would bury the field under the
+    // list -- the user couldn't see what they were typing, and a click where the field appears to
+    // be would land on an option. below keeps the field visible and puts the overhang in the
+    // direction the page can actually scroll.
+    if (displayAbove && optionsEl.offsetHeight > spaceAbove) {
+        displayAbove = false;
+        applyMaxHeight(displayAbove);
+    }
+
+    commitDisplayAbove(displayAbove);
+
+    // read back the height the clamp actually produced -- opening upwards is anchored on it
+    const targetTop = displayAbove
+        ? Math.max(OPTIONS_VIEWPORT_MARGIN, elRect.top - OPTIONS_GAP - optionsEl.offsetHeight)
+        : elRect.bottom + OPTIONS_GAP;
+
+    optionsEl.style.top = targetTop + window.scrollY + 'px';
+    optionsEl.style.left = elRect.x + window.scrollX + 'px';
+}
+
+/**
+ * Which side to open on. Held for the lifetime of the opening once the list has had real options
+ * to measure: re-deciding it per update would fling the list back and forth across the field as
+ * searching shrinks it past whatever fits below.
+ *
+ * The commitment only gives way if the side it chose has since stopped being usable at all.
+ */
+function resolveDisplayAbove(naturalHeight: number, spaceAbove: number, spaceBelow: number) {
+    const committed = optionsDisplayAbove;
+    if (committed !== null && (committed ? spaceAbove : spaceBelow) >= OPTIONS_MIN_HEIGHT) return committed;
+
+    return naturalHeight > spaceBelow && spaceAbove > spaceBelow;
+}
+
+/**
+ * Records the side to hold to -- but only once there are real options behind the measurement.
+ * A "Loading..." box, or a list carrying nothing but a null-title/prepended row while the options
+ * it belongs to are still on their way, would otherwise commit the list to the side that scrap of
+ * content happened to fit -- which is how an async select ends up squashed below with the whole
+ * viewport free above it, the very bug this placement pass exists to fix.
+ */
+function commitDisplayAbove(displayAbove: boolean) {
+    if (loadedOptions.value.length) {
+        optionsDisplayAbove = displayAbove;
+    }
 }
 
 function highlightInitialOption() {
@@ -642,7 +727,12 @@ function focusNextInput() {
 }
 
 onUpdated(() => {
-    if (!shouldDisplayOptions.value || !isSearching.value || !filteringSearchText.value) return;
+    if (!shouldDisplayOptions.value) return;
+
+    // the list just changed size -- re-anchor it before anything reads its position
+    positionOptionsContainer();
+
+    if (!isSearching.value || !filteringSearchText.value) return;
     const terms = filteringSearchText.value
         .trim()
         .replace(/[^a-z0-9 -]/gi, '')
@@ -660,6 +750,10 @@ onUpdated(() => {
             }
         });
     });
+
+    // marking rewrites the option titles, and the non-breaking spaces it leaves behind can rewrap
+    // one onto an extra line -- so the height everything above was anchored on is now out of date
+    positionOptionsContainer();
 });
 </script>
 

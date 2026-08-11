@@ -7,6 +7,11 @@ function selectInput(page: Page, testid: string): Locator {
     return demoSection(page, testid).locator('.vf-smart-select input');
 }
 
+/** Helper: get the smart-select field (the input's wrapper) within a section */
+function field(page: Page, testid: string): Locator {
+    return demoSection(page, testid).locator('.vf-smart-select');
+}
+
 /** Helper: get the result text within a section */
 function result(page: Page, testid: string): Locator {
     return demoSection(page, testid).locator('.result');
@@ -264,6 +269,117 @@ test.describe('Smart Select', () => {
             await selectInput(page, 'demo-ss-disabled').dispatchEvent('click');
             // Verify no dropdown appeared
             await expect(page.locator('.vf-smart-select-options')).toHaveCount(0);
+        });
+    });
+
+    test.describe('Placement', () => {
+        /** Scrolls the field so its bottom edge sits `gap` px above the bottom of the viewport. */
+        async function parkFieldAboveViewportBottom(page: Page, testid: string, gap: number) {
+            await field(page, testid).scrollIntoViewIfNeeded();
+            await page.evaluate(
+                ({ testid, gap }) => {
+                    const el = document.querySelector(`[data-testid="${testid}"] .vf-smart-select`)!;
+                    window.scrollBy(0, el.getBoundingClientRect().bottom - (window.innerHeight - gap));
+                },
+                { testid, gap }
+            );
+        }
+
+        test('opens above the field when there is no room below it', async ({ page }) => {
+            await parkFieldAboveViewportBottom(page, 'demo-ss-basic', 30);
+            await selectInput(page, 'demo-ss-basic').click();
+            await page.waitForSelector('.vf-smart-select-options');
+
+            const fieldBox = (await field(page, 'demo-ss-basic').boundingBox())!;
+            const listBox = (await page.locator('.vf-smart-select-options').boundingBox())!;
+            const viewportHeight = page.viewportSize()!.height;
+
+            // guard the premise: below-placement only has to give way when below is genuinely cramped
+            expect(viewportHeight - (fieldBox.y + fieldBox.height)).toBeLessThan(60);
+
+            expect(listBox.y + listBox.height).toBeLessThanOrEqual(fieldBox.y);
+            expect(listBox.y).toBeGreaterThanOrEqual(0);
+
+            // and it flipped to escape the squeeze, so every option is on screen rather than
+            // clamped behind a scrollbar
+            await expect(page.locator('.vf-smart-select-options .option')).toHaveCount(6);
+            const isClamped = await page.locator('.vf-smart-select-options').evaluate(el => el.scrollHeight > el.clientHeight);
+            expect(isClamped).toBe(false);
+
+            await page.screenshot({ path: `${screenshotDir}/smart-select-flipped-above.png` });
+        });
+
+        test('stays below rather than open above into space it cannot fit', async ({ page }) => {
+            // too little room either side: above would have to overhang the top of the viewport,
+            // burying the field under the list where it can't be seen or clicked
+            await page.setViewportSize({ width: 1280, height: 160 });
+            await parkFieldAboveViewportBottom(page, 'demo-ss-basic', 30);
+            await selectInput(page, 'demo-ss-basic').click();
+            await page.waitForSelector('.vf-smart-select-options');
+
+            const fieldBox = (await field(page, 'demo-ss-basic').boundingBox())!;
+            const listBox = (await page.locator('.vf-smart-select-options').boundingBox())!;
+
+            // guard the premise: neither side has room for the full list
+            expect(fieldBox.y).toBeLessThan(100);
+            expect(160 - (fieldBox.y + fieldBox.height)).toBeLessThan(60);
+
+            expect(listBox.y).toBeGreaterThanOrEqual(fieldBox.y + fieldBox.height);
+            await expect(selectInput(page, 'demo-ss-basic')).toBeVisible();
+        });
+
+        test('opens below the field when it fits', async ({ page }) => {
+            await parkFieldAboveViewportBottom(page, 'demo-ss-basic', 400);
+            await selectInput(page, 'demo-ss-basic').click();
+            await page.waitForSelector('.vf-smart-select-options');
+
+            const fieldBox = (await field(page, 'demo-ss-basic').boundingBox())!;
+            const listBox = (await page.locator('.vf-smart-select-options').boundingBox())!;
+
+            expect(listBox.y).toBeGreaterThanOrEqual(fieldBox.y + fieldBox.height);
+            await expect(page.locator('.vf-smart-select-options .option')).toHaveCount(6);
+        });
+
+        test('keeps the side it opened on when searching shrinks the list', async ({ page }) => {
+            // parked so the full list can't fit below but a filtered one could: re-deciding the
+            // side per keystroke would fling the list across the field mid-search
+            await parkFieldAboveViewportBottom(page, 'demo-ss-basic', 134);
+            const input = selectInput(page, 'demo-ss-basic');
+            await input.click();
+            await page.waitForSelector('.vf-smart-select-options');
+
+            const list = page.locator('.vf-smart-select-options');
+            const fieldBox = (await field(page, 'demo-ss-basic').boundingBox())!;
+            const openedBox = (await list.boundingBox())!;
+            expect(openedBox.y + openedBox.height).toBeLessThanOrEqual(fieldBox.y);
+
+            await input.pressSequentially('app');
+            await expect(list.locator('.option')).toHaveCount(1);
+
+            // guard the premise: the filtered list is small enough that below is once again an
+            // option, which is exactly when the flapping would show up
+            const filteredBox = (await list.boundingBox())!;
+            const viewportHeight = page.viewportSize()!.height;
+            expect(filteredBox.height).toBeLessThan(viewportHeight - (fieldBox.y + fieldBox.height));
+
+            expect(filteredBox.y + filteredBox.height).toBeLessThanOrEqual(fieldBox.y);
+        });
+
+        test('stays anchored to the field as searching resizes the list', async ({ page }) => {
+            await parkFieldAboveViewportBottom(page, 'demo-ss-basic', 30);
+            const input = selectInput(page, 'demo-ss-basic');
+            await input.click();
+            await page.waitForSelector('.vf-smart-select-options');
+
+            await input.pressSequentially('cher');
+            await expect(page.locator('.vf-smart-select-options .option')).toHaveCount(1);
+
+            const fieldBox = (await field(page, 'demo-ss-basic').boundingBox())!;
+            const listBox = (await page.locator('.vf-smart-select-options').boundingBox())!;
+
+            // the list shrank to one row: it should have followed the field down, not left a gap
+            expect(fieldBox.y - (listBox.y + listBox.height)).toBeLessThan(8);
+            expect(listBox.y + listBox.height).toBeLessThanOrEqual(fieldBox.y);
         });
     });
 });

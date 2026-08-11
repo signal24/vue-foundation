@@ -92,6 +92,7 @@ selectRef.value.addRemoteOption(newOption); // Add option to remote options list
 - Search text highlighting via mark.js
 - Keyboard navigation (Arrow keys, Page Up/Down, Home/End, Enter, Escape)
 - Option list teleported to body for proper z-index stacking
+- Opens below the field, flipping above it when below is too cramped (e.g. a field in a modal footer), and stays anchored as the list resizes
 - Automatic scroll management for highlighted options
 
 ## Demos
