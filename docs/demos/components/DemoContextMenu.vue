@@ -30,6 +30,20 @@ function onContextMenu(e: MouseEvent) {
         items: [
             { title: 'Edit', handler: () => (lastAction.value = 'Edit clicked') },
             { title: 'Duplicate', handler: () => (lastAction.value = 'Duplicate clicked') },
+            {
+                title: 'Move to',
+                items: [
+                    { title: 'Inbox', handler: () => (lastAction.value = 'Moved to Inbox') },
+                    { title: 'Archive', handler: () => (lastAction.value = 'Moved to Archive') },
+                    {
+                        title: 'More…',
+                        items: [
+                            { title: 'Spam', handler: () => (lastAction.value = 'Moved to Spam') },
+                            { title: 'Trash', handler: () => (lastAction.value = 'Moved to Trash') }
+                        ]
+                    }
+                ]
+            },
             '-',
             {
                 title: 'Delete',

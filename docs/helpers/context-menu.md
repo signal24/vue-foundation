@@ -1,6 +1,6 @@
 # Context Menu
 
-A vanilla JS context menu with separator and confirmation support.
+A vanilla JS context menu with separator, submenu, and confirmation support.
 
 ## Import
 
@@ -10,7 +10,7 @@ import { showContextMenu } from '@zyno-io/vue-foundation';
 
 ## `showContextMenu(event, config)`
 
-Displays a context menu at the mouse position. The menu auto-positions to stay within the viewport. Clicking outside the menu closes it.
+Displays a context menu at the mouse position. The menu opens toward whichever side of the cursor has room (right/below by preference), and a menu taller than the viewport pins to it and scrolls internally. Clicking outside the menu closes it.
 
 ```typescript
 function handleRightClick(e: MouseEvent) {
@@ -19,6 +19,13 @@ function handleRightClick(e: MouseEvent) {
         items: [
             { title: 'Edit', handler: () => editItem() },
             { title: 'Duplicate', handler: () => duplicateItem() },
+            {
+                title: 'Move to',
+                items: [
+                    { title: 'Inbox', handler: () => moveTo('inbox') },
+                    { title: 'Archive', handler: () => moveTo('archive') }
+                ]
+            },
             '-', // separator
             {
                 title: 'Delete',
@@ -43,14 +50,19 @@ function handleRightClick(e: MouseEvent) {
 
 ## Menu Item
 
-| Property        | Type         | Description                                    |
-| --------------- | ------------ | ---------------------------------------------- |
-| `title`         | `string`     | Display text for the menu item                 |
-| `handler`       | `() => void` | Callback executed when the item is clicked     |
-| `class`         | `string`     | CSS class added to the item element            |
-| `shouldConfirm` | `boolean`    | Requires a second click to confirm (see below) |
+| Property        | Type                         | Description                                                |
+| --------------- | ---------------------------- | ---------------------------------------------------------- |
+| `title`         | `string`                     | Display text for the menu item                             |
+| `handler`       | `() => void`                 | Callback executed when the item is clicked                 |
+| `class`         | `string`                     | CSS class added to the item element                        |
+| `shouldConfirm` | `boolean`                    | Requires a second click to confirm (see below)             |
+| `items`         | `(ContextMenuItem \| '-')[]` | Child items — the item opens a submenu instead (see below) |
 
 Use the string `'-'` in the `items` array to insert a visual separator between groups of items.
+
+## Submenus
+
+An item with `items` opens a flyout submenu on hover or click instead of running a handler (`handler` is ignored on such items). Submenus nest to any depth, position themselves beside their parent — flipping to the other side when out of room — and use the same viewport pinning/scrolling as the root menu. The parent item gets the `.has-submenu` class, a `.submenu-caret` element, and `.submenu-open` while its submenu is showing.
 
 ## Confirmation
 

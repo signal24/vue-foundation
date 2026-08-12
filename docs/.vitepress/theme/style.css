@@ -166,12 +166,19 @@
 }
 
 .vf-context-menu .item {
+    display: flex;
+    align-items: center;
     padding: 6px 12px;
     cursor: pointer;
 }
 
-.vf-context-menu .item:hover {
+.vf-context-menu .item:hover,
+.vf-context-menu .item.submenu-open {
     background: var(--vp-c-bg-soft);
+}
+
+.vf-context-menu .submenu-caret {
+    color: var(--vp-c-text-3);
 }
 
 .vf-context-menu .separator {
