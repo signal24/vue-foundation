@@ -72,13 +72,23 @@ describe('createOverlayInjection', () => {
         expect(targets).toHaveLength(1);
     });
 
-    it('moves #vf-overlay-target to end of body on each call', () => {
+    it('moves #vf-overlay-target back to the end of body when something was appended after it', () => {
         const other = document.createElement('div');
         other.id = 'other';
         document.body.appendChild(other);
 
         tracked(TestComponent, { message: 'test' } as any);
         expect(document.body.lastElementChild!.id).toBe('vf-overlay-target');
+    });
+
+    it('does not re-append the target when it is already last in body', () => {
+        // Re-appending an in-place element still detaches/re-attaches its subtree, which would reset
+        // the scroll position and drop focus in any overlay teleported inside it.
+        tracked(TestComponent, { message: 'first' } as any);
+        const appendSpy = vi.spyOn(document.body, 'appendChild');
+        tracked(TestComponent, { message: 'second' } as any);
+        expect(appendSpy).not.toHaveBeenCalled();
+        appendSpy.mockRestore();
     });
 
     it('removes inert attribute from target', () => {

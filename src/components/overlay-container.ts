@@ -84,12 +84,17 @@ export function createOverlayInjection<C extends Component, R extends ComponentR
     props: OverlayComponentProps<C>,
     options?: OverlayOptions<C, R>
 ): OverlayInjection<C> {
-    // create or reconfigure the existing overlay target
-    // re-injecting every time keeps the overlay container at the very end of the DOM
+    // Keep the overlay target last in <body> so overlays stack above later-appended DOM — but only
+    // move it when it isn't already last. Re-appending an element that is already in place still
+    // detaches and re-attaches its subtree, which resets the scroll position, interrupts media, and
+    // drops focus in any overlay (e.g. a teleported modal) currently mounted inside it — so a toast
+    // shown over an open modal would jump that modal's scroll region to the top.
     const targetEl = document.getElementById('vf-overlay-target') ?? document.createElement('div');
     targetEl.id = 'vf-overlay-target';
     targetEl.removeAttribute('inert');
-    document.body.appendChild(targetEl);
+    if (document.body.lastElementChild !== targetEl) {
+        document.body.appendChild(targetEl);
+    }
 
     const overlayId = String(++overlayCount);
     const rawComponent = markRaw(component);
