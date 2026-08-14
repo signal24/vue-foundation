@@ -30,7 +30,7 @@
     },
     "scripts": {
         "dev": "vite",
-        "build": "rm -rf dist && vite build && tsc -p tsconfig.vite-plugins.json && find dist -name '*.tsbuildinfo' -delete && vue-tsc -p tsconfig.app.json",
+        "build": "rm -rf dist && vite build && tsc -p tsconfig.vite-plugins.json && find dist -name '*.tsbuildinfo' -delete && vue-tsc -p tsconfig.app.json && node scripts/normalize-vue-declaration-filenames.mjs",
         "build:watch": "fswatch -o src | xargs -n1 -I{} yarn build",
         "test:types": "vue-tsc -p tsconfig.vitest.json",
         "test:unit": "vitest",
